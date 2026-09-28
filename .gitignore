@@ -1,0 +1,76 @@
+# ---------------------------------------------------------------------------
+# Segredos — chaves de API só em .env (nunca commitadas); .env.example é versionado
+# ---------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+secrets/
+
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+pip-wheel-metadata/
+
+# Testes / cobertura
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+.pytest_cache/
+.hypothesis/
+
+# Linters / type checkers
+.ruff_cache/
+.mypy_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE / editores
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.code-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---------------------------------------------------------------------------
+# Dados e artefatos gerados (manter estrutura via .gitkeep; instâncias em
+# data/instancias/ SÃO versionadas)
+# ---------------------------------------------------------------------------
+data/cache/
+data/resultados/*
+!data/resultados/.gitkeep
+
+# Saídas do Streamlit / mapas HTML gerados localmente
+*.html
+!docs/**/*.html
+.streamlit/secrets.toml
+
+# Figuras geradas (as usadas no relatório entram via PDF)
+reports/figuras/*
+!reports/figuras/.gitkeep
+
+# Logs
+*.log
+logs/
