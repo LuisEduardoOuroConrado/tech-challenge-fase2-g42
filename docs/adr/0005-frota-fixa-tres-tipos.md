@@ -1,24 +1,24 @@
-# ADR 0005 — Frota fixa de três tipos de veículo
+# ADR 0005 â€” Frota fixa de trÃªs tipos de veÃ­culo
 
 - **Status:** Aceito
 - **Data:** 2026-09-27
-- **Decisores:** Luis Conrado (arquitetura); comunicado ao grupo por mensagem; aceite via aprovação do PR do plano
+- **Decisores:** Luis Conrado (arquitetura); comunicado ao grupo por mensagem; aceite via aprovaÃ§Ã£o do PR do plano
 
 ## Contexto
-O enunciado pede múltiplos veículos com capacidade e autonomia limitadas. É preciso decidir se o GA também
-escolhe o tamanho/composição da frota ou se a frota é entrada do problema.
+O enunciado pede mÃºltiplos veÃ­culos com capacidade e autonomia limitadas. Ã‰ preciso decidir se o GA tambÃ©m
+escolhe o tamanho/composiÃ§Ã£o da frota ou se a frota Ã© entrada do problema.
 
-## Decisão
-A frota é **entrada do problema**, definida em `configs/frota.yaml`: três tipos (moto, carro, van) com
-quantidades, capacidade, autonomia, velocidade, custo/km, custo fixo e restrições de carga. O cromossomo é a
-permutação das entregas (giant tour); o decoder distribui as entregas nos veículos disponíveis e o **custo
-fixo** faz o GA usar menos veículos quando compensa. O GA não cria veículos nem altera a composição da frota.
+## DecisÃ£o
+A frota Ã© **entrada do problema**, definida em `configs/frota.yaml`: trÃªs tipos (moto, carro, van) com
+quantidades, capacidade, autonomia, velocidade, custo/km, custo fixo e restriÃ§Ãµes de carga. O cromossomo Ã© a
+permutaÃ§Ã£o das entregas (giant tour); o decoder distribui as entregas nos veÃ­culos disponÃ­veis e o **custo
+fixo** faz o GA usar menos veÃ­culos quando compensa. O GA nÃ£o cria veÃ­culos nem altera a composiÃ§Ã£o da frota.
 
 ## Alternativas rejeitadas
-- Composição da frota como gene — problema de dimensionamento de frota (FSMVRP), outro nível de complexidade.
-- Frota homogênea — perde a interação capacidade × custo que torna o problema interessante.
+- ComposiÃ§Ã£o da frota como gene â€” problema de dimensionamento de frota (FSMVRP), outro nÃ­vel de complexidade.
+- Frota homogÃªnea â€” perde a interaÃ§Ã£o capacidade Ã— custo que torna o problema interessante.
 
-## Consequências
-- Operadores clássicos de TSP (OX, PMX, swap, inversion, 2-opt) continuam válidos sem alteração.
-- Experimentos podem variar a frota só editando o YAML.
-- Valores iniciais são hipóteses; Beatriz levanta fontes (frete/km, autonomia, velocidade CET) até 07/10.
+## ConsequÃªncias
+- Operadores clÃ¡ssicos de TSP (OX, PMX, swap, inversion, 2-opt) continuam vÃ¡lidos sem alteraÃ§Ã£o.
+- Experimentos podem variar a frota sÃ³ editando o YAML.
+- Valores iniciais sÃ£o hipÃ³teses; Beatriz levanta fontes (frete/km, autonomia, velocidade CET) atÃ© 07/10.

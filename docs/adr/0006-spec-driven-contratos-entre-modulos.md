@@ -1,26 +1,26 @@
-# ADR 0006 — Spec-driven no nível "contratos entre módulos"
+# ADR 0006 â€” Spec-driven no nÃ­vel "contratos entre mÃ³dulos"
 
 - **Status:** Aceito
 - **Data:** 2026-09-27
-- **Decisores:** Luis Conrado; comunicado ao grupo por mensagem; aceite via aprovação do PR do plano
+- **Decisores:** Luis Conrado; comunicado ao grupo por mensagem; aceite via aprovaÃ§Ã£o do PR do plano
 
 ## Contexto
-Cinco pessoas trabalham em paralelo em módulos interdependentes (dados ? GA ? fitness ? LLM/visualização),
-sem reuniões — só mensagens e GitHub. Na Fase 1 o pipeline era linear e a integração foi feita unificando
+Cinco pessoas trabalham em paralelo em mÃ³dulos interdependentes (dados ? GA ? fitness ? LLM/visualizaÃ§Ã£o),
+sem reuniÃµes â€” sÃ³ mensagens e GitHub. Na Fase 1 o pipeline era linear e a integraÃ§Ã£o foi feita unificando
 notebooks no final. Aqui, sem um formato combinado previamente, Rodrigo, Pedro e Alexandre ficam bloqueados
-até o GA existir — ou cada um inventa o seu formato e a integração vira retrabalho.
+atÃ© o GA existir â€” ou cada um inventa o seu formato e a integraÃ§Ã£o vira retrabalho.
 
-## Decisão
-Adotar spec-driven **apenas onde há interface entre duas pessoas**: specs formais (~1 página, com interface,
-regras, critérios de aceite e testes) para domínio/dados, GA, fitness e LLM. Baselines, visualização e app
-seguem com testes + README do módulo. `domain/models.py` é congelado em 30/09 e um `Solution` de exemplo fica
+## DecisÃ£o
+Adotar spec-driven **apenas onde hÃ¡ interface entre duas pessoas**: specs formais (~1 pÃ¡gina, com interface,
+regras, critÃ©rios de aceite e testes) para domÃ­nio/dados, GA, fitness e LLM. Baselines, visualizaÃ§Ã£o e app
+seguem com testes + README do mÃ³dulo. `domain/models.py` Ã© congelado em 30/09 e um `Solution` de exemplo fica
 em `tests/fixtures/`, permitindo que todos comecem antes do GA existir.
 
 ## Alternativas rejeitadas
-- Spec formal para todos os seis módulos — burocracia sem retorno em módulos que ninguém consome.
-- Nenhuma spec, só "combinar no chat" — foi o que gerou a unificação tardia na Fase 1.
+- Spec formal para todos os seis mÃ³dulos â€” burocracia sem retorno em mÃ³dulos que ninguÃ©m consome.
+- Nenhuma spec, sÃ³ "combinar no chat" â€” foi o que gerou a unificaÃ§Ã£o tardia na Fase 1.
 
-## Consequências
+## ConsequÃªncias
 - Um dia da S0 para escrever e revisar as quatro specs.
-- Mudanças em `models.py` exigem PR próprio e aviso no grupo.
-- O relatório ganha a seção de decisões de projeto pronta (estes ADRs).
+- MudanÃ§as em `models.py` exigem PR prÃ³prio e aviso no grupo.
+- O relatÃ³rio ganha a seÃ§Ã£o de decisÃµes de projeto pronta (estes ADRs).

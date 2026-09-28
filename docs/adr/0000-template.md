@@ -1,19 +1,19 @@
-# ADR 000N — Título curto
+# ADR 000N â€” TÃ­tulo curto
 
-- **Status:** Proposto | Aceito | Substituído por ADR 000M
+- **Status:** Proposto | Aceito | SubstituÃ­do por ADR 000M
 - **Data:** AAAA-MM-DD
 - **Decisores:** nomes
 
 ## Contexto
-Qual problema ou força nos levou a decidir isso? 2–4 linhas.
+Qual problema ou forÃ§a nos levou a decidir isso? 2â€“4 linhas.
 
-## Decisão
+## DecisÃ£o
 O que foi decidido, em uma frase afirmativa.
 
 ## Alternativas rejeitadas
-- Alternativa A — por que não.
-- Alternativa B — por que não.
+- Alternativa A â€” por que nÃ£o.
+- Alternativa B â€” por que nÃ£o.
 
-## Consequências
-- O que fica mais fácil.
-- O que fica mais difícil ou fora do escopo.
+## ConsequÃªncias
+- O que fica mais fÃ¡cil.
+- O que fica mais difÃ­cil ou fora do escopo.

@@ -1,25 +1,25 @@
-# ADR 0003 — Distância haversine × fator de tortuosidade no core
+# ADR 0003 â€” DistÃ¢ncia haversine Ã— fator de tortuosidade no core
 
 - **Status:** Aceito
 - **Data:** 2026-09-27
-- **Decisores:** Luis Conrado (arquitetura); comunicado ao grupo por mensagem; aceite via aprovação do PR do plano
+- **Decisores:** Luis Conrado (arquitetura); comunicado ao grupo por mensagem; aceite via aprovaÃ§Ã£o do PR do plano
 
 ## Contexto
-O GA precisa de uma matriz de distâncias entre depósito e ~40 entregas. Distância viária real exige um serviço
-de roteamento (OSRM/OSMnx), que traz dependência de rede, latência e resultados não determinísticos entre
-execuções — ruim para testes e para reproduzir experimentos.
+O GA precisa de uma matriz de distÃ¢ncias entre depÃ³sito e ~40 entregas. DistÃ¢ncia viÃ¡ria real exige um serviÃ§o
+de roteamento (OSRM/OSMnx), que traz dependÃªncia de rede, latÃªncia e resultados nÃ£o determinÃ­sticos entre
+execuÃ§Ãµes â€” ruim para testes e para reproduzir experimentos.
 
-## Decisão
-A `DistanceMatrix` padrão usa **haversine × fator de tortuosidade** (1,3 para carro/van; 1,2 para moto), que
-aproxima a distância urbana real de forma determinística e offline. O tempo usa a velocidade média do
-veículo, com fator de trânsito por período em P1. OSRM fica em P2, atrás da mesma interface, apenas para
-distâncias reais e para desenhar o traçado das ruas no mapa.
+## DecisÃ£o
+A `DistanceMatrix` padrÃ£o usa **haversine Ã— fator de tortuosidade** (1,3 para carro/van; 1,2 para moto), que
+aproxima a distÃ¢ncia urbana real de forma determinÃ­stica e offline. O tempo usa a velocidade mÃ©dia do
+veÃ­culo, com fator de trÃ¢nsito por perÃ­odo em P1. OSRM fica em P2, atrÃ¡s da mesma interface, apenas para
+distÃ¢ncias reais e para desenhar o traÃ§ado das ruas no mapa.
 
 ## Alternativas rejeitadas
-- OSRM desde o início — dependência externa no caminho crítico de todos os módulos e dos testes.
-- Distância euclidiana pura (como no código base de TSP) — subestima muito a distância urbana.
+- OSRM desde o inÃ­cio â€” dependÃªncia externa no caminho crÃ­tico de todos os mÃ³dulos e dos testes.
+- DistÃ¢ncia euclidiana pura (como no cÃ³digo base de TSP) â€” subestima muito a distÃ¢ncia urbana.
 
-## Consequências
-- Testes e experimentos são reproduzíveis sem internet.
-- A interface `DistanceMatrix.dist()/time()` permite trocar a implementação sem tocar no GA.
-- O relatório deve declarar o fator de tortuosidade como aproximação e citar a fonte.
+## ConsequÃªncias
+- Testes e experimentos sÃ£o reproduzÃ­veis sem internet.
+- A interface `DistanceMatrix.dist()/time()` permite trocar a implementaÃ§Ã£o sem tocar no GA.
+- O relatÃ³rio deve declarar o fator de tortuosidade como aproximaÃ§Ã£o e citar a fonte.

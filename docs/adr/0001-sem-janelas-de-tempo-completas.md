@@ -1,23 +1,23 @@
-# ADR 0001 — Sem janelas de tempo completas (VRPTW)
+# ADR 0001 â€” Sem janelas de tempo completas (VRPTW)
 
 - **Status:** Aceito
 - **Data:** 2026-09-27
-- **Decisores:** Luis Conrado (arquitetura); comunicado ao grupo por mensagem; aceite via aprovação do PR do plano
+- **Decisores:** Luis Conrado (arquitetura); comunicado ao grupo por mensagem; aceite via aprovaÃ§Ã£o do PR do plano
 
 ## Contexto
-O enunciado pede restrições realistas (prioridade, capacidade, autonomia, múltiplos veículos) mas não pede
-janelas de tempo. Modelar janelas `[início, fim]` para todas as entregas (VRPTW) exige decoder com espera,
+O enunciado pede restriÃ§Ãµes realistas (prioridade, capacidade, autonomia, mÃºltiplos veÃ­culos) mas nÃ£o pede
+janelas de tempo. Modelar janelas `[inÃ­cio, fim]` para todas as entregas (VRPTW) exige decoder com espera,
 operadores que preservem viabilidade temporal e uma bateria de testes muito maior.
 
-## Decisão
-Tempo entra de forma simplificada: tempo de viagem = distância / velocidade do veículo + 5 min de serviço;
-**deadline apenas para entregas críticas** (penalidade soft) e **jornada máxima de 8 h por veículo** (soft).
-VRPTW completo fica em P2 e só é considerado se P0 e P1 estiverem prontos e testados.
+## DecisÃ£o
+Tempo entra de forma simplificada: tempo de viagem = distÃ¢ncia / velocidade do veÃ­culo + 5 min de serviÃ§o;
+**deadline apenas para entregas crÃ­ticas** (penalidade soft) e **jornada mÃ¡xima de 8 h por veÃ­culo** (soft).
+VRPTW completo fica em P2 e sÃ³ Ã© considerado se P0 e P1 estiverem prontos e testados.
 
 ## Alternativas rejeitadas
-- VRPTW completo para todas as entregas — dobra a complexidade do GA e dos testes sem exigência do enunciado.
-- Ignorar tempo totalmente — perderia a noção de "crítico chega antes", que é o coração da prioridade.
+- VRPTW completo para todas as entregas â€” dobra a complexidade do GA e dos testes sem exigÃªncia do enunciado.
+- Ignorar tempo totalmente â€” perderia a noÃ§Ã£o de "crÃ­tico chega antes", que Ã© o coraÃ§Ã£o da prioridade.
 
-## Consequências
+## ConsequÃªncias
 - Prioridade e deadline usam `tempo_chegada_i`, calculado pelo decoder de forma barata.
-- O relatório explica a simplificação como decisão consciente, não como omissão.
+- O relatÃ³rio explica a simplificaÃ§Ã£o como decisÃ£o consciente, nÃ£o como omissÃ£o.

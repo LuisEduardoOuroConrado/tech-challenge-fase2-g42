@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------
-# Segredos — chaves de API só em .env (nunca commitadas); .env.example é versionado
+# Segredos â€” chaves de API sÃ³ em .env (nunca commitadas); .env.example Ã© versionado
 # ---------------------------------------------------------------------------
 .env
 .env.*
@@ -55,19 +55,19 @@ Thumbs.db
 desktop.ini
 
 # ---------------------------------------------------------------------------
-# Dados e artefatos gerados (manter estrutura via .gitkeep; instâncias em
-# data/instancias/ SÃO versionadas)
+# Dados e artefatos gerados (manter estrutura via .gitkeep; instÃ¢ncias em
+# data/instancias/ SÃƒO versionadas)
 # ---------------------------------------------------------------------------
 data/cache/
 data/resultados/*
 !data/resultados/.gitkeep
 
-# Saídas do Streamlit / mapas HTML gerados localmente
+# SaÃ­das do Streamlit / mapas HTML gerados localmente
 *.html
 !docs/**/*.html
 .streamlit/secrets.toml
 
-# Figuras geradas (as usadas no relatório entram via PDF)
+# Figuras geradas (as usadas no relatÃ³rio entram via PDF)
 reports/figuras/*
 !reports/figuras/.gitkeep
 
