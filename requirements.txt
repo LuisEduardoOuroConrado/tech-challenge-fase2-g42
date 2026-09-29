@@ -1,0 +1,16 @@
+# Dependências de execução
+folium>=0.18,<1
+matplotlib>=3.9,<4
+numpy>=2,<3
+openai>=1.59,<3
+pandas>=2.2,<4
+pydantic>=2.10,<3
+PyYAML>=6,<7
+rich>=13.9,<15
+streamlit>=1.41,<2
+typer>=0.15,<1
+
+# Qualidade e testes
+pytest>=8.3,<10
+pytest-cov>=6,<8
+ruff>=0.9,<1
