@@ -1,0 +1,92 @@
+{
+  "instance_nome": "sp_15",
+  "algoritmo": "fixture_manual",
+  "routes": [
+    {
+      "vehicle_id": "moto-01",
+      "sequence": [
+        "entrega-01",
+        "entrega-04",
+        "entrega-07",
+        "entrega-10"
+      ],
+      "distancia_km": 31.8,
+      "duracao_min": 74.5,
+      "carga_kg": 12.4,
+      "carga_l": 28.0,
+      "custo": 85.44,
+      "violacoes": {
+        "capacidade": 0.0,
+        "autonomia": 0.0,
+        "deadline": 0.0,
+        "compatibilidade": 0.0,
+        "jornada": 0.0
+      }
+    },
+    {
+      "vehicle_id": "carro-01",
+      "sequence": [
+        "entrega-02",
+        "entrega-05",
+        "entrega-08",
+        "entrega-11",
+        "entrega-13",
+        "entrega-15"
+      ],
+      "distancia_km": 48.2,
+      "duracao_min": 133.3,
+      "carga_kg": 96.7,
+      "carga_l": 241.0,
+      "custo": 192.3,
+      "violacoes": {
+        "capacidade": 0.0,
+        "autonomia": 0.0,
+        "deadline": 0.0,
+        "compatibilidade": 0.0,
+        "jornada": 0.0
+      }
+    },
+    {
+      "vehicle_id": "van-01",
+      "sequence": [
+        "entrega-03",
+        "entrega-06",
+        "entrega-09",
+        "entrega-12",
+        "entrega-14"
+      ],
+      "distancia_km": 42.6,
+      "duracao_min": 131.5,
+      "carga_kg": 318.5,
+      "carga_l": 1120.0,
+      "custo": 306.5,
+      "violacoes": {
+        "capacidade": 0.0,
+        "autonomia": 0.0,
+        "deadline": 0.0,
+        "compatibilidade": 0.0,
+        "jornada": 0.0
+      }
+    }
+  ],
+  "fitness": 731.84,
+  "custo_operacional": 584.24,
+  "distancia_total_km": 122.6,
+  "penalidades": {
+    "capacidade": 0.0,
+    "autonomia": 0.0,
+    "deadline": 0.0,
+    "compatibilidade": 0.0,
+    "jornada": 0.0
+  },
+  "historico_fitness": [
+    1042.31,
+    923.57,
+    846.12,
+    789.4,
+    752.08,
+    731.84
+  ],
+  "tempo_exec_s": 0.0,
+  "seed": 17
+}
