@@ -1,0 +1,57 @@
+# Frota fixa (ADR 0005): o GA escolhe quais veículos usar, não cria veículos.
+# ATENÇÃO: valores são HIPÓTESES plausíveis para o código começar (kickoff C2).
+# Fontes para o relatório: ver "fontes_pendentes" abaixo (entrega Beatriz até 07/10).
+tipos:
+  moto:
+    quantidade: 2
+    capacidade_kg: 15
+    capacidade_l: 40
+    autonomia_km: 120
+    velocidade_kmh: 35
+    custo_km: 0.80      # R$/km
+    custo_fixo_dia: 60  # R$/dia
+    aceita_refrigerado: false
+    aceita_volumoso: false
+  carro:
+    quantidade: 2
+    capacidade_kg: 150
+    capacidade_l: 400
+    autonomia_km: 300
+    velocidade_kmh: 28
+    custo_km: 1.50
+    custo_fixo_dia: 120
+    aceita_refrigerado: true
+    aceita_volumoso: true
+  van:
+    quantidade: 1
+    capacidade_kg: 800
+    capacidade_l: 3000
+    autonomia_km: 400
+    velocidade_kmh: 24
+    custo_km: 2.50
+    custo_fixo_dia: 200
+    aceita_refrigerado: true
+    aceita_volumoso: true
+
+# Parâmetros globais usados por DistanceMatrix e restrições
+global:
+  fator_tortuosidade: 1.30   # distância rua ≈ haversine x 1.30 (ADR 0003)
+  jornada_max_min: 480       # 8h (P1)
+  # Fator de trânsito por período (P1): multiplica o tempo de viagem
+  transito:
+    - {inicio: "06:00", fim: "09:00", fator: 1.40}
+    - {inicio: "09:00", fim: "17:00", fator: 1.00}
+    - {inicio: "17:00", fim: "20:00", fator: 1.50}
+  inicio_jornada: "07:00"
+  volumoso_limiar_l: 60      # item acima disso é "volumoso"
+  servico_min_padrao: 10     # tempo de atendimento por parada (não está no models.py ainda)
+  penalidade_prioridade_rs_min:  # custo de atraso por min (ADR 0004)
+    critica: 5.0
+    alta: 1.5
+    normal: 0.2
+
+fontes_pendentes:
+  - "Frete/km motoboy e van (tabelas de mercado, ex.: pisos de frete)"
+  - "Custo operacional por km (ANTT / manutenção + combustível)"
+  - "Autonomia com tanque cheio (fichas técnicas dos modelos de referência)"
+  - "Velocidade média urbana em SP (CET - relatórios de mobilidade)"

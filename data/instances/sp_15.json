@@ -1,0 +1,233 @@
+{
+  "nome": "sp_15",
+  "depot": {
+    "id": "deposito",
+    "nome": "Farmácia Central HC-FMUSP",
+    "lat": -23.5559,
+    "lon": -46.6693
+  },
+  "deliveries": [
+    {
+      "id": "entrega-01",
+      "nome": "InCor",
+      "lat": -23.5568,
+      "lon": -46.6708,
+      "peso_kg": 13.7,
+      "volume_l": 32.2,
+      "prioridade": "normal",
+      "refrigerado": false,
+      "deadline_min": null
+    },
+    {
+      "id": "entrega-02",
+      "nome": "ICESP",
+      "lat": -23.5583,
+      "lon": -46.6699,
+      "peso_kg": 12.0,
+      "volume_l": 47.6,
+      "prioridade": "normal",
+      "refrigerado": true,
+      "deadline_min": null
+    },
+    {
+      "id": "entrega-03",
+      "nome": "IPq HC-FMUSP",
+      "lat": -23.5563,
+      "lon": -46.6712,
+      "peso_kg": 22.2,
+      "volume_l": 77.5,
+      "prioridade": "normal",
+      "refrigerado": false,
+      "deadline_min": null
+    },
+    {
+      "id": "entrega-04",
+      "nome": "Instituto da Criança (ICr)",
+      "lat": -23.5571,
+      "lon": -46.6718,
+      "peso_kg": 30.9,
+      "volume_l": 80.3,
+      "prioridade": "normal",
+      "refrigerado": false,
+      "deadline_min": null
+    },
+    {
+      "id": "entrega-05",
+      "nome": "Domicílio 01",
+      "lat": -23.449479,
+      "lon": -46.650904,
+      "peso_kg": 1.6,
+      "volume_l": 5.0,
+      "prioridade": "normal",
+      "refrigerado": false,
+      "deadline_min": null
+    },
+    {
+      "id": "entrega-06",
+      "nome": "Domicílio 02",
+      "lat": -23.544062,
+      "lon": -46.5933,
+      "peso_kg": 1.1,
+      "volume_l": 3.9,
+      "prioridade": "normal",
+      "refrigerado": false,
+      "deadline_min": null
+    },
+    {
+      "id": "entrega-07",
+      "nome": "Domicílio 03",
+      "lat": -23.607295,
+      "lon": -46.782304,
+      "peso_kg": 3.3,
+      "volume_l": 7.7,
+      "prioridade": "critica",
+      "refrigerado": false,
+      "deadline_min": 180.0
+    },
+    {
+      "id": "entrega-08",
+      "nome": "Domicílio 04",
+      "lat": -23.447146,
+      "lon": -46.597171,
+      "peso_kg": 2.1,
+      "volume_l": 3.7,
+      "prioridade": "normal",
+      "refrigerado": false,
+      "deadline_min": null
+    },
+    {
+      "id": "entrega-09",
+      "nome": "Domicílio 05",
+      "lat": -23.469904,
+      "lon": -46.651528,
+      "peso_kg": 1.9,
+      "volume_l": 6.0,
+      "prioridade": "normal",
+      "refrigerado": true,
+      "deadline_min": null
+    },
+    {
+      "id": "entrega-10",
+      "nome": "Domicílio 06",
+      "lat": -23.61887,
+      "lon": -46.671612,
+      "peso_kg": 3.3,
+      "volume_l": 8.1,
+      "prioridade": "critica",
+      "refrigerado": false,
+      "deadline_min": 180.0
+    },
+    {
+      "id": "entrega-11",
+      "nome": "Domicílio 07",
+      "lat": -23.548965,
+      "lon": -46.646581,
+      "peso_kg": 2.6,
+      "volume_l": 9.7,
+      "prioridade": "normal",
+      "refrigerado": false,
+      "deadline_min": null
+    },
+    {
+      "id": "entrega-12",
+      "nome": "Domicílio 08",
+      "lat": -23.660225,
+      "lon": -46.702319,
+      "peso_kg": 2.8,
+      "volume_l": 3.5,
+      "prioridade": "alta",
+      "refrigerado": false,
+      "deadline_min": null
+    },
+    {
+      "id": "entrega-13",
+      "nome": "Domicílio 09",
+      "lat": -23.609472,
+      "lon": -46.706011,
+      "peso_kg": 0.6,
+      "volume_l": 4.4,
+      "prioridade": "alta",
+      "refrigerado": false,
+      "deadline_min": null
+    },
+    {
+      "id": "entrega-14",
+      "nome": "Domicílio 10",
+      "lat": -23.434772,
+      "lon": -46.663901,
+      "peso_kg": 1.3,
+      "volume_l": 3.4,
+      "prioridade": "alta",
+      "refrigerado": false,
+      "deadline_min": null
+    },
+    {
+      "id": "entrega-15",
+      "nome": "Domicílio 11",
+      "lat": -23.594621,
+      "lon": -46.794311,
+      "peso_kg": 3.3,
+      "volume_l": 10.0,
+      "prioridade": "alta",
+      "refrigerado": false,
+      "deadline_min": null
+    }
+  ],
+  "fleet": [
+    {
+      "id": "moto-01",
+      "tipo": "moto",
+      "capacidade_kg": 15.0,
+      "capacidade_l": 40.0,
+      "autonomia_km": 120.0,
+      "velocidade_kmh": 35.0,
+      "custo_km": 0.8,
+      "custo_fixo": 60.0,
+      "aceita_refrigerado": false
+    },
+    {
+      "id": "moto-02",
+      "tipo": "moto",
+      "capacidade_kg": 15.0,
+      "capacidade_l": 40.0,
+      "autonomia_km": 120.0,
+      "velocidade_kmh": 35.0,
+      "custo_km": 0.8,
+      "custo_fixo": 60.0,
+      "aceita_refrigerado": false
+    },
+    {
+      "id": "carro-01",
+      "tipo": "carro",
+      "capacidade_kg": 150.0,
+      "capacidade_l": 400.0,
+      "autonomia_km": 300.0,
+      "velocidade_kmh": 28.0,
+      "custo_km": 1.5,
+      "custo_fixo": 120.0,
+      "aceita_refrigerado": true
+    },
+    {
+      "id": "carro-02",
+      "tipo": "carro",
+      "capacidade_kg": 150.0,
+      "capacidade_l": 400.0,
+      "autonomia_km": 300.0,
+      "velocidade_kmh": 28.0,
+      "custo_km": 1.5,
+      "custo_fixo": 120.0,
+      "aceita_refrigerado": true
+    },
+    {
+      "id": "van-01",
+      "tipo": "van",
+      "capacidade_kg": 800.0,
+      "capacidade_l": 3000.0,
+      "autonomia_km": 400.0,
+      "velocidade_kmh": 24.0,
+      "custo_km": 2.5,
+      "custo_fixo": 200.0,
+      "aceita_refrigerado": true
+    }
+  ]
+}
