@@ -91,10 +91,15 @@ class GeneticAlgorithm:
         inst: Instance,
         dm: DistanceMatrix,
         config: GAConfig,
+        fitness_fn: Callable[[list[Route]], float] = fitness.evaluate,
     ) -> None: ...
 
     def run(self, seed: int) -> Solution: ...
 ```
+
+`fitness_fn` recebe as rotas decodificadas e devolve o custo a minimizar. O padrão
+`ga/fitness.py` é provisório (custo operacional + penalidades da Spec 03, seção 4) e
+será substituído pela implementação da Spec 03 sem mudar a assinatura do GA.
 
 `two_opt_local` é uma busca local P1. O contrato já é definido para os
 experimentos não precisarem mudar de formato quando ela entrar no GA.
