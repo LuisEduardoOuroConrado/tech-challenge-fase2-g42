@@ -1,0 +1,27 @@
+# Pesos do fitness em R$ (ADR 0004, Spec 03 seção 4).
+# fitness = custo_operacional + custo_prioridade + penalidades
+# O experimento E5 (sensibilidade) varia estes valores; não duplicar no código.
+
+# R$ por minuto até a chegada à entrega (proporção 10 : 3 : 1).
+prioridade_rs_min:
+  critica: 0.50
+  alta: 0.15
+  normal: 0.05
+
+# penalidade = fixo (uma vez por rota com violação > 0) + unitario x quantidade violada
+penalidades:
+  capacidade:       # hard · quantidade = fração de excesso (kg + L)
+    fixo: 1000
+    unitario: 2000
+  autonomia:        # hard · quantidade = km acima da autonomia
+    fixo: 1000
+    unitario: 20
+  compatibilidade:  # hard · quantidade = nº de entregas incompatíveis
+    fixo: 0
+    unitario: 1000
+  deadline:         # soft (P1) · quantidade = minutos de atraso das críticas
+    fixo: 0
+    unitario: 10
+  jornada:          # soft (P1) · quantidade = minutos acima de jornada_max_min
+    fixo: 0
+    unitario: 5

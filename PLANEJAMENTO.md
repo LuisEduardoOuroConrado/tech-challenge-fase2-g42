@@ -86,12 +86,13 @@ fitness(solução) =
   + P_jor  · Σ_v max(0, duração_v − jornada_máx)                           # jornada 8h (P1)
 ```
 
-Pesos de prioridade: `critica=10`, `alta=3`, `normal=1`. Penalidades `P_*` ≥ 10× o maior custo operacional
-plausível. Todos os pesos ficam em `configs/fitness.yaml` e a sensibilidade a eles é um dos experimentos.
+Pesos de prioridade: `critica=0,50`, `alta=0,15`, `normal=0,05` R$/min (proporção 10 : 3 : 1, calibrada na Spec 03).
+Penalidades hard com fixo de R$ 1.000 por rota violada + parte proporcional, para que violar nunca compense.
+Todos os pesos ficam em `configs/fitness.yaml` e a sensibilidade a eles é um dos experimentos.
 
 ### 2.4 Restrição de TEMPO → **INCLUIR versão simplificada (P1)**; janelas de tempo completas (VRPTW) → **NÃO (P2)**
 
-- INCLUIR (P1): tempo de viagem = distância / velocidade do veículo + tempo de serviço (5 min/parada). Cria a noção
+- INCLUIR (P1): tempo de viagem = distância / velocidade do veículo + tempo de serviço (10 min/parada, `servico_min_padrao` em `configs/frota.yaml`). Cria a noção
   de `tempo_chegada_i`, necessária para prioridade e deadline.
 - INCLUIR (P1): **deadline só para entregas críticas** (ex.: "chegar em até 90 min"). Soft constraint (penalidade).
 - INCLUIR (P1): jornada máxima por veículo (8 h). Soft.
