@@ -1,8 +1,8 @@
 # Spec 02 — Núcleo do algoritmo genético
 
 - **Responsável:** Luis Conrado
-- **Status:** Proposta para revisão
-- **Revisor:** a definir
+- **Status:** Aprovada em 05/10/2026 · implementada no PR #3
+- **Revisor:** aprovação registrada pelo autor (sem revisor externo)
 - **Escopo:** `src/medroute/ga/`
 
 ## Objetivo
@@ -131,7 +131,9 @@ experimentos não precisarem mudar de formato quando ela entrar no GA.
    entregas.
 2. Na etapa TSP, com um veículo, é criada uma única rota.
 3. Na etapa VRP P0, o decoder abre outra rota antes de exceder peso, volume ou
-   autonomia sempre que houver um veículo viável disponível.
+   autonomia sempre que houver um veículo viável disponível. Ao fechar uma rota,
+   atribui o veículo livre mais barato que a comporta (custo fixo + custo por km);
+   sem veículo viável, o de menor violação. Empates seguem a ordem da frota.
 4. Somente veículos presentes em `Instance.fleet` podem aparecer nas rotas, no
    máximo uma rota por veículo.
 5. Se a frota não comportar a instância, todas as entregas ainda devem aparecer
