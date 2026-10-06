@@ -1,6 +1,6 @@
 # Spec 03 — Função de avaliação (fitness) e restrições
 
-**Autores:** Conrado e Beatriz · **Revisor:** Conrado (revisão 05/10/2026) · **Status:** Revisada — aguardando OK da Beatriz (decisão 1 e escala dos pesos)
+**Autores:** Conrado e Beatriz · **Revisor:** Conrado (revisão 05/10/2026) · **Status:** Aprovada em 05/10/2026 (OK da Beatriz)
 **Base:** ADR 0004 (custo generalizado em R$, sem Pareto/NSGA-II), `domain/models.py` e Spec 01.
 
 ## 1. Ideia em uma frase
