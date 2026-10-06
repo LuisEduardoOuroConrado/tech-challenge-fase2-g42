@@ -1,6 +1,6 @@
 # Spec 01 — Domínio e dados (Beatriz · revisor: Conrado)
 
-**Status:** Aprovada na revisão de 05/10/2026 (Conrado), aguardando o OK da autora no PR · **Escopo:** `src/medroute/data/`, `configs/frota.yaml`, `data/instances/`
+**Status:** Aprovada em 05/10/2026 (revisor: Conrado · autora: Beatriz) · **Escopo:** `src/medroute/data/`, `configs/frota.yaml`, `data/instances/`
 
 **Escopo:** o que a camada de dados entrega aos demais módulos. Os tipos são os de `domain/models.py` (Conrado, congelado 30/09), usados sem alteração; a camada de dados não define tipos próprios.
 
