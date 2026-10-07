@@ -130,8 +130,8 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
    Esgotadas as tentativas ou em erro não transitório (ex.: 401), lança `LLMError`.
 4. Resposta vazia é tratada como erro (`LLMError`).
 5. A chave de API nunca aparece em logs, mensagens de erro ou arquivos de cache.
-6. O módulo não carrega `.env` sozinho; quem chama (CLI/Streamlit) carrega o
-   ambiente. Ver decisão pendente 1.
+6. O módulo não carrega `.env` sozinho; quem chama (CLI/Streamlit) chama
+   `load_dotenv()` (`python-dotenv`, já nas dependências) antes de `client_from_env`.
 
 ### Contexto (Solution + Instance)
 
@@ -239,9 +239,7 @@ Nenhum teste pode acessar a rede nem exigir chave de API (CI roda com `mock`).
 
 ## Decisões pendentes
 
-1. **Carregar `.env`:** adicionar `python-dotenv` às dependências e chamar
-   `load_dotenv()` na CLI/Streamlit. Muda `requirements.txt`; precisa de OK do grupo.
-2. **Marcador de teste `llm_real`:** registrar em `pyproject.toml`
+1. **Marcador de teste `llm_real`:** registrar em `pyproject.toml`
    (`--strict-markers` está ativo).
 
 ## Fora de escopo
