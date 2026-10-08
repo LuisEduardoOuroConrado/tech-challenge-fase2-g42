@@ -502,9 +502,9 @@ a chave via `.env` (nunca commitada); limite de gasto configurado no painel.
 
 | Modelo (free tier) | RPM | Tokens/min | Req/dia |
 |--------------------|:---:|:----------:|:-------:|
-| `llama-3.3-70b-versatile` | 30 | 6 000–12 000 | 1 000 |
+| ~~`llama-3.3-70b-versatile`~~ (descontinuado no Groq, out/2026) | — | — | — |
 | `openai/gpt-oss-120b` | 30 | 8 000 | 1 000 |
-| `llama-3.1-8b-instant` (fraco p/ nosso uso) | 30 | 6 000 | 14 400 |
+| ~~`llama-3.1-8b-instant`~~ (descontinuado no Groq, out/2026) | — | — | — |
 
 Limites são **por organização**, não por chave — 5 pessoas dividindo a mesma conta compartilham os 1 000 req/dia.
 O gargalo real é **tokens/min**: uma rodada completa (5 instruções + 1 relatório ≈ 20 k tokens) leva 2–3 min
@@ -518,7 +518,7 @@ Inviável para 5 pessoas desenvolvendo.
 **Recomendação:** a API do Groq é compatível com o SDK `openai` (só muda `base_url` e `model`), então o
 `LLMClient` suporta os dois sem código extra. Proposta:
 
-- **Padrão no desenvolvimento e nos testes:** `mock` (sem rede) → Groq free (`llama-3.3-70b-versatile`).
+- **Padrão no desenvolvimento e nos testes:** `mock` (sem rede) → Groq free (`openai/gpt-oss-120b`; o Llama 3.3 70B foi descontinuado).
   Cada dev cria a própria conta Groq para não dividir a cota.
 - **Relatório final e vídeo:** `gpt-4o-mini` com ~US$ 5 de crédito (Conrado), para garantir qualidade e zero
   risco de 429 na hora da gravação. Respostas usadas no vídeo ficam **cacheadas** em `data/cache/llm/`.
