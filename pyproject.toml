@@ -39,8 +39,11 @@ where = ["src"]
 medroute = ["llm/prompts/*.md"]
 
 [tool.pytest.ini_options]
-addopts = "--strict-markers --strict-config"
+addopts = "--strict-markers --strict-config -m 'not llm_real'"
 testpaths = ["tests"]
+markers = [
+    "llm_real: chama um provedor de LLM real (rede + chave); rodar com pytest -m llm_real",
+]
 
 [tool.coverage.run]
 branch = true
