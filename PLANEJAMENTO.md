@@ -320,9 +320,9 @@ do relatório, 2–3 min no vídeo.
 |------|-------|
 | **28/09 (seg)** | Início — S0 |
 | **12/10 (seg)** | Feriado (N. Sra. Aparecida) — S2 tem 4 dias úteis |
-| **26/10 (seg)** | Code freeze de funcionalidades: só correções, relatório e vídeo depois disso |
-| **29/10 (qui)** | **Entrega interna**: PDF final, vídeo publicado, tag `v1.0` |
-| **30/10 (sex)** | Upload na plataforma FIAP (só publicar; nada novo) |
+| **26/10 (seg)** | Code freeze de funcionalidades: só correções, relatório e vídeo depois disso | — |
+| **29/10 (qui)** | **Entrega interna**: PDF final, vídeo publicado, tag `v1.0` | — |
+| **30/10 (sex)** | Upload na plataforma FIAP (só publicar; nada novo) | — |
 | **03/11 (ter)** | Prazo oficial — 4 dias de folga para imprevistos |
 
 **Sem reuniões.** Toda a coordenação é assíncrona — mensagens no grupo + GitHub:
@@ -346,39 +346,51 @@ do relatório, 2–3 min no vídeo.
 | **S3** | 19/10 – 23/10 | P1 | Deadline/jornada/compatibilidade/trânsito; Q&A; Streamlit; experimentos rodados (tabelas + curvas); avaliação LLM |
 | **S4** | 26/10 – 29/10 | Entrega | Relatório PDF revisado por todos; vídeo ≤ 15 min publicado; README final; tag `v1.0` |
 
+### 8.1.1 Situação em 08/10 (qui, fim da S1)
+
+- **S0:** fechada, exceto **Spec 05 sem revisor** (era 02/10) ; código base FIAP em
+  `reference/fiap_genetic_algorithm_tsp/` desde 08/10 (R10).
+- **S1:** `medroute solve --inst sp_15` gera JSON + mapa ✅ · instruções LLM (mock) sobre a fixture ✅ ·
+  **"GA vence NN e NN+2-opt" bloqueado**: baselines do Pedro ainda não estão na `main` (prazo 09/10).
+- **Adiantado:** `sp_40`/`sp_80` (Beatriz), decoder giant-tour→split (Conrado), mapa multi-veículo com ícone por
+  prioridade (antecipa parte da entrega de 16/10 do Alexandre).
+- **Atenção para a S2 (4 dias úteis):** `constraints/` P0 da Beatriz até 14/10 é o próximo elo do caminho
+  crítico; `fitness.py` está provisório (pesos fixos, sem custo de prioridade) até lá.
+- **LLM:** modelo padrão do Groq passou a ser `openai/gpt-oss-120b` (Llama 3.3 70B descontinuado — ver 11.2).
+
 ### 8.2 Handoffs — quem entrega o quê, para quem, até quando
 
 A regra: a data é o **último dia** para entregar sem atrasar quem depende. Entregar antes libera o outro antes.
 
-| Até | Quem | Entrega | Desbloqueia |
-|-----|------|---------|-------------|
-| **30/09 (qua)** | Conrado | `domain/models.py` congelado + `tests/fixtures/solution_sp15.json` (Solution de exemplo feito à mão) | **todos** — Rodrigo (prompts), Alexandre (mapa), Pedro (métricas) começam sobre a fixture |
-| **30/09 (qua)** | Alexandre | Esqueleto do repo (`src/medroute`, `tests/`, `requirements.txt`, `pyproject.toml`, GitHub Actions rodando `pytest` + `ruff`) | todos abrem PR com CI |
-| **02/10 (sex)** | Beatriz | Loader + gerador + instância `sp_15` + `DistanceMatrix` haversine×fator + `configs/frota.yaml` | Conrado (GA em dados reais na S1), Pedro (baselines) |
-| **02/10 (sex)** | Conrado, Beatriz, Rodrigo | Specs 01/02/03/05 aprovadas (1 revisor cada) | implementação da S1 |
-| **07/10 (qua)** | Beatriz | Instância `sp_40` (10 unidades reais + 30 sintéticas) | Conrado, Pedro, Alexandre testam em escala real |
-| **09/10 (sex)** | Conrado | GA TSP (1 veículo): encoding, torneio, OX/PMX, swap/inversion, elitismo, `historico_fitness` | Pedro (comparativo), Alexandre (mapa com rota real) |
-| **09/10 (sex)** | Pedro | Nearest Neighbor, NN+2-opt, aleatório + `metrics.py` (mesma assinatura `solve_*`) | Conrado (referência de qualidade do GA) |
-| **09/10 (sex)** | Rodrigo | `LLMClient` (mock + Groq) + prompt de instruções por motorista funcionando sobre a fixture | Alexandre (`medroute instruct` na CLI) |
-| **09/10 (sex)** | Alexandre | Mapa folium básico (1 rota) + CLI `gen` / `solve` / `map` | demo da S1 |
-| **14/10 (qua)** | Beatriz | `constraints/` capacidade, autonomia, prioridade (funções puras testadas) | Conrado (fitness P0) |
-| **16/10 (sex)** | Conrado | Decoder giant-tour→split + fitness em R$ com penalidades P0 → **VRP funcionando em `sp_40`** | Pedro (experimentos), Rodrigo (Solutions reais), Alexandre (mapa multi-veículo) |
-| **16/10 (sex)** | Pedro | Clarke-Wright Savings + `experiments/runner.py` (configs YAML × seeds) | rodada de experimentos na S3 |
-| **16/10 (sex)** | Rodrigo | Relatório diário/semanal com recomendações (Groq real) + cache de respostas | Alexandre (`medroute report`) |
-| **16/10 (sex)** | Alexandre | CLI completa (`compare`, `instruct`, `report`) + mapa multi-veículo (cor por veículo, ícone por prioridade) | demo da S2 |
-| **21/10 (qua)** | Beatriz | `constraints/` deadline, compatibilidade, jornada + fator de trânsito na `DistanceMatrix.time()` | Conrado (fitness P1) |
-| **21/10 (qua)** | Conrado | Fitness P1 (tempo de chegada, deadline, jornada, compatibilidade) + 2-opt local no GA | Pedro (experimento E5 de sensibilidade), Rodrigo (instruções com horários) |
-| **21/10 (qua)** | Alexandre | Roteiro do vídeo (quem fala o quê, em quantos minutos) | todos preparam sua fala |
-| **23/10 (sex)** | Pedro | Experimentos E1–E6 rodados: tabelas (média ± dp, 5 seeds), curvas de convergência, figuras em `reports/figuras/` | relatório (seção comparativo) |
-| **23/10 (sex)** | Rodrigo | Q&A (`medroute ask`) + rubrica de avaliação aplicada a Groq × gpt-4o-mini | relatório (seção LLM), Streamlit |
-| **23/10 (sex)** | Alexandre | Streamlit (instância → otimizar → mapa → instruções → pergunta) + testes de integração | vídeo |
-| **23/10 (sex)** | Conrado | `docs/do-tsp-ao-vrp.md` (antes × depois do código base) + `docs/arquitetura.md` com Mermaid | relatório (seções GA e arquitetura) |
-| **26/10 (seg)** | **todos** | Texto da própria seção do relatório em `reports/secoes/<parte>.md` · **code freeze** | Alexandre monta o PDF |
-| **27/10 (ter)** | todos | Gravação do vídeo (cada um grava sua parte, 2–3 min, tela + voz) | Alexandre edita |
-| **28/10 (qua)** | Alexandre | PDF montado para revisão + vídeo editado (corte) | revisão de todos |
-| **28/10 (qua)** | todos | Revisão do PDF (comentários até 20h) | versão final |
-| **29/10 (qui)** | Alexandre | **PDF final, vídeo publicado (não listado), README final, tag `v1.0`** | entrega interna cumprida |
-| **30/10 (sex)** | Conrado | Upload na plataforma FIAP | — |
+| Até | Quem | Entrega | Desbloqueia | Status (08/10) |
+|-----|------|---------|-------------|----------------|
+| **30/09 (qua)** | Conrado | `domain/models.py` congelado + `tests/fixtures/solution_sp15.json` (Solution de exemplo feito à mão) | **todos** — Rodrigo (prompts), Alexandre (mapa), Pedro (métricas) começam sobre a fixture | ✅ 28/09 |
+| **30/09 (qua)** | Alexandre | Esqueleto do repo (`src/medroute`, `tests/`, `requirements.txt`, `pyproject.toml`, GitHub Actions rodando `pytest` + `ruff`) | todos abrem PR com CI | ✅ 28/09 (feito por Conrado) |
+| **02/10 (sex)** | Beatriz | Loader + gerador + instância `sp_15` + `DistanceMatrix` haversine×fator + `configs/frota.yaml` | Conrado (GA em dados reais na S1), Pedro (baselines) | ✅ 03/10, PR #2 (+1 dia) |
+| **02/10 (sex)** | Conrado, Beatriz, Rodrigo | Specs 01/02/03/05 aprovadas (1 revisor cada) | implementação da S1 | ⚠️ 01/02/03 aprovadas 05/10; **05 em rascunho, sem revisor** |
+| **07/10 (qua)** | Beatriz | Instância `sp_40` (10 unidades reais + 30 sintéticas) | Conrado, Pedro, Alexandre testam em escala real | ✅ 03/10 (adiantado; `sp_80` junto) |
+| **09/10 (sex)** | Conrado | GA TSP (1 veículo): encoding, torneio, OX/PMX, swap/inversion, elitismo, `historico_fitness` | Pedro (comparativo), Alexandre (mapa com rota real) | ✅ 05/10, PR #3 |
+| **09/10 (sex)** | Pedro | Nearest Neighbor, NN+2-opt, aleatório + `metrics.py` (mesma assinatura `solve_*`) | Conrado (referência de qualidade do GA) | ⏳ nada na `main` |
+| **09/10 (sex)** | Rodrigo | `LLMClient` (mock + Groq) + prompt de instruções por motorista funcionando sobre a fixture | Alexandre (`medroute instruct` na CLI) | ✅ 08/10, PR #4 |
+| **09/10 (sex)** | Alexandre | Mapa folium básico (1 rota) + CLI `gen` / `solve` / `map` | demo da S1 | ✅ 05/10 (feito por Conrado; mapa já multi-veículo) |
+| **14/10 (qua)** | Beatriz | `constraints/` capacidade, autonomia, prioridade (funções puras testadas) | Conrado (fitness P0) | ⏳ |
+| **16/10 (sex)** | Conrado | Decoder giant-tour→split + fitness em R$ com penalidades P0 → **VRP funcionando em `sp_40`** | Pedro (experimentos), Rodrigo (Solutions reais), Alexandre (mapa multi-veículo) | 🟡 decoder na `main`; fitness provisório aguarda `constraints/` |
+| **16/10 (sex)** | Pedro | Clarke-Wright Savings + `experiments/runner.py` (configs YAML × seeds) | rodada de experimentos na S3 | ⏳ |
+| **16/10 (sex)** | Rodrigo | Relatório diário/semanal com recomendações (Groq real) + cache de respostas | Alexandre (`medroute report`) | ⏳ |
+| **16/10 (sex)** | Alexandre | CLI completa (`compare`, `instruct`, `report`) + mapa multi-veículo (cor por veículo, ícone por prioridade) | demo da S2 | 🟡 mapa pronto; faltam `compare`/`instruct`/`report` |
+| **21/10 (qua)** | Beatriz | `constraints/` deadline, compatibilidade, jornada + fator de trânsito na `DistanceMatrix.time()` | Conrado (fitness P1) | — |
+| **21/10 (qua)** | Conrado | Fitness P1 (tempo de chegada, deadline, jornada, compatibilidade) + 2-opt local no GA | Pedro (experimento E5 de sensibilidade), Rodrigo (instruções com horários) | — |
+| **21/10 (qua)** | Alexandre | Roteiro do vídeo (quem fala o quê, em quantos minutos) | todos preparam sua fala | — |
+| **23/10 (sex)** | Pedro | Experimentos E1–E6 rodados: tabelas (média ± dp, 5 seeds), curvas de convergência, figuras em `reports/figuras/` | relatório (seção comparativo) | — |
+| **23/10 (sex)** | Rodrigo | Q&A (`medroute ask`) + rubrica de avaliação aplicada a Groq × gpt-4o-mini | relatório (seção LLM), Streamlit | — |
+| **23/10 (sex)** | Alexandre | Streamlit (instância → otimizar → mapa → instruções → pergunta) + testes de integração | vídeo | — |
+| **23/10 (sex)** | Conrado | `docs/do-tsp-ao-vrp.md` (antes × depois do código base) + `docs/arquitetura.md` com Mermaid | relatório (seções GA e arquitetura) | — |
+| **26/10 (seg)** | **todos** | Texto da própria seção do relatório em `reports/secoes/<parte>.md` · **code freeze** | Alexandre monta o PDF | — |
+| **27/10 (ter)** | todos | Gravação do vídeo (cada um grava sua parte, 2–3 min, tela + voz) | Alexandre edita | — |
+| **28/10 (qua)** | Alexandre | PDF montado para revisão + vídeo editado (corte) | revisão de todos | — |
+| **28/10 (qua)** | todos | Revisão do PDF (comentários até 20h) | versão final | — |
+| **29/10 (qui)** | Alexandre | **PDF final, vídeo publicado (não listado), README final, tag `v1.0`** | entrega interna cumprida | — |
+| **30/10 (sex)** | Conrado | Upload na plataforma FIAP | — | — |
 
 ### 8.3 Carga por integrante
 
