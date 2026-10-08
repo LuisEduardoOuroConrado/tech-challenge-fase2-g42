@@ -348,7 +348,7 @@ do relatório, 2–3 min no vídeo.
 
 ### 8.1.1 Situação em 08/10 (qui, fim da S1)
 
-- **S0:** fechada, exceto **Spec 05 sem revisor** (era 02/10) ; código base FIAP em
+- **S0:** fechada, exceto o OK do Rodrigo na revisão da Spec 05 (revisada 08/10; prazo era 02/10) ; código base FIAP em
   `reference/fiap_genetic_algorithm_tsp/` desde 08/10 (R10).
 - **S1:** `medroute solve --inst sp_15` gera JSON + mapa ✅ · instruções LLM (mock) sobre a fixture ✅ ·
   **"GA vence NN e NN+2-opt" bloqueado**: baselines do Pedro ainda não estão na `main` (prazo 09/10).
@@ -367,7 +367,7 @@ A regra: a data é o **último dia** para entregar sem atrasar quem depende. Ent
 | **30/09 (qua)** | Conrado | `domain/models.py` congelado + `tests/fixtures/solution_sp15.json` (Solution de exemplo feito à mão) | **todos** — Rodrigo (prompts), Alexandre (mapa), Pedro (métricas) começam sobre a fixture | ✅ 28/09 |
 | **30/09 (qua)** | Alexandre | Esqueleto do repo (`src/medroute`, `tests/`, `requirements.txt`, `pyproject.toml`, GitHub Actions rodando `pytest` + `ruff`) | todos abrem PR com CI | ✅ 28/09 (feito por Conrado) |
 | **02/10 (sex)** | Beatriz | Loader + gerador + instância `sp_15` + `DistanceMatrix` haversine×fator + `configs/frota.yaml` | Conrado (GA em dados reais na S1), Pedro (baselines) | ✅ 03/10, PR #2 (+1 dia) |
-| **02/10 (sex)** | Conrado, Beatriz, Rodrigo | Specs 01/02/03/05 aprovadas (1 revisor cada) | implementação da S1 | ⚠️ 01/02/03 aprovadas 05/10; **05 em rascunho, sem revisor** |
+| **02/10 (sex)** | Conrado, Beatriz, Rodrigo | Specs 01/02/03/05 aprovadas (1 revisor cada) | implementação da S1 | ⚠️ 01/02/03 aprovadas 05/10; 05 revisada 08/10 (Conrado), aguarda OK do Rodrigo |
 | **07/10 (qua)** | Beatriz | Instância `sp_40` (10 unidades reais + 30 sintéticas) | Conrado, Pedro, Alexandre testam em escala real | ✅ 03/10 (adiantado; `sp_80` junto) |
 | **09/10 (sex)** | Conrado | GA TSP (1 veículo): encoding, torneio, OX/PMX, swap/inversion, elitismo, `historico_fitness` | Pedro (comparativo), Alexandre (mapa com rota real) | ✅ 05/10, PR #3 |
 | **09/10 (sex)** | Pedro | Nearest Neighbor, NN+2-opt, aleatório + `metrics.py` (mesma assinatura `solve_*`) | Conrado (referência de qualidade do GA) | ⏳ nada na `main` |

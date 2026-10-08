@@ -1,8 +1,8 @@
 # Spec 05 — Camada de LLM (instruções, relatórios e Q&A)
 
 - **Responsável:** Rodrigo Edson Fernandes
-- **Status:** Rascunho em 06/10/2026 · aguardando revisão
-- **Revisor:** a definir
+- **Status:** Revisada em 08/10/2026 · aguardando OK do Rodrigo para marcar como aprovada
+- **Revisor:** Conrado (revisão 08/10/2026, sobre o código do PR #4)
 - **Escopo:** `src/medroute/llm/`
 - **Base:** `domain/models.py`, Spec 01 (dados), Spec 03 (fitness), `.env.example` e
   `PLANEJAMENTO.md` seção 11.2 (provedores)
@@ -59,6 +59,7 @@ class OpenAICompatibleClient:
         timeout_s: float = 60.0,
         max_retries: int = 3,
         sdk_client: OpenAI | None = None,   # injeção para testes sem rede
+        sleep: Callable[[float], None] = time.sleep,  # injeção para testes sem espera
     ) -> None: ...
     def complete(self, system: str, user: str) -> str: ...
 
@@ -125,7 +126,7 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
 2. O modelo vem de `GROQ_MODEL` / `OPENAI_MODEL`; nenhum nome de modelo fica
    fixo no código (modelos são descontinuados — ex.: Llama 3.3 70B no Groq).
    `temperature` e `max_tokens` vêm de `LLM_TEMPERATURE` e `LLM_MAX_TOKENS`.
-3. Erros transitórios (limite de taxa 429, timeout, falha de conexão) são
+3. Erros transitórios (limite de taxa 429, timeout, falha de conexão, erro 5xx) são
    repetidos até `max_retries` vezes com espera exponencial (2 s, 4 s, 8 s).
    Esgotadas as tentativas ou em erro não transitório (ex.: 401), lança `LLMError`.
 4. Resposta vazia é tratada como erro (`LLMError`).
@@ -138,10 +139,14 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
 1. Toda entrega de `Route.sequence` deve existir em `Instance.deliveries`; caso
    contrário, `ValueError` indicando o ID.
 2. `solution.instance_nome` deve ser igual a `inst.nome`; caso contrário, `ValueError`.
+   O mesmo vale para `Route.vehicle_id` que não exista em `Instance.fleet`.
 3. A ordem das paradas é exatamente a de `Route.sequence`, numerada a partir de 1.
 4. Rotas com `sequence` vazia são ignoradas (veículo não usado).
 5. O contexto é serializado para o prompt como JSON compacto, com números
    arredondados (km e kg em 1 casa, R$ em 2), para economizar tokens.
+6. O JSON das **instruções** não leva custo em R$ nem violações em valor bruto: o
+   motorista não precisa deles, e as violações já viram texto em `alertas`. Custos
+   entram só no contexto dos relatórios e do Q&A.
 
 ### Prompts
 
@@ -149,7 +154,9 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
    (`versao: 1`) e as seções `system` e `user`. Templates usam `string.Template`
    (`$variavel`) para não conflitar com as chaves do JSON.
 2. Prompts são versionados no Git; mudar o texto exige incrementar `versao`.
-   Saídas e avaliações registram a versão usada (R14).
+   Saídas e avaliações registram a versão usada (R14): a partir da S2, a entrada de
+   cache guarda `prompt` e `versao`, e o relatório e a rubrica citam a versão.
+   `generate_instructions` continua devolvendo só o texto (S1).
 3. Todo prompt instrui a LLM a: responder em português do Brasil; usar apenas os
    dados fornecidos; não alterar a ordem das paradas; não inventar horários,
    endereços ou valores; dizer explicitamente quando a informação não existe.
@@ -165,8 +172,13 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
    cada parada aparece no texto e na ordem da rota. Se falhar, faz uma nova
    tentativa; se falhar de novo, usa o texto de *fallback* determinístico gerado
    a partir do `RouteContext` (sem LLM) e registra um aviso no log.
-5. Horários de chegada por parada ficam fora da S1; entram quando a Spec 03 P1
-   (`cronograma_rota`) estiver disponível.
+   A busca é por trecho de texto (sem diferenciar maiúsculas), então depende de
+   os nomes das entregas serem únicos e nenhum estar contido em outro. Isso vale
+   para `sp_15`, `sp_40` e `sp_80` (conferido em 08/10); instância nova que quebre
+   a regra exige trocar a busca por correspondência com a lista numerada.
+5. Horários de chegada por parada ficam fora da S1. Entram quando
+   `cronograma_rota` (Spec 03, Beatriz, 14/10) estiver na `main`: o contexto ganha
+   `chegada_min` por parada e o prompt sobe para `versao: 2`.
 
 ### Relatórios (S2)
 
@@ -212,6 +224,33 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
    **então** retorna a resposta sem lançar exceção (espera simulada no teste).
 9. **Dada** a mesma entrada duas vezes com cache ativo, **quando** `complete` é
    chamado, **então** o SDK é acionado só uma vez (S2).
+10. **Dada** uma resposta gravada em cache, **quando** o arquivo é lido, **então**
+    ele contém `provider`, `model`, `prompt` e `versao`, e não contém a chave de API (S2).
+11. **Dadas** duas `Solution` da mesma instância (ex.: GA e Savings) e um
+    `MockClient`, **quando** `generate_report` é chamado, **então** o prompt enviado
+    traz as métricas de cada uma já calculadas (custo, km, veículos, violações) e
+    o texto final tem a seção "Recomendações" (S2).
+12. **Dada** uma pergunta fora do escopo das rotas, **quando** `answer` é chamado com
+    um cliente falso que segue o prompt, **então** o prompt enviado contém a regra de
+    recusa e a pergunta original (S3).
+
+### Mapa critério → teste (revisão de 08/10)
+
+| Critério | Teste em `tests/unit/llm/` |
+|---|---|
+| 1 | `test_client.py::test_sem_provedor_usa_mock` |
+| 2 | `test_client.py::test_groq_sem_chave_cita_a_variavel` |
+| 3 | `test_instructions.py::test_contexto_da_fixture_segue_a_ordem_e_usa_dados_da_instancia` |
+| 4 | `test_instructions.py::test_entrega_inexistente_gera_erro_com_o_id` |
+| 5 | `test_instructions.py::test_uma_chamada_por_rota_com_mock` |
+| 6 | `test_instructions.py::test_prompt_marca_entregas_criticas_e_refrigeradas` |
+| 7 | `test_instructions.py::test_resposta_infiel_duas_vezes_usa_fallback` |
+| 8 | `test_client.py::test_429_seguido_de_sucesso_tenta_de_novo` |
+| 9–12 | a fazer (S2/S3) |
+
+Além dos critérios, já há testes para: veículo inexistente, instância diferente,
+rota vazia, JSON arredondado, prompt mal formatado, 401 sem expor a chave, resposta
+vazia ou cortada por `max_tokens` e retentativa esgotada.
 
 ## Testes obrigatórios
 
@@ -227,7 +266,9 @@ Nenhum teste pode acessar a rede nem exigir chave de API (CI roda com `mock`).
   verificação de fidelidade e *fallback*.
 - Relatório e cache (S2); Q&A (S3).
 - Teste manual (fora do CI, marcado `@pytest.mark.llm_real`): rodar instruções
-  sobre a fixture com Groq e revisar o texto.
+  sobre a fixture com Groq e revisar o texto. O marcador está registrado no
+  `pyproject.toml` e esses testes ficam fora do `pytest` padrão; rodar com
+  `pytest -m llm_real`.
 
 ## Cronograma
 
@@ -237,10 +278,21 @@ Nenhum teste pode acessar a rede nem exigir chave de API (CI roda com `mock`).
 | 16/10 (S2) | `reports.py` com recomendações, cache, uso real do Groq → libera `medroute report` |
 | 23/10 (S3) | `qa.py` (`medroute ask`), rubrica de avaliação Groq × gpt-4o-mini, `docs/prompts.md` |
 
-## Decisões pendentes
+## Decisões (fechadas na revisão de 08/10/2026)
 
-1. **Marcador de teste `llm_real`:** registrar em `pyproject.toml`
-   (`--strict-markers` está ativo).
+1. **Marcador `llm_real`:** registrado no `pyproject.toml` e excluído do `pytest`
+   padrão (`-m 'not llm_real'`), para o CI nunca chamar a rede.
+2. **Modelo do Groq:** `openai/gpt-oss-120b`, lido de `GROQ_MODEL`; o Llama 3.3 70B
+   foi descontinuado (ver `PLANEJAMENTO.md` 11.2). Nenhum nome de modelo fixo no código.
+3. **Erros 5xx** contam como transitórios, além de 429, timeout e conexão; o SDK
+   roda com `max_retries=0` para as retentativas serem só as nossas.
+4. **Instruções sem custo em R$:** o motorista recebe paradas, cargas e alertas;
+   custos ficam para relatório e Q&A.
+5. **Versão do prompt nas saídas:** registrada a partir da S2 (cache, relatório e
+   rubrica); na S1 a versão fica só no arquivo do prompt.
+6. **Q&A só com *context stuffing*:** as "funções de consulta" citadas no
+   `PLANEJAMENTO.md` (seção 7, parte D) são funções Python que montam o contexto,
+   não *function calling* da LLM, que segue fora de escopo.
 
 ## Fora de escopo
 
