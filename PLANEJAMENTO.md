@@ -355,7 +355,8 @@ do relatório, 2–3 min no vídeo.
 - **Adiantado:** `sp_40`/`sp_80` (Beatriz), decoder giant-tour→split (Conrado), mapa multi-veículo com ícone por
   prioridade (antecipa parte da entrega de 16/10 do Alexandre).
 - **Atenção para a S2 (4 dias úteis):** `constraints/` P0 da Beatriz até 14/10 é o próximo elo do caminho
-  crítico; `fitness.py` está provisório (pesos fixos, sem custo de prioridade) até lá.
+  crítico. O fitness definitivo e o split ótimo já existem (08/10) com `cronograma_rota`/`custo_prioridade`
+  provisórios em `ga/fitness.py`, a trocar pelo `constraints/`.
 - **LLM:** modelo padrão do Groq passou a ser `openai/gpt-oss-120b` (Llama 3.3 70B descontinuado — ver 11.2).
 
 ### 8.2 Handoffs — quem entrega o quê, para quem, até quando
@@ -374,7 +375,7 @@ A regra: a data é o **último dia** para entregar sem atrasar quem depende. Ent
 | **09/10 (sex)** | Rodrigo | `LLMClient` (mock + Groq) + prompt de instruções por motorista funcionando sobre a fixture | Alexandre (`medroute instruct` na CLI) | ✅ 08/10, PR #4 |
 | **09/10 (sex)** | Alexandre | Mapa folium básico (1 rota) + CLI `gen` / `solve` / `map` | demo da S1 | ✅ 05/10 (feito por Conrado; mapa já multi-veículo) |
 | **14/10 (qua)** | Beatriz | `constraints/` capacidade, autonomia, prioridade (funções puras testadas) | Conrado (fitness P0) | ⏳ |
-| **16/10 (sex)** | Conrado | Decoder giant-tour→split + fitness em R$ com penalidades P0 → **VRP funcionando em `sp_40`** | Pedro (experimentos), Rodrigo (Solutions reais), Alexandre (mapa multi-veículo) | 🟡 decoder na `main`; fitness provisório aguarda `constraints/` |
+| **16/10 (sex)** | Conrado | Decoder giant-tour→split + fitness em R$ com penalidades P0 → **VRP funcionando em `sp_40`** | Pedro (experimentos), Rodrigo (Solutions reais), Alexandre (mapa multi-veículo) | 🟡 split ótimo + fitness definitivo no PR de 08/10 (sp_40: 4 veículos, sem violação); falta trocar o stub pelo `constraints/` |
 | **16/10 (sex)** | Pedro | Clarke-Wright Savings + `experiments/runner.py` (configs YAML × seeds) | rodada de experimentos na S3 | ⏳ |
 | **16/10 (sex)** | Rodrigo | Relatório diário/semanal com recomendações (Groq real) + cache de respostas | Alexandre (`medroute report`) | ⏳ |
 | **16/10 (sex)** | Alexandre | CLI completa (`compare`, `instruct`, `report`) + mapa multi-veículo (cor por veículo, ícone por prioridade) | demo da S2 | 🟡 mapa pronto; faltam `compare`/`instruct`/`report` |

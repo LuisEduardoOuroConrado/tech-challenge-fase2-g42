@@ -13,7 +13,7 @@ from medroute.data.distance import DistanceMatrix
 from medroute.domain.models import Instance, Route, Solution
 
 from . import fitness
-from .decoder import decode
+from .decoder import decode, split_decode
 from .encoding import Chromosome, create_population, validate_chromosome
 from .operators import (
     inversion_mutation,
@@ -67,11 +67,24 @@ class GeneticAlgorithm:
         self.fitness_fn = fitness_fn
         self._cache: dict[tuple[str, ...], float] = {}
 
+    def decode(self, chromosome: Chromosome) -> list[Route]:
+        """Split ótimo com o fitness definitivo (Spec 03); guloso com o provisório."""
+        if isinstance(self.fitness_fn, fitness.Fitness):
+            return split_decode(
+                chromosome, self.inst, self.dm, self.fitness_fn.cfg, self.fitness_fn.servico_min
+            )
+        return decode(chromosome, self.inst, self.dm)
+
+    def penalties(self, routes: list[Route]) -> dict[str, float]:
+        if isinstance(self.fitness_fn, fitness.Fitness):
+            return self.fitness_fn.penalties(routes)
+        return fitness.penalties(routes)
+
     def score(self, chromosome: Chromosome) -> float:
         key = tuple(chromosome)
         if key not in self._cache:
             validate_chromosome(chromosome, self.inst)
-            self._cache[key] = self.fitness_fn(decode(chromosome, self.inst, self.dm))
+            self._cache[key] = self.fitness_fn(self.decode(chromosome))
         return self._cache[key]
 
     def _mutate(self, chromosome: Chromosome, rng: random.Random) -> Chromosome:
@@ -133,7 +146,7 @@ class GeneticAlgorithm:
             if generation < cfg.generations - 1:
                 population = self._next_generation(population, fitnesses, rng)
 
-        routes = decode(best, self.inst, self.dm)
+        routes = self.decode(best)
         custo_operacional = sum(route.custo for route in routes)
         return Solution(
             instance_nome=self.inst.nome,
@@ -142,7 +155,7 @@ class GeneticAlgorithm:
             fitness=self.fitness_fn(routes),
             custo_operacional=custo_operacional,
             distancia_total_km=sum(route.distancia_km for route in routes),
-            penalidades=fitness.penalties(routes),
+            penalidades=self.penalties(routes),
             historico_fitness=history,
             tempo_exec_s=time.perf_counter() - start,
             seed=seed,

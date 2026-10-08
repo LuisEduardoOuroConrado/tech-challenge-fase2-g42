@@ -1,6 +1,6 @@
 """Núcleo do algoritmo genético (Spec 02)."""
 
-from .decoder import decode
+from .decoder import decode, split_decode
 from .encoding import (
     Chromosome,
     ScoreFunction,
@@ -9,6 +9,7 @@ from .encoding import (
     validate_chromosome,
 )
 from .engine import GAConfig, GeneticAlgorithm
+from .fitness import Fitness, FitnessConfig, load_fitness_config, make_fitness
 from .operators import (
     inversion_mutation,
     order_crossover,
@@ -20,6 +21,8 @@ from .operators import (
 
 __all__ = [
     "Chromosome",
+    "Fitness",
+    "FitnessConfig",
     "GAConfig",
     "GeneticAlgorithm",
     "ScoreFunction",
@@ -27,8 +30,11 @@ __all__ = [
     "create_population",
     "decode",
     "inversion_mutation",
+    "load_fitness_config",
+    "make_fitness",
     "order_crossover",
     "pmx_crossover",
+    "split_decode",
     "swap_mutation",
     "tournament_select",
     "two_opt_local",

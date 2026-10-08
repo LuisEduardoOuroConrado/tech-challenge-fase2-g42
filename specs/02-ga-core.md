@@ -1,8 +1,10 @@
 # Spec 02 — Núcleo do algoritmo genético
 
 - **Responsável:** Luis Conrado
-- **Status:** Aprovada em 05/10/2026 · implementada no PR #3
-- **Revisor:** aprovação registrada pelo autor (sem revisor externo)
+- **Status:** Aprovada em 05/10/2026 · implementada no PR #3 · regra 3 do decoder
+  alterada em 08/10/2026 (split ótimo), aguardando revisão
+- **Revisor:** aprovação registrada pelo autor (sem revisor externo); a alteração
+  de 08/10 pede revisão de outro integrante no PR
 - **Escopo:** `src/medroute/ga/`
 
 ## Objetivo
@@ -72,6 +74,14 @@ def decode(
     dm: DistanceMatrix,
 ) -> list[Route]: ...
 
+def split_decode(
+    chromosome: Chromosome,
+    inst: Instance,
+    dm: DistanceMatrix,
+    cfg: FitnessConfig,          # Spec 03
+    servico_min: float,
+) -> list[Route]: ...
+
 # ga/engine.py
 class GAConfig(BaseModel):
     population_size: int
@@ -130,10 +140,24 @@ experimentos não precisarem mudar de formato quando ela entrar no GA.
 1. O decoder preserva a ordem relativa do giant tour e não omite nem duplica
    entregas.
 2. Na etapa TSP, com um veículo, é criada uma única rota.
-3. Na etapa VRP P0, o decoder abre outra rota antes de exceder peso, volume ou
-   autonomia sempre que houver um veículo viável disponível. Ao fechar uma rota,
-   atribui o veículo livre mais barato que a comporta (custo fixo + custo por km);
-   sem veículo viável, o de menor violação. Empates seguem a ordem da frota.
+3. Na etapa VRP P0, há dois decoders:
+   - **`decode` (guloso):** abre outra rota antes de exceder peso, volume ou
+     autonomia sempre que houver um veículo viável disponível. Ao fechar uma rota,
+     atribui o veículo livre mais barato que a comporta (custo fixo + custo por km);
+     sem veículo viável, o de menor violação. Empates seguem a ordem da frota. É o
+     decoder usado com o fitness provisório.
+   - **`split_decode` (split ótimo, alteração de 08/10/2026):** escolhe os pontos
+     de corte do giant tour e o tipo de veículo de cada rota por programação
+     dinâmica (Split de Prins, 2004), minimizando custo operacional + custo de
+     prioridade da Spec 03. O estado conta quantos veículos de cada tipo já foram
+     usados, então a frota nunca é excedida. Considera só rotas sem violação hard;
+     se nenhuma divisão viável existir, usa o guloso, que registra a violação. O
+     `GeneticAlgorithm` usa o split ótimo sempre que recebe o `Fitness` de
+     `make_fitness`.
+
+   Motivo da alteração: em `sp_15`, `sp_40` e `sp_80` toda a carga cabe na van
+   (`sp_80` = 270 kg / 996 L), então o guloso sempre devolvia uma rota só e o R7
+   (múltiplos veículos) nunca aparecia, qualquer que fosse o fitness.
 4. Somente veículos presentes em `Instance.fleet` podem aparecer nas rotas, no
    máximo uma rota por veículo.
 5. Se a frota não comportar a instância, todas as entregas ainda devem aparecer
