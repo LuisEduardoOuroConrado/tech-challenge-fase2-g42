@@ -1,7 +1,7 @@
 # Spec 05 — Camada de LLM (instruções, relatórios e Q&A)
 
 - **Responsável:** Rodrigo Edson Fernandes
-- **Status:** Revisada em 08/10/2026 · aguardando OK do Rodrigo para marcar como aprovada
+- **Status:** Aprovada em 08/10/2026 (OK do Rodrigo)
 - **Revisor:** Conrado (revisão 08/10/2026, sobre o código do PR #4)
 - **Escopo:** `src/medroute/llm/`
 - **Base:** `domain/models.py`, Spec 01 (dados), Spec 03 (fitness), `.env.example` e
