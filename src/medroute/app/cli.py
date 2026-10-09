@@ -1,5 +1,6 @@
 """Interface de linha de comando do medroute."""
 
+import os
 from pathlib import Path
 from typing import Annotated
 
@@ -171,24 +172,32 @@ def solve(
         console.print(f"Mapa: {save_map(solution, instance, out_dir / f'{stem}.html')}")
 
 
+def _load_solution(solucao: Path) -> Solution:
+    try:
+        return Solution.model_validate_json(solucao.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as error:
+        console.print(f"[red]Solução inválida:[/red] {error}")
+        raise typer.Exit(1) from error
+
+
+SolutionArg = Annotated[Path, typer.Argument(help="JSON da Solution.")]
+InstOption = Annotated[
+    str | None,
+    typer.Option("--inst", help="Instância; padrão: a indicada na solução."),
+]
+
+
 @app.command(name="map")
 def map_(
-    solucao: Annotated[Path, typer.Argument(help="JSON da Solution.")],
-    inst: Annotated[
-        str | None,
-        typer.Option("--inst", help="Instância; padrão: a indicada na solução."),
-    ] = None,
+    solucao: SolutionArg,
+    inst: InstOption = None,
     out: Annotated[
         Path | None, typer.Option(help="HTML de saída; padrão: ao lado do JSON.")
     ] = None,
     frota: FleetOption = FLEET_PATH,
 ) -> None:
     """Gera o mapa HTML de uma Solution salva."""
-    try:
-        solution = Solution.model_validate_json(solucao.read_text(encoding="utf-8"))
-    except (OSError, ValueError) as error:
-        console.print(f"[red]Solução inválida:[/red] {error}")
-        raise typer.Exit(1) from error
+    solution = _load_solution(solucao)
     instance, _ = _load(inst or solution.instance_nome, frota)
     try:
         path = save_map(solution, instance, out or solucao.with_suffix(".html"))
@@ -196,3 +205,51 @@ def map_(
         console.print(f"[red]Erro:[/red] {error}")
         raise typer.Exit(1) from error
     console.print(f"Mapa: {path}")
+
+
+@app.command()
+def instruct(
+    solucao: SolutionArg,
+    inst: InstOption = None,
+    out: Annotated[
+        Path | None,
+        typer.Option(help="Markdown de saída; padrão: <solução>_instrucoes.md."),
+    ] = None,
+    provedor: Annotated[
+        str | None,
+        typer.Option(help="mock, groq ou openai; padrão: LLM_PROVIDER do .env."),
+    ] = None,
+    frota: FleetOption = FLEET_PATH,
+) -> None:
+    """Gera as instruções por motorista (LLM) de uma Solution salva."""
+    from dotenv import load_dotenv
+
+    from medroute.llm import LLMError, client_from_env, generate_instructions
+
+    solution = _load_solution(solucao)
+    instance, _ = _load(inst or solution.instance_nome, frota)
+
+    load_dotenv()
+    env = dict(os.environ)
+    if provedor is not None:
+        env["LLM_PROVIDER"] = provedor
+    try:
+        client = client_from_env(env)
+        with console.status(f"Gerando instruções ({client.provider})..."):
+            instrucoes = generate_instructions(solution, instance, client)
+    except LLMError as error:
+        console.print(f"[red]Erro na LLM:[/red] {error}")
+        raise typer.Exit(1) from error
+
+    partes = [
+        f"# Instruções de entrega — {solution.instance_nome}",
+        f"_Solução: {solution.algoritmo} · seed {solution.seed} · LLM: "
+        f"{client.provider}/{client.model}_",
+    ]
+    partes += [instrucoes[vid] for vid in instrucoes]
+    texto = "\n\n".join(partes) + "\n"
+
+    path = out or solucao.with_name(f"{solucao.stem}_instrucoes.md")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(texto, encoding="utf-8")
+    console.print(f"{len(instrucoes)} rota(s) com instruções -> {path}")

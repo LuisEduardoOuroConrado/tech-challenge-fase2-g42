@@ -72,3 +72,31 @@ def test_map_a_partir_de_solution_salva(tmp_path: Path) -> None:
     assert result.exit_code == 0, result.output
     html = (tmp_path / "sol.html").read_text("utf-8")
     assert all(route["vehicle_id"] in html for route in json.loads(fixture.read_text())["routes"])
+
+
+def test_instruct_gera_markdown_com_mock(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.chdir(tmp_path)  # isola de um .env local
+    fixture = ROOT / "tests" / "fixtures" / "solution_sp15.json"
+    solution_path = tmp_path / "sol.json"
+    solution_path.write_text(fixture.read_text("utf-8"), encoding="utf-8")
+
+    result = runner.invoke(
+        app,
+        ["instruct", str(solution_path), "--inst", SP15, "--frota", FROTA, "--provedor", "mock"],
+    )
+
+    assert result.exit_code == 0, result.output
+    md = (tmp_path / "sol_instrucoes.md").read_text("utf-8")
+    assert md.startswith("# Instruções de entrega")
+    usadas = [r["vehicle_id"] for r in json.loads(fixture.read_text())["routes"] if r["sequence"]]
+    assert all(vid in md for vid in usadas)
+
+
+def test_instruct_rejeita_provedor_invalido(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.chdir(tmp_path)
+    fixture = ROOT / "tests" / "fixtures" / "solution_sp15.json"
+    args = ["instruct", str(fixture), "--inst", SP15, "--frota", FROTA, "--provedor", "x"]
+    result = runner.invoke(app, [*args, "--out", str(tmp_path / "i.md")])
+
+    assert result.exit_code == 1
+    assert not (tmp_path / "i.md").exists()
