@@ -26,3 +26,21 @@ medroute demo
 ```
 
 Consulte `PLANEJAMENTO.md` para arquitetura, responsabilidades e cronograma.
+
+## Baselines e comparação da S1
+
+Nearest Neighbor, NN + 2-opt e aleatório retornam o mesmo formato `Solution` do
+GA. As métricas incluem custo, distância, duração, violações e tempo de execução.
+
+```bash
+python scripts/compare_sp15.py
+```
+
+O script compara os quatro algoritmos em `sp_15` com uma van e cinco seeds,
+salvando soluções JSON, métricas CSV, resumo estatístico e parâmetros em
+`data/resultados/comparativo_s1/`. A avaliação usa o fitness provisório atual,
+sem custo de prioridade.
+
+Veja [baselines](src/medroute/baselines/README.md),
+[métricas e reprodução](src/medroute/experiments/README.md) e
+[resultados iniciais](reports/secoes/pedro-baselines-s1.md).
