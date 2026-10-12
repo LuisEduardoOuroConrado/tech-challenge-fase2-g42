@@ -61,6 +61,8 @@ Calibração em `sp_40` (GA atual, seed 7; minutos de chegada somados por priori
 
 Com os pesos antigos a prioridade era ~37× o custo operacional e anulava a escolha de frota; com os novos fica na mesma ordem de grandeza, e usar mais veículos compensa só quando antecipa entregas de verdade.
 
+Observação (08/10): o "corte ingênuo" acima não existia no decoder guloso, que nunca divide quando a van comporta tudo. A divisão passou a ser escolhida pelo split ótimo (Spec 02, regra 3 do decoder); com ele o GA em `sp_40` chega a R$ 1.206 com 4 veículos, contra R$ 3.262 (621 + 2.641) da van única.
+
 **Penalidades:** `fixo` é cobrado uma vez por rota com violação > 0; `unitário` multiplica a quantidade violada.
 
 | Violação | Fixo (R$/rota) | Unitário | Justificativa |
@@ -89,6 +91,10 @@ def penalties(routes, cfg) -> dict[str, float]: ...       # R$ por tipo, vai par
 - Mesma entrada ⇒ mesmo fitness (determinístico, sem sorteio dentro da avaliação).
 - Todas as entregas aparecem exatamente uma vez na solução; entrega faltando é erro (`ValueError`), não penalidade.
 - Até `constraints/` existir, `ga/fitness.py` mantém a versão provisória (sem custo de prioridade), já com a mesma assinatura de `fitness_fn` (Spec 02).
+
+**Situação em 08/10/2026 (Conrado):** contrato implementado em `ga/fitness.py`. `make_fitness` devolve um objeto `Fitness` chamável (vira `fitness_fn`) que também expõe `penalties(routes)` e `priority_cost(routes)`; com ele o GA usa o split ótimo da Spec 02. `cronograma_rota` e `custo_prioridade` estão **provisoriamente** em `ga/fitness.py`, com a assinatura da seção 3 e só P0 (sem trânsito). Quando `constraints/` entrar (Beatriz, 14/10), troca-se a definição local pelo import e os testes de `tests/unit/ga/test_fitness.py` passam a valer como teste de integração das duas partes. `evaluate` e `penalties(routes)` sem configuração continuam como fitness provisório, padrão do `GeneticAlgorithm`.
+
+Resultado com o fitness definitivo (pop 100, 300 gerações, seed 7): `sp_40` usa 2 carros + 2 motos, R$ 1.206 (operacional R$ 755 + prioridade R$ 451), sem violação e sem crítica atrasada; `sp_80` usa a frota, R$ 3.350, sem violação, em ~2 min.
 
 ## 6. Decisões (fechadas na revisão de 05/10/2026)
 1. **`custo_prioridade` pesa o tempo até a chegada**, não só o atraso — é o que o ADR 0004 (aceito) define. O atraso além do prazo é cobrado à parte pela penalidade `deadline`.

@@ -19,7 +19,7 @@ from medroute.data import (
 )
 from medroute.data.cli import INSTANCIAS
 from medroute.domain.models import Instance, Solution
-from medroute.ga import GAConfig, GeneticAlgorithm
+from medroute.ga import GAConfig, GeneticAlgorithm, load_fitness_config, make_fitness
 from medroute.viz import save_map
 
 app = typer.Typer(
@@ -32,6 +32,7 @@ console = Console()
 INSTANCES_DIR = Path("data/instances")
 RESULTS_DIR = Path("data/resultados")
 FLEET_PATH = Path("configs/frota.yaml")
+FITNESS_PATH = Path("configs/fitness.yaml")
 
 FleetOption = Annotated[Path, typer.Option("--frota", help="YAML da frota.")]
 
@@ -68,9 +69,12 @@ def _print_solution(solution: Solution) -> None:
             violacoes,
         )
     console.print(table)
+    penalidades = sum(solution.penalidades.values())
+    prioridade = solution.fitness - solution.custo_operacional - penalidades
     console.print(
-        f"Fitness [bold]R$ {solution.fitness:.2f}[/bold] · custo operacional "
-        f"R$ {solution.custo_operacional:.2f} · {solution.distancia_total_km:.1f} km · "
+        f"Fitness [bold]R$ {solution.fitness:.2f}[/bold] = operacional "
+        f"R$ {solution.custo_operacional:.2f} + prioridade R$ {prioridade:.2f} + penalidades "
+        f"R$ {penalidades:.2f} · {solution.distancia_total_km:.1f} km · "
         f"{len(solution.historico_fitness)} gerações · {solution.tempo_exec_s:.2f} s"
     )
 
@@ -123,6 +127,9 @@ def solve(
     out_dir: Annotated[Path, typer.Option(help="Pasta dos resultados.")] = RESULTS_DIR,
     mapa: Annotated[bool, typer.Option(help="Gera também o mapa HTML.")] = True,
     frota: FleetOption = FLEET_PATH,
+    pesos: Annotated[
+        Path, typer.Option("--fitness", help="YAML com os pesos do fitness.")
+    ] = FITNESS_PATH,
 ) -> None:
     """Otimiza as rotas com o GA e salva a Solution em JSON (e o mapa em HTML)."""
     instance, dm = _load(inst, frota)
@@ -146,12 +153,14 @@ def solve(
             mutation=mutacao,
             patience=paciencia,
         )
-    except ValueError as error:
+        fitness_cfg = load_fitness_config(pesos)
+    except (ValueError, FileNotFoundError) as error:
         console.print(f"[red]Configuração inválida:[/red] {error}")
         raise typer.Exit(1) from error
 
+    fitness_fn = make_fitness(instance, dm, load_fleet(frota), fitness_cfg)
     with console.status("Otimizando..."):
-        solution = GeneticAlgorithm(instance, dm, config).run(seed)
+        solution = GeneticAlgorithm(instance, dm, config, fitness_fn).run(seed)
     _print_solution(solution)
 
     stem = f"{instance.nome}_ga_{'tsp' if veiculo else 'vrp'}_s{seed}"
