@@ -2,7 +2,13 @@ import random
 
 import pytest
 
-from medroute.ga import create_individual, create_population, validate_chromosome
+from medroute.data import DistanceMatrix
+from medroute.ga import (
+    create_individual,
+    create_population,
+    nearest_neighbor_chromosome,
+    validate_chromosome,
+)
 
 
 def test_individuo_e_permutacao_das_entregas(instance):
@@ -41,3 +47,20 @@ def test_cromossomo_invalido_gera_value_error(instance, mutate):
     chromosome = [d.id for d in instance.deliveries]
     with pytest.raises(ValueError):
         validate_chromosome(mutate(chromosome), instance)
+
+
+def test_vizinho_mais_proximo_e_permutacao_valida(instance):
+    chromosome = nearest_neighbor_chromosome(instance, DistanceMatrix(instance))
+    validate_chromosome(chromosome, instance)
+
+
+def test_vizinho_mais_proximo_sempre_escolhe_a_entrega_mais_perto(instance):
+    dm = DistanceMatrix(instance)
+    index_of = {d.id: i for i, d in enumerate(instance.deliveries, start=1)}
+    chromosome = nearest_neighbor_chromosome(instance, dm)
+    current, remaining = 0, set(index_of.values())
+    for delivery_id in chromosome:
+        chosen = index_of[delivery_id]
+        assert dm.km(current, chosen) == min(dm.km(current, i) for i in remaining)
+        remaining.remove(chosen)
+        current = chosen

@@ -5,20 +5,14 @@ from time import perf_counter
 from medroute.data.distance import DistanceMatrix
 from medroute.domain.models import Instance, Solution
 from medroute.ga import fitness
+from medroute.ga.encoding import nearest_neighbor_chromosome
 
 from ._common import FitnessFunction, build_solution
 
 
 def nearest_neighbor_order(inst: Instance, dm: DistanceMatrix) -> list[str]:
     """Produz o giant tour; empates de distância são resolvidos pelo ID da entrega."""
-    remaining = {index: delivery.id for index, delivery in enumerate(inst.deliveries, 1)}
-    order: list[str] = []
-    current = 0
-    while remaining:
-        nearest = min(remaining, key=lambda index: (dm.km(current, index), remaining[index]))
-        order.append(remaining.pop(nearest))
-        current = nearest
-    return order
+    return nearest_neighbor_chromosome(inst, dm)
 
 
 def solve_nearest_neighbor(

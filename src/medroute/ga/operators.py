@@ -6,6 +6,7 @@ Nenhum operador altera os cromossomos recebidos; todos devolvem cópias.
 from __future__ import annotations
 
 import random
+from collections.abc import Sequence
 
 from .encoding import Chromosome, ScoreFunction
 
@@ -127,3 +128,22 @@ def two_opt_local(
         if not improved:
             break
     return best
+
+
+def route_two_opt(stops: list[int], km: Sequence[Sequence[float]]) -> list[int]:
+    """2-opt de uma rota (índices da matriz, sem o depósito) até não haver melhora em km.
+
+    A rota sai e volta ao depósito (índice 0). Cada troca é avaliada pelo delta das duas
+    arestas, em O(1), por isso serve como busca local barata dentro do GA.
+    """
+    tour = [0, *stops, 0]
+    improved = True
+    while improved:
+        improved = False
+        for i in range(1, len(tour) - 2):
+            for j in range(i + 1, len(tour) - 1):
+                a, b, c, d = tour[i - 1], tour[i], tour[j], tour[j + 1]
+                if km[a][c] + km[b][d] < km[a][b] + km[c][d] - 1e-9:
+                    tour[i : j + 1] = reversed(tour[i : j + 1])
+                    improved = True
+    return tour[1:-1]

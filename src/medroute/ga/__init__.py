@@ -6,6 +6,7 @@ from .encoding import (
     ScoreFunction,
     create_individual,
     create_population,
+    nearest_neighbor_chromosome,
     validate_chromosome,
 )
 from .engine import GAConfig, GeneticAlgorithm
@@ -14,6 +15,7 @@ from .operators import (
     inversion_mutation,
     order_crossover,
     pmx_crossover,
+    route_two_opt,
     swap_mutation,
     tournament_select,
     two_opt_local,
@@ -32,8 +34,10 @@ __all__ = [
     "inversion_mutation",
     "load_fitness_config",
     "make_fitness",
+    "nearest_neighbor_chromosome",
     "order_crossover",
     "pmx_crossover",
+    "route_two_opt",
     "split_decode",
     "swap_mutation",
     "tournament_select",

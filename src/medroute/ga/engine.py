@@ -1,4 +1,8 @@
-"""Motor do GA: evolução geracional com torneio, elitismo e parada por estagnação."""
+"""Motor do GA: evolução geracional com torneio, elitismo e parada por estagnação.
+
+Opcionalmente híbrido: semente do vizinho mais próximo na população inicial e busca local
+2-opt dentro de cada rota nos filhos (lamarckiana: o cromossomo melhorado substitui o filho).
+"""
 
 from __future__ import annotations
 
@@ -14,11 +18,17 @@ from medroute.domain.models import Instance, Route, Solution
 
 from . import fitness
 from .decoder import decode, split_decode
-from .encoding import Chromosome, create_population, validate_chromosome
+from .encoding import (
+    Chromosome,
+    create_population,
+    nearest_neighbor_chromosome,
+    validate_chromosome,
+)
 from .operators import (
     inversion_mutation,
     order_crossover,
     pmx_crossover,
+    route_two_opt,
     swap_mutation,
     tournament_select,
     two_opt_local,
@@ -43,6 +53,8 @@ class GAConfig(BaseModel):
     mutation: Literal["swap", "inversion", "two_opt"]
     patience: Annotated[int, Field(ge=1)] | None = None
     improvement_tolerance: Annotated[float, Field(ge=0)] = 1e-9
+    seed_nearest_neighbor: bool = False
+    local_search_rate: Rate = 0.0
 
     @model_validator(mode="after")
     def limites_dependem_da_populacao(self) -> Self:
@@ -66,6 +78,9 @@ class GeneticAlgorithm:
         self.config = config
         self.fitness_fn = fitness_fn
         self._cache: dict[tuple[str, ...], float] = {}
+        self._index_of = {delivery.id: i for i, delivery in enumerate(inst.deliveries, start=1)}
+        self._id_of = {i: delivery_id for delivery_id, i in self._index_of.items()}
+        self._km: list[list[float]] | None = None
 
     def decode(self, chromosome: Chromosome) -> list[Route]:
         """Split ótimo com o fitness definitivo (Spec 03); guloso com o provisório."""
@@ -94,6 +109,16 @@ class GeneticAlgorithm:
             return inversion_mutation(chromosome, rng)
         return two_opt_local(chromosome, self.score)
 
+    def _local_search(self, chromosome: Chromosome) -> Chromosome:
+        """2-opt em km dentro de cada rota decodificada; só fica se o fitness melhorar."""
+        if self._km is None:
+            self._km = self.dm.matrix().tolist()
+        improved: Chromosome = []
+        for route in self.decode(chromosome):
+            stops = route_two_opt([self._index_of[i] for i in route.sequence], self._km)
+            improved.extend(self._id_of[stop] for stop in stops)
+        return improved if self.score(improved) < self.score(chromosome) else chromosome
+
     def _next_generation(
         self,
         population: list[Chromosome],
@@ -114,6 +139,9 @@ class GeneticAlgorithm:
             for child in children:
                 if rng.random() < cfg.mutation_rate:
                     child = self._mutate(child, rng)
+                # Sem sorteio quando desligada, para não mudar resultados já publicados.
+                if cfg.local_search_rate and rng.random() < cfg.local_search_rate:
+                    child = self._local_search(child)
                 if len(offspring) < cfg.population_size:
                     offspring.append(child)
         return offspring
@@ -124,6 +152,8 @@ class GeneticAlgorithm:
         cfg = self.config
 
         population = create_population(self.inst, cfg.population_size, rng)
+        if cfg.seed_nearest_neighbor:
+            population[0] = nearest_neighbor_chromosome(self.inst, self.dm)
         history: list[float] = []
         best: Chromosome = population[0]
         best_fitness = float("inf")

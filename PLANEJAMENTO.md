@@ -372,6 +372,12 @@ do relatório, 2–3 min no vídeo.
   ótimo; a diferença deve aparecer em `sp_40`/`sp_80` e com a busca local 2-opt no GA (21/10). O comparativo
   segue no fitness provisório mesmo após o PR #8: baselines e `scripts/compare_sp15.py` usam `fitness.evaluate`;
   repetir com `make_fitness` (custo de prioridade) quando o `constraints/` entrar.
+- **Com o fitness definitivo o GA puro perdia** para o NN+2-opt avaliado com o mesmo split (frota completa,
+  `sp_40`: R$ 1.143 × R$ 1.035). **GA híbrido no PR #12** (opcional, desligado por padrão; Spec 02 atualizada):
+  semente NN na população + 2-opt em km dentro de cada rota nos filhos. Em `sp_40` vence o NN+2-opt em 5/5 seeds
+  (busca local 0,3: R$ 1.011, 69 s/seed; pop 200: R$ 998, 90 s/seed); em `sp_15` vence ou empata (R$ 431,02,
+  mesmo ótimo local; melhor R$ 427,58). Falta escolher a configuração padrão, medir `sp_80` e o comparativo
+  avaliar os baselines com `make_fitness` + split.
 - **Próximo elo do caminho crítico:** `constraints/` P0 da Beatriz até 14/10 (qua) → trocar os stubs do fitness
   → VRP P0 em `sp_40` fechado até 16/10.
 
@@ -396,7 +402,7 @@ A regra: a data é o **último dia** para entregar sem atrasar quem depende. Ent
 | **16/10 (sex)** | Rodrigo | Relatório diário/semanal com recomendações (Groq real) + cache de respostas | Alexandre (`medroute report`) | ⏳ |
 | **16/10 (sex)** | Alexandre | CLI completa (`compare`, `instruct`, `report`) + mapa multi-veículo (cor por veículo, ícone por prioridade) | demo da S2 | 🟡 mapa e `instruct` (PR #9) prontos; faltam `compare`/`report` |
 | **21/10 (qua)** | Beatriz | `constraints/` deadline, compatibilidade, jornada + fator de trânsito na `DistanceMatrix.time()` | Conrado (fitness P1) | — |
-| **21/10 (qua)** | Conrado | Fitness P1 (tempo de chegada, deadline, jornada, compatibilidade) + 2-opt local no GA | Pedro (experimento E5 de sensibilidade), Rodrigo (instruções com horários) | — |
+| **21/10 (qua)** | Conrado | Fitness P1 (tempo de chegada, deadline, jornada, compatibilidade) + 2-opt local no GA | Pedro (experimento E5 de sensibilidade), Rodrigo (instruções com horários) | 🟡 busca local 2-opt (GA híbrido) no PR #12; fitness P1 aguarda `constraints/` P1 |
 | **21/10 (qua)** | Alexandre | Roteiro do vídeo (quem fala o quê, em quantos minutos) | todos preparam sua fala | — |
 | **23/10 (sex)** | Pedro | Experimentos E1–E6 rodados: tabelas (média ± dp, 5 seeds), curvas de convergência, figuras em `reports/figuras/` | relatório (seção comparativo) | — |
 | **23/10 (sex)** | Rodrigo | Q&A (`medroute ask`) + rubrica de avaliação aplicada a Groq × gpt-4o-mini | relatório (seção LLM), Streamlit | — |

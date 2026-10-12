@@ -1,9 +1,11 @@
+import random
+
 import pytest
 from conftest import make_instance
 from pydantic import ValidationError
 
 from medroute.data import DistanceMatrix
-from medroute.ga import GAConfig, GeneticAlgorithm
+from medroute.ga import GAConfig, GeneticAlgorithm, nearest_neighbor_chromosome
 
 
 def config(**overrides) -> GAConfig:
@@ -88,8 +90,44 @@ def test_solution_preenchida(inst):
         {"generations": 0},
         {"patience": 0},
         {"crossover": "cx"},
+        {"local_search_rate": 1.5},
     ],
 )
 def test_config_invalida(overrides):
     with pytest.raises(ValidationError):
         config(**overrides)
+
+
+def test_hibrido_desligado_por_padrao():
+    cfg = config()
+    assert cfg.seed_nearest_neighbor is False
+    assert cfg.local_search_rate == 0.0
+
+
+def test_semente_nn_nunca_fica_pior_que_o_nn(inst):
+    dm = DistanceMatrix(inst)
+    ga = GeneticAlgorithm(inst, dm, config(generations=5, seed_nearest_neighbor=True))
+    nn_score = ga.score(nearest_neighbor_chromosome(inst, dm))
+    solution = ga.run(seed=3)
+    assert solution.historico_fitness[0] <= nn_score
+    assert solution.fitness <= nn_score
+
+
+@pytest.mark.parametrize("seed_nn", [False, True])
+def test_busca_local_mantem_elitismo_e_reprodutibilidade(inst, seed_nn):
+    overrides = {"local_search_rate": 0.5, "seed_nearest_neighbor": seed_nn}
+    a, b = run(inst, **overrides), run(inst, **overrides)
+    assert a.model_dump(exclude={"tempo_exec_s"}) == b.model_dump(exclude={"tempo_exec_s"})
+    history = a.historico_fitness
+    assert all(nxt <= cur for cur, nxt in zip(history, history[1:], strict=False))
+
+
+def test_busca_local_nunca_piora_o_cromossomo(inst):
+    ga = GeneticAlgorithm(inst, DistanceMatrix(inst), config())
+    rng = random.Random(0)
+    for _ in range(30):
+        chromosome = [d.id for d in inst.deliveries]
+        rng.shuffle(chromosome)
+        improved = ga._local_search(chromosome)
+        assert sorted(improved) == sorted(chromosome)
+        assert ga.score(improved) <= ga.score(chromosome)

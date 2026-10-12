@@ -6,6 +6,7 @@ import random
 from collections import Counter
 from collections.abc import Callable
 
+from medroute.data.distance import DistanceMatrix
 from medroute.domain.models import Instance
 
 Chromosome = list[str]
@@ -22,6 +23,18 @@ def create_population(inst: Instance, size: int, rng: random.Random) -> list[Chr
     if size < 2:
         raise ValueError("a população deve ter pelo menos 2 indivíduos")
     return [create_individual(inst, rng) for _ in range(size)]
+
+
+def nearest_neighbor_chromosome(inst: Instance, dm: DistanceMatrix) -> Chromosome:
+    """Giant tour do vizinho mais próximo a partir do depósito; empates resolvidos pelo ID."""
+    remaining = {index: delivery.id for index, delivery in enumerate(inst.deliveries, 1)}
+    order: Chromosome = []
+    current = 0
+    while remaining:
+        nearest = min(remaining, key=lambda index: (dm.km(current, index), remaining[index]))
+        order.append(remaining.pop(nearest))
+        current = nearest
+    return order
 
 
 def validate_chromosome(chromosome: Chromosome, inst: Instance) -> None:
