@@ -38,8 +38,9 @@ python scripts/compare_sp15.py
 
 O script compara os quatro algoritmos em `sp_15` com uma van e cinco seeds,
 salvando soluções JSON, métricas CSV, resumo estatístico e parâmetros em
-`data/resultados/comparativo_s1/`. A avaliação usa o fitness provisório atual,
-sem custo de prioridade.
+`data/resultados/comparativo_s1/` (não versionado). A rodada de referência está
+versionada em `reports/comparativo-s1/`, gerada com `--out reports/comparativo-s1`.
+A avaliação usa o fitness provisório atual, sem custo de prioridade.
 
 Veja [baselines](src/medroute/baselines/README.md),
 [métricas e reprodução](src/medroute/experiments/README.md) e
