@@ -2,7 +2,8 @@
 
 - **Responsável:** Luis Conrado
 - **Status:** Aprovada em 05/10/2026 · implementada no PR #3 · regra 3 do decoder
-  alterada em 08/10/2026 (split ótimo), aguardando revisão
+  alterada em 08/10/2026 (split ótimo, PR #8) e em 11/10/2026 (GA híbrido,
+  opcional), aguardando revisão
 - **Revisor:** aprovação registrada pelo autor (sem revisor externo); a alteração
   de 08/10 pede revisão de outro integrante no PR
 - **Escopo:** `src/medroute/ga/`
@@ -41,6 +42,7 @@ def create_population(
     rng: random.Random,
 ) -> list[Chromosome]: ...
 def validate_chromosome(chromosome: Chromosome, inst: Instance) -> None: ...
+def nearest_neighbor_chromosome(inst: Instance, dm: DistanceMatrix) -> Chromosome: ...
 
 # ga/operators.py
 def tournament_select(
@@ -66,6 +68,7 @@ def two_opt_local(
     score: ScoreFunction,
     max_passes: int = 1,
 ) -> Chromosome: ...
+def route_two_opt(stops: list[int], km: Sequence[Sequence[float]]) -> list[int]: ...
 
 # ga/decoder.py
 def decode(
@@ -94,6 +97,8 @@ class GAConfig(BaseModel):
     mutation: Literal["swap", "inversion", "two_opt"]
     patience: int | None = None
     improvement_tolerance: float = 1e-9
+    seed_nearest_neighbor: bool = False   # alteração de 11/10/2026
+    local_search_rate: float = 0.0        # alteração de 11/10/2026
 
 class GeneticAlgorithm:
     def __init__(
@@ -178,6 +183,24 @@ experimentos não precisarem mudar de formato quando ela entrar no GA.
 6. `Solution` contém a melhor solução observada, o seed recebido e o tempo total
    medido com relógio monotônico.
 
+### GA híbrido (opcional, alteração de 11/10/2026)
+
+1. Com `seed_nearest_neighbor`, o primeiro indivíduo da população inicial é o
+   giant tour do vizinho mais próximo (`nearest_neighbor_chromosome`, a mesma
+   ordem do baseline NN); os demais continuam aleatórios.
+2. Com `local_search_rate > 0`, cada filho (nunca a elite) passa, com essa
+   probabilidade, por 2-opt em km dentro de cada rota decodificada
+   (`route_two_opt`). O cromossomo melhorado substitui o filho só se o fitness
+   completo diminuir (busca local lamarckiana, como no GA híbrido de Prins, 2004).
+3. Desligadas (padrão), nenhuma das duas opções consome o `rng`: resultados de
+   configurações anteriores não mudam.
+
+Motivo da alteração: com o fitness definitivo e a frota completa, o GA puro perdia
+para o NN + 2-opt avaliado com o mesmo split (em `sp_40`, R$ 1.143 × R$ 1.035 de
+média). O 2-opt completo como mutação (`two_opt_local`) reavalia o cromossomo
+inteiro a cada troca e ficou caro demais com o split ótimo (~200 s por seed em
+`sp_40`); o 2-opt dentro da rota avalia cada troca pelo delta de km, em O(1).
+
 ## Critérios de aceite
 
 1. **Dado** um conjunto de IDs, **quando** qualquer operador genético é aplicado,
@@ -209,6 +232,9 @@ experimentos não precisarem mudar de formato quando ela entrar no GA.
   métricas com retorno ao depósito e determinismo.
 - Engine: seed reproduzível, elitismo, taxas zero e um, parada por gerações,
   parada por estagnação e preenchimento de `Solution`.
+- GA híbrido: desligado por padrão; com a semente NN o resultado nunca é pior
+  que o NN; a busca local nunca piora o cromossomo e mantém reprodutibilidade
+  e elitismo; `route_two_opt` preserva as paradas e nunca aumenta a distância.
 - Integração: executar `sp_15` e validar a solução serializada pelo Pydantic.
 
 ## Fora de escopo

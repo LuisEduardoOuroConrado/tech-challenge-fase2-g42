@@ -124,6 +124,12 @@ def solve(
     elitismo: Annotated[int, typer.Option(help="Indivíduos preservados por geração.")] = 2,
     torneio: Annotated[int, typer.Option(help="Tamanho do torneio.")] = 3,
     paciencia: Annotated[int | None, typer.Option(help="Para após N gerações sem melhora.")] = None,
+    semente_nn: Annotated[
+        bool, typer.Option(help="Inclui a rota do vizinho mais próximo na população inicial.")
+    ] = False,
+    busca_local: Annotated[
+        float, typer.Option(help="Probabilidade de 2-opt dentro das rotas em cada filho.")
+    ] = 0.0,
     out_dir: Annotated[Path, typer.Option(help="Pasta dos resultados.")] = RESULTS_DIR,
     mapa: Annotated[bool, typer.Option(help="Gera também o mapa HTML.")] = True,
     frota: FleetOption = FLEET_PATH,
@@ -152,6 +158,8 @@ def solve(
             crossover=crossover,
             mutation=mutacao,
             patience=paciencia,
+            seed_nearest_neighbor=semente_nn,
+            local_search_rate=busca_local,
         )
         fitness_cfg = load_fitness_config(pesos)
     except (ValueError, FileNotFoundError) as error:

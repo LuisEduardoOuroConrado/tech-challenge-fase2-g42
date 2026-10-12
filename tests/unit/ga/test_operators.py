@@ -6,6 +6,7 @@ from medroute.ga import (
     inversion_mutation,
     order_crossover,
     pmx_crossover,
+    route_two_opt,
     swap_mutation,
     tournament_select,
     two_opt_local,
@@ -114,3 +115,32 @@ def test_two_opt_nunca_piora_e_desfaz_cruzamento():
 
     crossed = ["g0", "g3", "g2", "g1", "g4"]
     assert two_opt_local(crossed, score) == ["g0", "g1", "g2", "g3", "g4"]
+
+
+def _tour_km(stops, km):
+    tour = [0, *stops, 0]
+    return sum(km[a][b] for a, b in zip(tour, tour[1:], strict=False))
+
+
+def test_route_two_opt_desfaz_cruzamento():
+    # Quatro pontos nos cantos de um quadrado; o depósito (0) fica num dos cantos.
+    pts = [(0, 0), (0, 1), (1, 1), (1, 0)]
+    km = [[abs(ax - bx) + abs(ay - by) for bx, by in pts] for ax, ay in pts]
+    assert route_two_opt([2, 1, 3], km) == [1, 2, 3]
+
+
+def test_route_two_opt_nunca_piora_e_preserva_paradas():
+    rng = random.Random(3)
+    pts = [(rng.random(), rng.random()) for _ in range(12)]
+    km = [[((ax - bx) ** 2 + (ay - by) ** 2) ** 0.5 for bx, by in pts] for ax, ay in pts]
+    for _ in range(50):
+        stops = rng.sample(range(1, 12), 8)
+        improved = route_two_opt(stops, km)
+        assert sorted(improved) == sorted(stops)
+        assert _tour_km(improved, km) <= _tour_km(stops, km) + 1e-9
+
+
+@pytest.mark.parametrize("stops", [[], [4], [4, 2]])
+def test_route_two_opt_rotas_curtas(stops):
+    km = [[0.0] * 5 for _ in range(5)]
+    assert sorted(route_two_opt(stops, km)) == sorted(stops)
