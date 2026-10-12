@@ -359,26 +359,42 @@ do relatório, 2–3 min no vídeo.
   provisórios em `ga/fitness.py`, a trocar pelo `constraints/`.
 - **LLM:** modelo padrão do Groq passou a ser `openai/gpt-oss-120b` (Llama 3.3 70B descontinuado — ver 11.2).
 
+### 8.1.2 Situação em 11/10 (dom, véspera da S2)
+
+- **S1 fechada com ressalva.** Baselines do Pedro (NN, NN+2-opt, aleatório + `experiments/metrics.py`) entregues
+  em 09/10 e mergeados em 11/10 (PR #10); `medroute instruct` na CLI (Alexandre, PR #9).
+- **Fitness definitivo + split ótimo na `main`** (PR #8, merge 11/10, sem revisão da Beatriz — revisar a
+  posteriori): `sp_40` com 4 veículos sem violação. `cronograma_rota`/`custo_prioridade` seguem como stub até o
+  `constraints/`. Na `main`: 187 testes e ruff verdes.
+- **"GA vence NN e NN+2-opt" — parcial** (`sp_15`, 1 van, 5 seeds, fitness provisório; ver
+  `reports/secoes/pedro-baselines-s1.md`): GA vence NN em 5/5 seeds, mas NN+2-opt em só 2/5 — médias
+  R$ 456,43 ± 1,90 (GA) × R$ 456,39 (NN+2-opt); melhor GA R$ 454,49. Em 15 entregas o 2-opt já chega perto do
+  ótimo; a diferença deve aparecer em `sp_40`/`sp_80` e com a busca local 2-opt no GA (21/10). O comparativo
+  segue no fitness provisório mesmo após o PR #8: baselines e `scripts/compare_sp15.py` usam `fitness.evaluate`;
+  repetir com `make_fitness` (custo de prioridade) quando o `constraints/` entrar.
+- **Próximo elo do caminho crítico:** `constraints/` P0 da Beatriz até 14/10 (qua) → trocar os stubs do fitness
+  → VRP P0 em `sp_40` fechado até 16/10.
+
 ### 8.2 Handoffs — quem entrega o quê, para quem, até quando
 
 A regra: a data é o **último dia** para entregar sem atrasar quem depende. Entregar antes libera o outro antes.
 
-| Até | Quem | Entrega | Desbloqueia | Status (08/10) |
+| Até | Quem | Entrega | Desbloqueia | Status (11/10) |
 |-----|------|---------|-------------|----------------|
 | **30/09 (qua)** | Conrado | `domain/models.py` congelado + `tests/fixtures/solution_sp15.json` (Solution de exemplo feito à mão) | **todos** — Rodrigo (prompts), Alexandre (mapa), Pedro (métricas) começam sobre a fixture | ✅ 28/09 |
 | **30/09 (qua)** | Alexandre | Esqueleto do repo (`src/medroute`, `tests/`, `requirements.txt`, `pyproject.toml`, GitHub Actions rodando `pytest` + `ruff`) | todos abrem PR com CI | ✅ 28/09 (feito por Conrado) |
 | **02/10 (sex)** | Beatriz | Loader + gerador + instância `sp_15` + `DistanceMatrix` haversine×fator + `configs/frota.yaml` | Conrado (GA em dados reais na S1), Pedro (baselines) | ✅ 03/10, PR #2 (+1 dia) |
-| **02/10 (sex)** | Conrado, Beatriz, Rodrigo | Specs 01/02/03/05 aprovadas (1 revisor cada) | implementação da S1 | ✅ 01/02/03 aprovadas 05/10; 05 aprovada 08/10 (PR #6) |
+| **02/10 (sex)** | Conrado, Beatriz, Rodrigo | Specs 01/02/03/05 aprovadas (1 revisor cada) | implementação da S1 | ✅ 01/02/03 aprovadas 05/10; 05 aprovada 08/10 (PRs #6/#7) |
 | **07/10 (qua)** | Beatriz | Instância `sp_40` (10 unidades reais + 30 sintéticas) | Conrado, Pedro, Alexandre testam em escala real | ✅ 03/10 (adiantado; `sp_80` junto) |
 | **09/10 (sex)** | Conrado | GA TSP (1 veículo): encoding, torneio, OX/PMX, swap/inversion, elitismo, `historico_fitness` | Pedro (comparativo), Alexandre (mapa com rota real) | ✅ 05/10, PR #3 |
-| **09/10 (sex)** | Pedro | Nearest Neighbor, NN+2-opt, aleatório + `metrics.py` (mesma assinatura `solve_*`) | Conrado (referência de qualidade do GA) | ⏳ nada na `main` |
+| **09/10 (sex)** | Pedro | Nearest Neighbor, NN+2-opt, aleatório + `metrics.py` (mesma assinatura `solve_*`) | Conrado (referência de qualidade do GA) | ✅ 09/10, PR #10 (merge 11/10); GA vence NN 5/5, NN+2-opt 2/5 seeds |
 | **09/10 (sex)** | Rodrigo | `LLMClient` (mock + Groq) + prompt de instruções por motorista funcionando sobre a fixture | Alexandre (`medroute instruct` na CLI) | ✅ 08/10, PR #4 |
 | **09/10 (sex)** | Alexandre | Mapa folium básico (1 rota) + CLI `gen` / `solve` / `map` | demo da S1 | ✅ 05/10 (feito por Conrado; mapa já multi-veículo) |
 | **14/10 (qua)** | Beatriz | `constraints/` capacidade, autonomia, prioridade (funções puras testadas) | Conrado (fitness P0) | ⏳ |
-| **16/10 (sex)** | Conrado | Decoder giant-tour→split + fitness em R$ com penalidades P0 → **VRP funcionando em `sp_40`** | Pedro (experimentos), Rodrigo (Solutions reais), Alexandre (mapa multi-veículo) | 🟡 split ótimo + fitness definitivo no PR de 08/10 (sp_40: 4 veículos, sem violação); falta trocar o stub pelo `constraints/` |
+| **16/10 (sex)** | Conrado | Decoder giant-tour→split + fitness em R$ com penalidades P0 → **VRP funcionando em `sp_40`** | Pedro (experimentos), Rodrigo (Solutions reais), Alexandre (mapa multi-veículo) | 🟡 split ótimo + fitness definitivo na `main` (PR #8, 11/10; sp_40: 4 veículos, sem violação); falta trocar o stub pelo `constraints/` |
 | **16/10 (sex)** | Pedro | Clarke-Wright Savings + `experiments/runner.py` (configs YAML × seeds) | rodada de experimentos na S3 | ⏳ |
 | **16/10 (sex)** | Rodrigo | Relatório diário/semanal com recomendações (Groq real) + cache de respostas | Alexandre (`medroute report`) | ⏳ |
-| **16/10 (sex)** | Alexandre | CLI completa (`compare`, `instruct`, `report`) + mapa multi-veículo (cor por veículo, ícone por prioridade) | demo da S2 | 🟡 mapa pronto; faltam `compare`/`instruct`/`report` |
+| **16/10 (sex)** | Alexandre | CLI completa (`compare`, `instruct`, `report`) + mapa multi-veículo (cor por veículo, ícone por prioridade) | demo da S2 | 🟡 mapa e `instruct` (PR #9) prontos; faltam `compare`/`report` |
 | **21/10 (qua)** | Beatriz | `constraints/` deadline, compatibilidade, jornada + fator de trânsito na `DistanceMatrix.time()` | Conrado (fitness P1) | — |
 | **21/10 (qua)** | Conrado | Fitness P1 (tempo de chegada, deadline, jornada, compatibilidade) + 2-opt local no GA | Pedro (experimento E5 de sensibilidade), Rodrigo (instruções com horários) | — |
 | **21/10 (qua)** | Alexandre | Roteiro do vídeo (quem fala o quê, em quantos minutos) | todos preparam sua fala | — |
