@@ -1,0 +1,57 @@
+{
+  "instance_nome": "sp_15",
+  "vehicle": {
+    "id": "van-01",
+    "tipo": "van",
+    "capacidade_kg": 800.0,
+    "capacidade_l": 3000.0,
+    "autonomia_km": 400.0,
+    "velocidade_kmh": 24.0,
+    "custo_km": 2.5,
+    "custo_fixo": 200.0,
+    "aceita_refrigerado": true
+  },
+  "seeds": [
+    7,
+    17,
+    42,
+    73,
+    101
+  ],
+  "ga_config": {
+    "population_size": 80,
+    "generations": 200,
+    "crossover_rate": 0.9,
+    "mutation_rate": 0.2,
+    "elitism": 2,
+    "tournament_size": 3,
+    "crossover": "ox",
+    "mutation": "inversion",
+    "patience": null,
+    "improvement_tolerance": 1e-09
+  },
+  "two_opt_max_passes": 100,
+  "fitness": "provisório: custo operacional + penalidades; sem custo de prioridade",
+  "duracao": "tempo de viagem informado pelo decoder; sem tempo de serviço",
+  "python": "3.12.14",
+  "platform": "macOS-26.5.2-arm64-arm-64bit",
+  "sha256": {
+    "scripts/compare_sp15.py": "2508cefb443c8ceeeff8dc5a0260e228d9f27a36f30e9dfa0196253e1e029ecb",
+    "data/instances/sp_15.json": "ac56f03fdb891e79df2cb3e7c1b4d0e46c652f977bc7b2d87446291c042efdc6",
+    "configs/frota.yaml": "6c926ced94e3608571038f568e8db182df6487a3c90052ab04fd6b68974ef5e1",
+    "src/medroute/data/distance.py": "f075497eb8829f200da89d6d57b02863ab95f247dd5301561b76c70eefe1120d",
+    "src/medroute/data/fleet.py": "ff114a123408d3c1b3c4179566dca5251061f91d4d7c68014e9a0925b53f275e",
+    "src/medroute/data/loader.py": "e169fcce9d19c60b8de5071f7b13b78119abe073fb7e3cc4442b7ce8f51560ff",
+    "src/medroute/domain/models.py": "22086bc59db4368ac3f4c7503be6d3c2e8955a6526c27cf9b22fc8bb14261a31",
+    "src/medroute/ga/fitness.py": "b598cd301a1e2bfc348c42d347f1b7616a1389438d6687bc04c5f10defcc0693",
+    "src/medroute/ga/decoder.py": "700cd49a5d3c0dcfb2bb4650a99ca631a4512398709b56ff3f31175d63781e8e",
+    "src/medroute/ga/encoding.py": "fbe343d41589be9ef2ce2d025f82ec95fcc38c63965ba01adb9bef81a59ab36e",
+    "src/medroute/ga/engine.py": "355f619aa63f56a4ab5df9727990221a923794ef5e2ae838dbaa0a6908aa8086",
+    "src/medroute/ga/operators.py": "d8d08ba8d09c38b10f11f3c70e423b4b4e23ee83757778cc21dea760085ed125",
+    "src/medroute/baselines/nearest_neighbor.py": "8ac80136fc6cafeabcd29f231c6d4a93f10cbdf4432667f9a226941dc0376e21",
+    "src/medroute/baselines/two_opt.py": "1b08f862bfdc4322c5bdf04e50276c52993c0bc9d4451f702f11b6ee68f3e930",
+    "src/medroute/baselines/random.py": "8a0fa35c365a847efdf486123046443ee98356140c9b2e0b4019b2ba20102007",
+    "src/medroute/baselines/_common.py": "1c67f35b26bcac5b5539243fe6490f18abd9e68e3b302bddaf83c5793d867f87",
+    "src/medroute/experiments/metrics.py": "9d9eccc1beabd80332b25b4a2e0aed9d04ca88e0f844011004058ded513cfa3e"
+  }
+}
