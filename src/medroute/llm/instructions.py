@@ -7,8 +7,9 @@ import logging
 from medroute.domain.models import Instance, Solution
 
 from .client import LLMClient
-from .context import PRIORIDADE_ROTULO, RouteContext, build_route_contexts, numero_br
+from .context import PRIORIDADE_ROTULO, RouteContext, build_route_contexts
 from .prompts import load_prompt
+from .text import clean_text, numero_br
 
 logger = logging.getLogger(__name__)
 
@@ -20,11 +21,6 @@ TENTATIVAS = 2  # a primeira + uma nova tentativa se a fidelidade falhar
 AVISO_NOVA_TENTATIVA = (
     "ATENÇÃO: a resposta anterior omitiu ou reordenou paradas. Liste TODAS as paradas, "
     'na ordem do campo "ordem", com o nome exatamente como no campo "nome".'
-)
-
-# Espaços inseparáveis (U+00A0, U+2007, U+202F) -> espaço; hífens U+2010/U+2011 -> "-".
-_TIPOGRAFICOS = str.maketrans(
-    {"\u00a0": " ", "\u2007": " ", "\u202f": " ", "\u2010": "-", "\u2011": "-"}
 )
 
 
@@ -53,15 +49,6 @@ def generate_instructions(
             texto = fallback_instructions(ctx)
         instrucoes[ctx.vehicle_id] = texto
     return instrucoes
-
-
-def clean_text(texto: str) -> str:
-    """Troca espaços e hífens tipográficos por comuns.
-
-    Modelos como o gpt-oss escrevem "Domicílio<U+202F>02" (espaço estreito inseparável),
-    que parece igual na tela, mas quebra a comparação de nomes e some em fontes de PDF.
-    """
-    return texto.translate(_TIPOGRAFICOS)
 
 
 def is_faithful(texto: str, ctx: RouteContext) -> bool:

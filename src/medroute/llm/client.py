@@ -62,7 +62,7 @@ class OpenAICompatibleClient:
         model: str,
         base_url: str | None = None,
         temperature: float = 0.2,
-        max_tokens: int = 1500,
+        max_tokens: int = 4000,
         timeout_s: float = 60.0,
         max_retries: int = 3,
         sdk_client: OpenAI | None = None,
@@ -107,10 +107,15 @@ class OpenAICompatibleClient:
 
         choice = response.choices[0] if response.choices else None
         content = (choice.message.content or "").strip() if choice else ""
+        # Em modelos com raciocínio (gpt-oss), max_tokens cobre o raciocínio + a resposta;
+        # ao estourar, o texto vem vazio ou cortado no meio. Nos dois casos é erro.
+        if getattr(choice, "finish_reason", None) == "length":
+            raise LLMError(
+                f"{self.provider}: resposta do modelo {self.model} cortada pelo limite de "
+                f"{self.max_tokens} tokens: aumente LLM_MAX_TOKENS"
+            )
         if not content:
-            motivo = getattr(choice, "finish_reason", None)
-            dica = " (limite de tokens: aumente LLM_MAX_TOKENS)" if motivo == "length" else ""
-            raise LLMError(f"{self.provider}: resposta vazia do modelo {self.model}{dica}")
+            raise LLMError(f"{self.provider}: resposta vazia do modelo {self.model}")
         return content
 
     def _error(self, e: Exception, detalhe: str = "") -> LLMError:
@@ -143,7 +148,7 @@ def client_from_env(env: Mapping[str, str] | None = None) -> LLMClient:
         model=model,
         base_url=base_url,
         temperature=_number(env, "LLM_TEMPERATURE", 0.2, float),
-        max_tokens=_number(env, "LLM_MAX_TOKENS", 1500, int),
+        max_tokens=_number(env, "LLM_MAX_TOKENS", 4000, int),
     )
     # Só provedores reais usam cache; LLM_CACHE_DIR vazio ou ausente desliga.
     cache_dir = env.get("LLM_CACHE_DIR", "").strip()

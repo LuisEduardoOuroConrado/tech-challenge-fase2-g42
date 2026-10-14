@@ -12,12 +12,9 @@ from pydantic import BaseModel, ConfigDict
 
 from medroute.domain.models import Instance, Priority, Solution, VehicleType
 
+from .text import numero_br
+
 PRIORIDADE_ROTULO = {Priority.CRITICA: "crítica", Priority.ALTA: "alta", Priority.NORMAL: "normal"}
-
-
-def numero_br(valor: float, casas: int = 1) -> str:
-    """Formata com vírgula decimal: 31.8 -> '31,8'."""
-    return f"{valor:.{casas}f}".replace(".", ",")
 
 
 class _Context(BaseModel):

@@ -55,7 +55,7 @@ class OpenAICompatibleClient:
         model: str,
         base_url: str | None = None,
         temperature: float = 0.2,
-        max_tokens: int = 1500,
+        max_tokens: int = 4000,
         timeout_s: float = 60.0,
         max_retries: int = 3,
         sdk_client: OpenAI | None = None,   # injeção para testes sem rede
@@ -138,7 +138,10 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
 3. Erros transitórios (limite de taxa 429, timeout, falha de conexão, erro 5xx) são
    repetidos até `max_retries` vezes com espera exponencial (2 s, 4 s, 8 s).
    Esgotadas as tentativas ou em erro não transitório (ex.: 401), lança `LLMError`.
-4. Resposta vazia é tratada como erro (`LLMError`).
+4. Resposta vazia é tratada como erro (`LLMError`). Resposta cortada pelo limite
+   de tokens (`finish_reason == "length"`) também, mesmo com texto: em modelos
+   com raciocínio (`gpt-oss-120b`), `max_tokens` cobre o raciocínio e a resposta.
+   Por isso o padrão de `LLM_MAX_TOKENS` é 4000 (o relatório usa ~1.200 a 1.500).
 5. A chave de API nunca aparece em logs, mensagens de erro ou arquivos de cache.
 6. O módulo não carrega `.env` sozinho; quem chama (CLI/Streamlit) chama
    `load_dotenv()` (`python-dotenv`, já nas dependências) antes de `client_from_env`.
@@ -159,6 +162,8 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
 
 ### Prompts
 
+0. Prompts atuais: `instrucoes_motorista` (v1) e `relatorio` (v1). Um `$` que não
+   inicia variável (ex.: "R$ 10,00") fica como está; variável ausente gera `ValueError`.
 1. Cada prompt fica em `llm/prompts/<nome>.md`, com um cabeçalho de versão
    (`versao: 1`) e as seções `system` e `user`. Templates usam `string.Template`
    (`$variavel`) para não conflitar com as chaves do JSON.
@@ -201,6 +206,31 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
    em Python e passadas prontas à LLM.
 2. A LLM redige: resumo executivo, eficiência e economia, e uma seção
    "Recomendações" baseada nos padrões dos dados (R13).
+3. `solutions` são planos para a **mesma instância** (ex.: GA e baselines). Fica uma
+   solução por algoritmo (a de menor fitness); a melhor de todas é o **plano adotado**
+   e as demais entram como alternativas de comparação. As métricas base vêm de
+   `experiments/metrics.py` (`extract_metrics`, `improvement_pct`).
+4. O relatório final é Markdown: cabeçalho (plano, provedor/modelo, prompt e versão),
+   **tabelas geradas em Python** (indicadores, rotas, comparação entre algoritmos e,
+   no semanal, projeção) e, por último, o texto da LLM. Os números das tabelas nunca
+   passam pela LLM.
+5. O custo generalizado é decomposto como na Spec 03: operacional + prioridade
+   (`fitness - custo_operacional - penalidades`) + penalidades.
+6. **Padrões** calculados em Python alimentam as recomendações: veículos ociosos (com
+   o custo fixo), ocupação baixa (< 50%) ou alta (>= 90%) na dimensão mais cheia,
+   autonomia >= 80%, entrega crítica na segunda metade da rota, rotas desbalanceadas
+   (maior >= 1,5 x menor), violações e a diferença para cada alternativa.
+7. **Diferenças vão à LLM em frases prontas** (`"plano adotado 52,3 km maior (30,9%)"`),
+   não em números com sinal: com sinal, o `gpt-oss-120b` trocou "maior" por "menor"
+   (visto em 13/10). O mesmo vale para a dimensão da ocupação (peso ou volume).
+8. **Semanal = projeção:** não há dados de vários dias, então `periodo="semanal"`
+   repete o dia por 5 dias úteis com a mesma demanda. A premissa aparece na tabela e
+   o prompt separa "por dia" de "estimativa da semana".
+9. **Verificação:** o texto da LLM precisa ter os títulos `Resumo executivo`,
+   `Eficiência e economia` e `Recomendações`, nessa ordem. Se faltar, nova tentativa
+   com aviso; se faltar de novo, texto padrão sem LLM (o cabeçalho informa).
+10. Limite conhecido: a verificação não confere cada número do texto da LLM contra os
+    dados; isso entra na rubrica de avaliação da S3.
 
 ### Cache (S2)
 
@@ -270,7 +300,8 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
 | 8 | `test_client.py::test_429_seguido_de_sucesso_tenta_de_novo` |
 | 9 | `test_cache.py::test_mesma_entrada_chama_o_provedor_uma_vez` |
 | 10 | `test_cache.py::test_arquivo_registra_provedor_modelo_prompt_e_versao` e `::test_arquivo_nao_contem_a_chave_de_api` |
-| 11–12 | a fazer (S2/S3) |
+| 11 | `test_reports.py::test_duas_solucoes_com_mock_prompt_traz_metricas_e_texto_tem_recomendacoes` |
+| 12 | a fazer (S3) |
 
 Além dos critérios, já há testes para: veículo inexistente, instância diferente,
 rota vazia, JSON arredondado, prompt mal formatado, 401 sem expor a chave, resposta
