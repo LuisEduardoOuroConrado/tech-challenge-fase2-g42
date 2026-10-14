@@ -12,7 +12,7 @@ from medroute.llm import (
     generate_instructions,
     load_prompt,
 )
-from medroute.llm.instructions import fallback_instructions, is_faithful
+from medroute.llm.instructions import AVISO_NOVA_TENTATIVA, fallback_instructions, is_faithful
 
 ROOT = Path(__file__).resolve().parents[3]
 FIXTURE = ROOT / "tests" / "fixtures" / "solution_sp15.json"
@@ -44,9 +44,11 @@ class ScriptedClient:
     def __init__(self, *respostas):
         self.respostas = list(respostas)
         self.calls = []
+        self.prompts = []
 
-    def complete(self, system, user):
+    def complete(self, system, user, *, prompt=None):
         self.calls.append((system, user))
+        self.prompts.append(prompt)
         return self.respostas.pop(0)
 
 
@@ -183,6 +185,9 @@ def test_resposta_infiel_tenta_de_novo_e_usa_a_segunda(solution, inst):
 
     assert generate_instructions(solution, inst, client) == {"moto-01": boa}
     assert len(client.calls) == 2
+    (_, primeira), (_, segunda) = client.calls
+    assert segunda == f"{primeira}\n\n{AVISO_NOVA_TENTATIVA}"  # muda a chave do cache
+    assert {p.nome for p in client.prompts} == {"instrucoes_motorista"}
 
 
 def test_resposta_infiel_duas_vezes_usa_fallback(solution, inst, caplog):
@@ -206,6 +211,29 @@ def test_fidelidade_exige_a_ordem(solution, inst):
     assert is_faithful(em_ordem, ctx)
     assert is_faithful(em_ordem.upper(), ctx)
     assert not is_faithful(fora_de_ordem, ctx)
+
+
+def test_fidelidade_ignora_espacos_e_hifens_tipograficos(solution, inst):
+    # Visto com o gpt-oss no Groq em 13/10: "Domicílio<U+202F>02" reprovava uma resposta correta.
+    van = build_route_contexts(solution, inst)[2]
+    resposta = (
+        "1. IPq HC\u2011FMUSP\n2. Domicílio\u202f02\n3. Domicílio\u00a005\n"
+        "4. Domicílio  08\n5. Domicílio 10"
+    )
+    assert is_faithful(resposta, van)
+
+
+def test_instrucoes_saem_sem_espacos_tipograficos(solution, inst):
+    solution = solution.model_copy(update={"routes": solution.routes[:1]})
+    resposta = (
+        "InCor, Instituto da Criança (ICr), Domicílio\u202f03, Domicílio\u202f06: 31,8\u202fkm"
+    )
+    client = ScriptedClient(resposta)
+
+    texto = generate_instructions(solution, inst, client)["moto-01"]
+
+    assert len(client.calls) == 1  # aceita de primeira, sem nova tentativa
+    assert texto == resposta.replace("\u202f", " ")
 
 
 def test_fallback_lista_alertas_e_retorno(solution, inst):

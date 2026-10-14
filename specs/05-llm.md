@@ -38,14 +38,14 @@ class LLMError(RuntimeError): ...
 class LLMClient(Protocol):
     provider: str
     model: str
-    def complete(self, system: str, user: str) -> str: ...
+    def complete(self, system: str, user: str, *, prompt: Prompt | None = None) -> str: ...
 
 class MockClient:
     """Determinístico e sem rede. Devolve '[mock]\n' + user e registra as chamadas."""
     provider = "mock"
     model = "mock"
     calls: list[tuple[str, str]]
-    def complete(self, system: str, user: str) -> str: ...
+    def complete(self, system: str, user: str, *, prompt: Prompt | None = None) -> str: ...
 
 class OpenAICompatibleClient:
     def __init__(
@@ -61,9 +61,18 @@ class OpenAICompatibleClient:
         sdk_client: OpenAI | None = None,   # injeção para testes sem rede
         sleep: Callable[[float], None] = time.sleep,  # injeção para testes sem espera
     ) -> None: ...
-    def complete(self, system: str, user: str) -> str: ...
+    def complete(self, system: str, user: str, *, prompt: Prompt | None = None) -> str: ...
 
 def client_from_env(env: Mapping[str, str] | None = None) -> LLMClient: ...
+
+# llm/cache.py  (S2)
+class CachedClient:
+    """Envolve um LLMClient real e grava cada resposta em <cache_dir>/<hash>.json."""
+    inner: LLMClient
+    hits: int
+    misses: int
+    def __init__(self, inner: LLMClient, cache_dir: str | Path) -> None: ...
+    def complete(self, system: str, user: str, *, prompt: Prompt | None = None) -> str: ...
 
 # llm/context.py — junção determinística Solution + Instance
 class StopContext(BaseModel):
@@ -176,6 +185,11 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
    os nomes das entregas serem únicos e nenhum estar contido em outro. Isso vale
    para `sp_15`, `sp_40` e `sp_80` (conferido em 08/10); instância nova que quebre
    a regra exige trocar a busca por correspondência com a lista numerada.
+   Antes da comparação e da entrega do texto, espaços inseparáveis (U+00A0, U+2007,
+   U+202F) viram espaço comum e hífens U+2010/U+2011 viram `-`: o `gpt-oss-120b`
+   escreve `Domicílio<U+202F>02`, o que reprovava respostas corretas (visto em 13/10).
+   A nova tentativa anexa ao prompt um aviso de correção; isso orienta o modelo e
+   muda a chave do cache, que de outra forma devolveria a mesma resposta infiel.
 5. Horários de chegada por parada ficam fora da S1. Entram quando
    `cronograma_rota` (Spec 03, Beatriz, 14/10) estiver na `main`: o contexto ganha
    `chegada_min` por parada e o prompt sobe para `versao: 2`.
@@ -194,6 +208,14 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
 2. O hash é SHA-256 de `provider`, `model`, `temperature`, `max_tokens`, `system`
    e `user`. Mesma entrada → mesma resposta sem nova chamada à API.
 3. O `MockClient` não usa cache. O diretório não é versionado.
+4. `client_from_env` devolve um `CachedClient` para `groq`/`openai` quando
+   `LLM_CACHE_DIR` está preenchida; vazia ou ausente desliga o cache.
+5. Cada arquivo guarda `provider`, `model`, `temperature`, `max_tokens`, `prompt`,
+   `versao`, `criado_em`, `system`, `user` e `response` — nunca a chave de API.
+   `prompt` e `versao` vêm do argumento opcional `prompt=` de `complete`.
+6. Erros do provedor não são gravados; arquivo ilegível é tratado como ausência
+   (aviso no log) e refeito. A gravação é atômica (arquivo temporário + renomear).
+7. Para forçar novas respostas, apague o diretório de cache.
 
 ### Q&A (S3, P1)
 
@@ -246,7 +268,9 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
 | 6 | `test_instructions.py::test_prompt_marca_entregas_criticas_e_refrigeradas` |
 | 7 | `test_instructions.py::test_resposta_infiel_duas_vezes_usa_fallback` |
 | 8 | `test_client.py::test_429_seguido_de_sucesso_tenta_de_novo` |
-| 9–12 | a fazer (S2/S3) |
+| 9 | `test_cache.py::test_mesma_entrada_chama_o_provedor_uma_vez` |
+| 10 | `test_cache.py::test_arquivo_registra_provedor_modelo_prompt_e_versao` e `::test_arquivo_nao_contem_a_chave_de_api` |
+| 11–12 | a fazer (S2/S3) |
 
 Além dos critérios, já há testes para: veículo inexistente, instância diferente,
 rota vazia, JSON arredondado, prompt mal formatado, 401 sem expor a chave, resposta

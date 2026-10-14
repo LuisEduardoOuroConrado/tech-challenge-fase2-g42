@@ -8,10 +8,15 @@ from __future__ import annotations
 import os
 import time
 from collections.abc import Callable, Mapping
-from typing import Protocol
+from typing import TYPE_CHECKING, Protocol
 
 import openai
 from openai import OpenAI
+
+from .cache import CachedClient
+
+if TYPE_CHECKING:
+    from .prompts import Prompt
 
 DEFAULT_GROQ_BASE_URL = "https://api.groq.com/openai/v1"
 
@@ -31,7 +36,8 @@ class LLMClient(Protocol):
     provider: str
     model: str
 
-    def complete(self, system: str, user: str) -> str: ...
+    # `prompt` identifica o prompt usado (nome e versão) para cache e avaliação.
+    def complete(self, system: str, user: str, *, prompt: Prompt | None = None) -> str: ...
 
 
 class MockClient:
@@ -43,7 +49,7 @@ class MockClient:
     def __init__(self) -> None:
         self.calls: list[tuple[str, str]] = []
 
-    def complete(self, system: str, user: str) -> str:
+    def complete(self, system: str, user: str, *, prompt: Prompt | None = None) -> str:
         self.calls.append((system, user))
         return f"[mock]\n{user}"
 
@@ -79,7 +85,7 @@ class OpenAICompatibleClient:
             api_key=api_key, base_url=base_url, timeout=timeout_s, max_retries=0
         )
 
-    def complete(self, system: str, user: str) -> str:
+    def complete(self, system: str, user: str, *, prompt: Prompt | None = None) -> str:
         for tentativa in range(self.max_retries + 1):
             try:
                 response = self._sdk.chat.completions.create(
@@ -131,7 +137,7 @@ def client_from_env(env: Mapping[str, str] | None = None) -> LLMClient:
     base_url = env.get(f"{prefixo}_BASE_URL", "").strip() or (
         DEFAULT_GROQ_BASE_URL if provider == "groq" else None
     )
-    return OpenAICompatibleClient(
+    client = OpenAICompatibleClient(
         provider=provider,
         api_key=api_key,
         model=model,
@@ -139,6 +145,9 @@ def client_from_env(env: Mapping[str, str] | None = None) -> LLMClient:
         temperature=_number(env, "LLM_TEMPERATURE", 0.2, float),
         max_tokens=_number(env, "LLM_MAX_TOKENS", 1500, int),
     )
+    # Só provedores reais usam cache; LLM_CACHE_DIR vazio ou ausente desliga.
+    cache_dir = env.get("LLM_CACHE_DIR", "").strip()
+    return CachedClient(client, cache_dir) if cache_dir else client
 
 
 def _required(env: Mapping[str, str], nome: str) -> str:

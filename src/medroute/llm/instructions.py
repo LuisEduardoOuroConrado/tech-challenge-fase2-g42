@@ -15,6 +15,18 @@ logger = logging.getLogger(__name__)
 PROMPT = "instrucoes_motorista"
 TENTATIVAS = 2  # a primeira + uma nova tentativa se a fidelidade falhar
 
+# Anexado ao prompt na nova tentativa: orienta a correção e muda a chave do cache,
+# que de outra forma devolveria a mesma resposta infiel.
+AVISO_NOVA_TENTATIVA = (
+    "ATENÇÃO: a resposta anterior omitiu ou reordenou paradas. Liste TODAS as paradas, "
+    'na ordem do campo "ordem", com o nome exatamente como no campo "nome".'
+)
+
+# Espaços inseparáveis (U+00A0, U+2007, U+202F) -> espaço; hífens U+2010/U+2011 -> "-".
+_TIPOGRAFICOS = str.maketrans(
+    {"\u00a0": " ", "\u2007": " ", "\u202f": " ", "\u2010": "-", "\u2011": "-"}
+)
+
 
 def generate_instructions(
     solution: Solution,
@@ -26,8 +38,9 @@ def generate_instructions(
     instrucoes = {}
     for ctx in build_route_contexts(solution, inst):
         system, user = prompt.render(contexto=ctx.to_prompt_json())
-        for _ in range(TENTATIVAS):
-            texto = client.complete(system, user)
+        for tentativa in range(TENTATIVAS):
+            mensagem = user if tentativa == 0 else f"{user}\n\n{AVISO_NOVA_TENTATIVA}"
+            texto = clean_text(client.complete(system, mensagem, prompt=prompt))
             if is_faithful(texto, ctx):
                 break
         else:
@@ -42,16 +55,30 @@ def generate_instructions(
     return instrucoes
 
 
+def clean_text(texto: str) -> str:
+    """Troca espaços e hífens tipográficos por comuns.
+
+    Modelos como o gpt-oss escrevem "Domicílio<U+202F>02" (espaço estreito inseparável),
+    que parece igual na tela, mas quebra a comparação de nomes e some em fontes de PDF.
+    """
+    return texto.translate(_TIPOGRAFICOS)
+
+
 def is_faithful(texto: str, ctx: RouteContext) -> bool:
     """True se o nome de cada parada aparece no texto, na ordem da rota."""
-    texto = texto.casefold()
+    texto = _comparavel(texto)
     posicao = 0
     for parada in ctx.paradas:
-        encontrado = texto.find(parada.nome.casefold(), posicao)
+        nome = _comparavel(parada.nome)
+        encontrado = texto.find(nome, posicao)
         if encontrado < 0:
             return False
-        posicao = encontrado + len(parada.nome)
+        posicao = encontrado + len(nome)
     return True
+
+
+def _comparavel(texto: str) -> str:
+    return " ".join(clean_text(texto).casefold().split())
 
 
 def fallback_instructions(ctx: RouteContext) -> str:
