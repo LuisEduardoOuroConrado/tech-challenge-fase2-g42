@@ -149,8 +149,9 @@ def test_resposta_vazia_e_erro(content):
         client.complete("s", "u")
 
 
-def test_resposta_cortada_pelo_limite_sugere_aumentar_tokens():
-    client, _, _ = make_client(reply("", finish_reason="length"))
+@pytest.mark.parametrize("content", ["", "texto cortado no mei"])
+def test_resposta_cortada_pelo_limite_sugere_aumentar_tokens(content):
+    client, _, _ = make_client(reply(content, finish_reason="length"))
     with pytest.raises(LLMError, match="LLM_MAX_TOKENS"):
         client.complete("s", "u")
 

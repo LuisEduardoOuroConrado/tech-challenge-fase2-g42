@@ -38,14 +38,14 @@ class LLMError(RuntimeError): ...
 class LLMClient(Protocol):
     provider: str
     model: str
-    def complete(self, system: str, user: str) -> str: ...
+    def complete(self, system: str, user: str, *, prompt: Prompt | None = None) -> str: ...
 
 class MockClient:
     """Determinístico e sem rede. Devolve '[mock]\n' + user e registra as chamadas."""
     provider = "mock"
     model = "mock"
     calls: list[tuple[str, str]]
-    def complete(self, system: str, user: str) -> str: ...
+    def complete(self, system: str, user: str, *, prompt: Prompt | None = None) -> str: ...
 
 class OpenAICompatibleClient:
     def __init__(
@@ -55,15 +55,24 @@ class OpenAICompatibleClient:
         model: str,
         base_url: str | None = None,
         temperature: float = 0.2,
-        max_tokens: int = 1500,
+        max_tokens: int = 4000,
         timeout_s: float = 60.0,
         max_retries: int = 3,
         sdk_client: OpenAI | None = None,   # injeção para testes sem rede
         sleep: Callable[[float], None] = time.sleep,  # injeção para testes sem espera
     ) -> None: ...
-    def complete(self, system: str, user: str) -> str: ...
+    def complete(self, system: str, user: str, *, prompt: Prompt | None = None) -> str: ...
 
 def client_from_env(env: Mapping[str, str] | None = None) -> LLMClient: ...
+
+# llm/cache.py  (S2)
+class CachedClient:
+    """Envolve um LLMClient real e grava cada resposta em <cache_dir>/<hash>.json."""
+    inner: LLMClient
+    hits: int
+    misses: int
+    def __init__(self, inner: LLMClient, cache_dir: str | Path) -> None: ...
+    def complete(self, system: str, user: str, *, prompt: Prompt | None = None) -> str: ...
 
 # llm/context.py — junção determinística Solution + Instance
 class StopContext(BaseModel):
@@ -129,7 +138,10 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
 3. Erros transitórios (limite de taxa 429, timeout, falha de conexão, erro 5xx) são
    repetidos até `max_retries` vezes com espera exponencial (2 s, 4 s, 8 s).
    Esgotadas as tentativas ou em erro não transitório (ex.: 401), lança `LLMError`.
-4. Resposta vazia é tratada como erro (`LLMError`).
+4. Resposta vazia é tratada como erro (`LLMError`). Resposta cortada pelo limite
+   de tokens (`finish_reason == "length"`) também, mesmo com texto: em modelos
+   com raciocínio (`gpt-oss-120b`), `max_tokens` cobre o raciocínio e a resposta.
+   Por isso o padrão de `LLM_MAX_TOKENS` é 4000 (o relatório usa ~1.200 a 1.500).
 5. A chave de API nunca aparece em logs, mensagens de erro ou arquivos de cache.
 6. O módulo não carrega `.env` sozinho; quem chama (CLI/Streamlit) chama
    `load_dotenv()` (`python-dotenv`, já nas dependências) antes de `client_from_env`.
@@ -150,6 +162,8 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
 
 ### Prompts
 
+0. Prompts atuais: `instrucoes_motorista` (v1) e `relatorio` (v1). Um `$` que não
+   inicia variável (ex.: "R$ 10,00") fica como está; variável ausente gera `ValueError`.
 1. Cada prompt fica em `llm/prompts/<nome>.md`, com um cabeçalho de versão
    (`versao: 1`) e as seções `system` e `user`. Templates usam `string.Template`
    (`$variavel`) para não conflitar com as chaves do JSON.
@@ -176,6 +190,11 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
    os nomes das entregas serem únicos e nenhum estar contido em outro. Isso vale
    para `sp_15`, `sp_40` e `sp_80` (conferido em 08/10); instância nova que quebre
    a regra exige trocar a busca por correspondência com a lista numerada.
+   Antes da comparação e da entrega do texto, espaços inseparáveis (U+00A0, U+2007,
+   U+202F) viram espaço comum e hífens U+2010/U+2011 viram `-`: o `gpt-oss-120b`
+   escreve `Domicílio<U+202F>02`, o que reprovava respostas corretas (visto em 13/10).
+   A nova tentativa anexa ao prompt um aviso de correção; isso orienta o modelo e
+   muda a chave do cache, que de outra forma devolveria a mesma resposta infiel.
 5. Horários de chegada por parada ficam fora da S1. Entram quando
    `cronograma_rota` (Spec 03, Beatriz, 14/10) estiver na `main`: o contexto ganha
    `chegada_min` por parada e o prompt sobe para `versao: 2`.
@@ -187,6 +206,31 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
    em Python e passadas prontas à LLM.
 2. A LLM redige: resumo executivo, eficiência e economia, e uma seção
    "Recomendações" baseada nos padrões dos dados (R13).
+3. `solutions` são planos para a **mesma instância** (ex.: GA e baselines). Fica uma
+   solução por algoritmo (a de menor fitness); a melhor de todas é o **plano adotado**
+   e as demais entram como alternativas de comparação. As métricas base vêm de
+   `experiments/metrics.py` (`extract_metrics`, `improvement_pct`).
+4. O relatório final é Markdown: cabeçalho (plano, provedor/modelo, prompt e versão),
+   **tabelas geradas em Python** (indicadores, rotas, comparação entre algoritmos e,
+   no semanal, projeção) e, por último, o texto da LLM. Os números das tabelas nunca
+   passam pela LLM.
+5. O custo generalizado é decomposto como na Spec 03: operacional + prioridade
+   (`fitness - custo_operacional - penalidades`) + penalidades.
+6. **Padrões** calculados em Python alimentam as recomendações: veículos ociosos (com
+   o custo fixo), ocupação baixa (< 50%) ou alta (>= 90%) na dimensão mais cheia,
+   autonomia >= 80%, entrega crítica na segunda metade da rota, rotas desbalanceadas
+   (maior >= 1,5 x menor), violações e a diferença para cada alternativa.
+7. **Diferenças vão à LLM em frases prontas** (`"plano adotado 52,3 km maior (30,9%)"`),
+   não em números com sinal: com sinal, o `gpt-oss-120b` trocou "maior" por "menor"
+   (visto em 13/10). O mesmo vale para a dimensão da ocupação (peso ou volume).
+8. **Semanal = projeção:** não há dados de vários dias, então `periodo="semanal"`
+   repete o dia por 5 dias úteis com a mesma demanda. A premissa aparece na tabela e
+   o prompt separa "por dia" de "estimativa da semana".
+9. **Verificação:** o texto da LLM precisa ter os títulos `Resumo executivo`,
+   `Eficiência e economia` e `Recomendações`, nessa ordem. Se faltar, nova tentativa
+   com aviso; se faltar de novo, texto padrão sem LLM (o cabeçalho informa).
+10. Limite conhecido: a verificação não confere cada número do texto da LLM contra os
+    dados; isso entra na rubrica de avaliação da S3.
 
 ### Cache (S2)
 
@@ -194,6 +238,14 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
 2. O hash é SHA-256 de `provider`, `model`, `temperature`, `max_tokens`, `system`
    e `user`. Mesma entrada → mesma resposta sem nova chamada à API.
 3. O `MockClient` não usa cache. O diretório não é versionado.
+4. `client_from_env` devolve um `CachedClient` para `groq`/`openai` quando
+   `LLM_CACHE_DIR` está preenchida; vazia ou ausente desliga o cache.
+5. Cada arquivo guarda `provider`, `model`, `temperature`, `max_tokens`, `prompt`,
+   `versao`, `criado_em`, `system`, `user` e `response` — nunca a chave de API.
+   `prompt` e `versao` vêm do argumento opcional `prompt=` de `complete`.
+6. Erros do provedor não são gravados; arquivo ilegível é tratado como ausência
+   (aviso no log) e refeito. A gravação é atômica (arquivo temporário + renomear).
+7. Para forçar novas respostas, apague o diretório de cache.
 
 ### Q&A (S3, P1)
 
@@ -246,7 +298,10 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
 | 6 | `test_instructions.py::test_prompt_marca_entregas_criticas_e_refrigeradas` |
 | 7 | `test_instructions.py::test_resposta_infiel_duas_vezes_usa_fallback` |
 | 8 | `test_client.py::test_429_seguido_de_sucesso_tenta_de_novo` |
-| 9–12 | a fazer (S2/S3) |
+| 9 | `test_cache.py::test_mesma_entrada_chama_o_provedor_uma_vez` |
+| 10 | `test_cache.py::test_arquivo_registra_provedor_modelo_prompt_e_versao` e `::test_arquivo_nao_contem_a_chave_de_api` |
+| 11 | `test_reports.py::test_duas_solucoes_com_mock_prompt_traz_metricas_e_texto_tem_recomendacoes` |
+| 12 | a fazer (S3) |
 
 Além dos critérios, já há testes para: veículo inexistente, instância diferente,
 rota vazia, JSON arredondado, prompt mal formatado, 401 sem expor a chave, resposta

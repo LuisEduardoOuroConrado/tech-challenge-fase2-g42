@@ -28,14 +28,20 @@ class Prompt:
     user: str
 
     def render(self, **variaveis: str) -> tuple[str, str]:
-        """Devolve (system, user) com as variáveis substituídas."""
-        try:
-            return (
-                Template(self.system).substitute(variaveis),
-                Template(self.user).substitute(variaveis),
-            )
-        except KeyError as e:
-            raise ValueError(f"prompt {self.nome}: variável {e} não informada") from e
+        """Devolve (system, user) com as variáveis substituídas.
+
+        Um `$` que não inicia variável (ex.: "R$ 10,00") fica como está.
+        """
+        textos = []
+        for texto in (self.system, self.user):
+            template = Template(texto)
+            faltando = sorted(set(template.get_identifiers()) - set(variaveis))
+            if faltando:
+                raise ValueError(
+                    f"prompt {self.nome}: variável {', '.join(faltando)} não informada"
+                )
+            textos.append(template.safe_substitute(variaveis))
+        return textos[0], textos[1]
 
 
 def load_prompt(nome: str, pasta: Path = PROMPTS_DIR) -> Prompt:

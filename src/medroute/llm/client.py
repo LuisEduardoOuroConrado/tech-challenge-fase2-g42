@@ -8,10 +8,15 @@ from __future__ import annotations
 import os
 import time
 from collections.abc import Callable, Mapping
-from typing import Protocol
+from typing import TYPE_CHECKING, Protocol
 
 import openai
 from openai import OpenAI
+
+from .cache import CachedClient
+
+if TYPE_CHECKING:
+    from .prompts import Prompt
 
 DEFAULT_GROQ_BASE_URL = "https://api.groq.com/openai/v1"
 
@@ -31,7 +36,8 @@ class LLMClient(Protocol):
     provider: str
     model: str
 
-    def complete(self, system: str, user: str) -> str: ...
+    # `prompt` identifica o prompt usado (nome e versão) para cache e avaliação.
+    def complete(self, system: str, user: str, *, prompt: Prompt | None = None) -> str: ...
 
 
 class MockClient:
@@ -43,7 +49,7 @@ class MockClient:
     def __init__(self) -> None:
         self.calls: list[tuple[str, str]] = []
 
-    def complete(self, system: str, user: str) -> str:
+    def complete(self, system: str, user: str, *, prompt: Prompt | None = None) -> str:
         self.calls.append((system, user))
         return f"[mock]\n{user}"
 
@@ -56,7 +62,7 @@ class OpenAICompatibleClient:
         model: str,
         base_url: str | None = None,
         temperature: float = 0.2,
-        max_tokens: int = 1500,
+        max_tokens: int = 4000,
         timeout_s: float = 60.0,
         max_retries: int = 3,
         sdk_client: OpenAI | None = None,
@@ -79,7 +85,7 @@ class OpenAICompatibleClient:
             api_key=api_key, base_url=base_url, timeout=timeout_s, max_retries=0
         )
 
-    def complete(self, system: str, user: str) -> str:
+    def complete(self, system: str, user: str, *, prompt: Prompt | None = None) -> str:
         for tentativa in range(self.max_retries + 1):
             try:
                 response = self._sdk.chat.completions.create(
@@ -101,10 +107,15 @@ class OpenAICompatibleClient:
 
         choice = response.choices[0] if response.choices else None
         content = (choice.message.content or "").strip() if choice else ""
+        # Em modelos com raciocínio (gpt-oss), max_tokens cobre o raciocínio + a resposta;
+        # ao estourar, o texto vem vazio ou cortado no meio. Nos dois casos é erro.
+        if getattr(choice, "finish_reason", None) == "length":
+            raise LLMError(
+                f"{self.provider}: resposta do modelo {self.model} cortada pelo limite de "
+                f"{self.max_tokens} tokens: aumente LLM_MAX_TOKENS"
+            )
         if not content:
-            motivo = getattr(choice, "finish_reason", None)
-            dica = " (limite de tokens: aumente LLM_MAX_TOKENS)" if motivo == "length" else ""
-            raise LLMError(f"{self.provider}: resposta vazia do modelo {self.model}{dica}")
+            raise LLMError(f"{self.provider}: resposta vazia do modelo {self.model}")
         return content
 
     def _error(self, e: Exception, detalhe: str = "") -> LLMError:
@@ -131,14 +142,17 @@ def client_from_env(env: Mapping[str, str] | None = None) -> LLMClient:
     base_url = env.get(f"{prefixo}_BASE_URL", "").strip() or (
         DEFAULT_GROQ_BASE_URL if provider == "groq" else None
     )
-    return OpenAICompatibleClient(
+    client = OpenAICompatibleClient(
         provider=provider,
         api_key=api_key,
         model=model,
         base_url=base_url,
         temperature=_number(env, "LLM_TEMPERATURE", 0.2, float),
-        max_tokens=_number(env, "LLM_MAX_TOKENS", 1500, int),
+        max_tokens=_number(env, "LLM_MAX_TOKENS", 4000, int),
     )
+    # Só provedores reais usam cache; LLM_CACHE_DIR vazio ou ausente desliga.
+    cache_dir = env.get("LLM_CACHE_DIR", "").strip()
+    return CachedClient(client, cache_dir) if cache_dir else client
 
 
 def _required(env: Mapping[str, str], nome: str) -> str:
