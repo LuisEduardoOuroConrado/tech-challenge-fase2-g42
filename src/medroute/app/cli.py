@@ -125,11 +125,15 @@ def solve(
     torneio: Annotated[int, typer.Option(help="Tamanho do torneio.")] = 3,
     paciencia: Annotated[int | None, typer.Option(help="Para após N gerações sem melhora.")] = None,
     semente_nn: Annotated[
-        bool, typer.Option(help="Inclui a rota do vizinho mais próximo na população inicial.")
-    ] = False,
+        bool,
+        typer.Option(
+            help="Inclui a rota do vizinho mais próximo na população inicial (GA híbrido)."
+        ),
+    ] = True,
     busca_local: Annotated[
-        float, typer.Option(help="Probabilidade de 2-opt dentro das rotas em cada filho.")
-    ] = 0.0,
+        float,
+        typer.Option(help="Probabilidade de 2-opt dentro das rotas em cada filho (0 = GA puro)."),
+    ] = 0.3,
     out_dir: Annotated[Path, typer.Option(help="Pasta dos resultados.")] = RESULTS_DIR,
     mapa: Annotated[bool, typer.Option(help="Gera também o mapa HTML.")] = True,
     frota: FleetOption = FLEET_PATH,
