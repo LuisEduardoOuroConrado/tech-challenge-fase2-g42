@@ -4,23 +4,22 @@
 `penalties(routes)` sem configuração são a versão provisória (sem prioridade), mantida como
 padrão do `GeneticAlgorithm` para quem ainda não passa um `FitnessConfig`.
 
-`cronograma_rota` e `custo_prioridade` são PROVISÓRIOS: pertencem a `constraints/` (Beatriz,
-14/10) e estão aqui com a assinatura da Spec 03, seção 3. Quando `constraints/` entrar, troca-se
-a definição local pelo import, sem mudar quem chama.
+`cronograma_rota` e `custo_prioridade` vêm de `medroute.constraints` (Beatriz, Spec 03, seção 3);
+continuam importáveis daqui para quem já os importava deste módulo.
 """
 
 from __future__ import annotations
 
-from collections.abc import Sequence
 from pathlib import Path
 from typing import Annotated, Self
 
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
+from medroute.constraints import cronograma_rota, custo_prioridade
 from medroute.data.distance import DistanceMatrix
 from medroute.data.fleet import FleetConfig
-from medroute.domain.models import Delivery, Instance, Priority, Route, Vehicle
+from medroute.domain.models import Instance, Priority, Route
 
 FITNESS_PATH = Path("configs/fitness.yaml")
 PENALTY_KEYS = ("capacidade", "autonomia", "compatibilidade", "deadline", "jornada")
@@ -93,44 +92,6 @@ def penalties(routes: list[Route], cfg: FitnessConfig | None = None) -> dict[str
 def evaluate(routes: list[Route]) -> float:
     """Fitness provisório: custo operacional + penalidades sem fixo, sem prioridade."""
     return sum(route.custo for route in routes) + sum(penalties(routes).values())
-
-
-# --- Provisório até constraints/ (Spec 03, seção 3) ------------------------------------------
-
-
-def cronograma_rota(
-    dm: DistanceMatrix,
-    veiculo: Vehicle,
-    rota: Sequence[str],
-    instance: Instance,
-    fleet: FleetConfig,
-    saida_min: float | None = None,
-) -> dict[str, float]:
-    """Minuto de chegada a cada entrega desde a saída do depósito (P0: sem trânsito)."""
-    if saida_min is not None:
-        raise NotImplementedError("fator de trânsito é P1 (constraints/, 21/10)")
-    index_of = {d.id: i for i, d in enumerate(instance.deliveries, start=1)}
-    chegadas: dict[str, float] = {}
-    relogio, anterior = 0.0, 0
-    for delivery_id in rota:
-        atual = index_of[delivery_id]
-        relogio += dm.time(anterior, atual, veiculo.velocidade_kmh)
-        chegadas[delivery_id] = relogio
-        relogio += fleet.servico_min_padrao
-        anterior = atual
-    return chegadas
-
-
-def custo_prioridade(
-    chegadas_min: dict[str, float],
-    entregas: Sequence[Delivery],
-    pesos: dict[Priority, float],
-) -> float:
-    """Σ peso da prioridade (R$/min) × minuto de chegada."""
-    return sum(pesos[d.prioridade] * chegadas_min[d.id] for d in entregas if d.id in chegadas_min)
-
-
-# ----------------------------------------------------------------------------------------------
 
 
 class Fitness:
