@@ -86,7 +86,12 @@ class GeneticAlgorithm:
         """Split ótimo com o fitness definitivo (Spec 03); guloso com o provisório."""
         if isinstance(self.fitness_fn, fitness.Fitness):
             return split_decode(
-                chromosome, self.inst, self.dm, self.fitness_fn.cfg, self.fitness_fn.servico_min
+                chromosome,
+                self.inst,
+                self.dm,
+                self.fitness_fn.cfg,
+                self.fitness_fn.servico_min,
+                self.fitness_fn.fleet,
             )
         return decode(chromosome, self.inst, self.dm)
 

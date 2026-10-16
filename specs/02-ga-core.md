@@ -75,6 +75,7 @@ def decode(
     chromosome: Chromosome,
     inst: Instance,
     dm: DistanceMatrix,
+    fleet: FleetConfig | None = None,   # P1, alteração de 16/10/2026
 ) -> list[Route]: ...
 
 def split_decode(
@@ -83,6 +84,7 @@ def split_decode(
     dm: DistanceMatrix,
     cfg: FitnessConfig,          # Spec 03
     servico_min: float,
+    fleet: FleetConfig | None = None,   # P1, alteração de 16/10/2026
 ) -> list[Route]: ...
 
 # ga/engine.py
@@ -170,6 +172,12 @@ experimentos não precisarem mudar de formato quando ela entrar no GA.
    a Spec 03 aplique a penalidade; entrega inviável nunca é descartada.
 6. Distância, duração, carga e custo da rota incluem saída e retorno ao depósito.
 7. Para a mesma entrada, o decoder é determinístico.
+8. **P1 (alteração de 16/10/2026):** com `fleet`, o volumoso em veículo de
+   `tipos_sem_volumoso` conta como incompatibilidade hard; `Route.violacoes`
+   ganha `deadline` e `jornada` (funções de `constraints/`, Spec 03 seção 3) e
+   `Route.duracao_min` inclui o tempo de parada (`duracao_rota`). O split ótimo
+   soma as penalidades soft de deadline e jornada ao custo de cada rota. Sem
+   `fleet`, o decoder segue o P0 (é o caso dos baselines).
 
 ### Evolução e parada
 

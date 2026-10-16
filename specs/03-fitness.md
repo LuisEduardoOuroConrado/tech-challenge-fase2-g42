@@ -102,6 +102,10 @@ def penalties(routes, cfg) -> dict[str, float]: ...       # R$ por tipo, vai par
 
 Resultado com o fitness definitivo (pop 100, 300 gerações, seed 7): `sp_40` usa 2 carros + 2 motos, R$ 1.206 (operacional R$ 755 + prioridade R$ 451), sem violação e sem crítica atrasada; `sp_80` usa a frota, R$ 3.350, sem violação, em ~2 min.
 
+**Situação em 16/10/2026 (Conrado):** pendência do decoder resolvida. Com o `FleetConfig` (o `GeneticAlgorithm` o passa sempre que recebe o `Fitness`), os dois decoders tratam o volumoso como incompatibilidade hard, gravam `deadline` (`violacao_deadline` sobre `cronograma_rota`) e `jornada` (`violacao_jornada` sobre `duracao_rota`) em `Route.violacoes`, e `Route.duracao_min` passa a ser `duracao_rota`, com as paradas. O split ótimo soma as penalidades soft de deadline e jornada ao custo de cada rota, então o DP continua minimizando o mesmo fitness. Sem `fleet` (baselines) nada muda. O fator de trânsito ainda não entra no fitness (`saida_min=None`); ligar exige decidir o horário de saída das rotas.
+
+Efeito (pop 100, 300 gerações, seed 7): `sp_15` igual (R$ 428); `sp_40` R$ 1.178, sem violação; `sp_80` com o GA puro passa a pagar R$ 2.174 de jornada (rota de 678 min, pois antes a duração não contava as 80 paradas de 10 min), total R$ 6.051. O GA híbrido (semente NN + busca local 0,3) chega a R$ 2.854 em `sp_80` sem violação, com todas as rotas abaixo de 480 min.
+
 ## 6. Decisões (fechadas na revisão de 05/10/2026)
 1. **`custo_prioridade` pesa o tempo até a chegada**, não só o atraso — é o que o ADR 0004 (aceito) define. O atraso além do prazo é cobrado à parte pela penalidade `deadline`.
 2. **Capacidade soma** as frações de excesso em kg e em litros.
