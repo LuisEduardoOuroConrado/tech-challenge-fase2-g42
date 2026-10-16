@@ -10,6 +10,12 @@ violação é registrada: nenhuma entrega é descartada.
 rota por programação dinâmica, minimizando custo operacional + custo de prioridade (Spec 03).
 Só usa rotas sem violação hard; se a frota não comporta nenhuma divisão viável, cai no guloso,
 que registra a violação.
+
+Com `fleet` (P1, Spec 03 seção 3) os dois decoders também tratam o volumoso como
+incompatibilidade hard, registram `deadline` e `jornada` em `Route.violacoes` (via
+`medroute.constraints`) e `Route.duracao_min` passa a somar o tempo de parada. O split ótimo
+inclui as penalidades soft de deadline e jornada no custo de cada rota. Sem `fleet` (ex.:
+baselines) o comportamento é o do P0. O fator de trânsito ainda não entra (`saida_min=None`).
 """
 
 from __future__ import annotations
@@ -18,7 +24,14 @@ from collections.abc import Sequence
 from itertools import pairwise
 from typing import TYPE_CHECKING
 
+from medroute.constraints import (
+    cronograma_rota,
+    duracao_rota,
+    violacao_deadline,
+    violacao_jornada,
+)
 from medroute.data.distance import DistanceMatrix
+from medroute.data.fleet import FleetConfig
 from medroute.domain.models import Delivery, Instance, Route, Vehicle
 
 from .encoding import Chromosome, validate_chromosome
@@ -30,14 +43,16 @@ if TYPE_CHECKING:
 class _Segment:
     """Rota parcial com métricas incrementais (índices da DistanceMatrix, sem o depósito)."""
 
-    def __init__(self, dm: DistanceMatrix) -> None:
+    def __init__(self, dm: DistanceMatrix, fleet: FleetConfig | None = None) -> None:
         self.dm = dm
+        self.fleet = fleet
         self.stops: list[int] = []
         self.deliveries: list[Delivery] = []
         self.open_km = 0.0
         self.peso_kg = 0.0
         self.volume_l = 0.0
         self.refrigerado = 0
+        self.volumosos = 0
 
     def total_km(self) -> float:
         return self.open_km + (self.dm.km(self.stops[-1], 0) if self.stops else 0.0)
@@ -54,29 +69,61 @@ class _Segment:
         self.peso_kg += delivery.peso_kg
         self.volume_l += delivery.volume_l
         self.refrigerado += delivery.refrigerado
+        self.volumosos += _volumoso(delivery, self.fleet)
 
 
-def _violations(vehicle: Vehicle, peso_kg: float, volume_l: float, km: float, refrigerado: int):
+def _volumoso(delivery: Delivery, fleet: FleetConfig | None) -> int:
+    return int(fleet is not None and delivery.volume_l > fleet.volumoso_limiar_l)
+
+
+def _sem_volumoso(vehicle: Vehicle, fleet: FleetConfig | None) -> bool:
+    return fleet is not None and vehicle.tipo.value in fleet.tipos_sem_volumoso
+
+
+def _violations(
+    vehicle: Vehicle,
+    peso_kg: float,
+    volume_l: float,
+    km: float,
+    refrigerado: int,
+    volumosos: int = 0,
+    fleet: FleetConfig | None = None,
+) -> dict[str, float]:
+    """Violações hard; refrigerado e volumoso (este só com `fleet`) somam em compatibilidade."""
+    incompativeis = (0 if vehicle.aceita_refrigerado else refrigerado) + (
+        volumosos if _sem_volumoso(vehicle, fleet) else 0
+    )
     return {
         "capacidade": max(0.0, peso_kg / vehicle.capacidade_kg - 1)
         + max(0.0, volume_l / vehicle.capacidade_l - 1),
         "autonomia": max(0.0, km - vehicle.autonomia_km),
-        "compatibilidade": 0.0 if vehicle.aceita_refrigerado else float(refrigerado),
+        "compatibilidade": float(incompativeis),
     }
 
 
-def _fits(vehicle: Vehicle, peso_kg: float, volume_l: float, km: float, refrigerado: int) -> bool:
-    return not any(_violations(vehicle, peso_kg, volume_l, km, refrigerado).values())
+def _segment_violations(segment: _Segment, vehicle: Vehicle, km: float) -> dict[str, float]:
+    return _violations(
+        vehicle,
+        segment.peso_kg,
+        segment.volume_l,
+        km,
+        segment.refrigerado,
+        segment.volumosos,
+        segment.fleet,
+    )
 
 
 def _fits_with(vehicle: Vehicle, segment: _Segment, index: int, delivery: Delivery) -> bool:
-    return _fits(
+    violations = _violations(
         vehicle,
         segment.peso_kg + delivery.peso_kg,
         segment.volume_l + delivery.volume_l,
         segment.km_with(index),
         segment.refrigerado + delivery.refrigerado,
+        segment.volumosos + _volumoso(delivery, segment.fleet),
+        segment.fleet,
     )
+    return not any(violations.values())
 
 
 def _route_cost(vehicle: Vehicle, km: float) -> float:
@@ -88,38 +135,49 @@ def _choose_vehicle(segment: _Segment, free: Sequence[Vehicle]) -> Vehicle:
     km = segment.total_km()
 
     def key(vehicle: Vehicle) -> tuple[float, float]:
-        violations = _violations(
-            vehicle, segment.peso_kg, segment.volume_l, km, segment.refrigerado
-        )
-        return sum(violations.values()), _route_cost(vehicle, km)
+        return sum(_segment_violations(segment, vehicle, km).values()), _route_cost(vehicle, km)
 
     return min(free, key=key)
 
 
-def _build_route(segment: _Segment, vehicle: Vehicle, dm: DistanceMatrix) -> Route:
+def _build_route(segment: _Segment, vehicle: Vehicle, dm: DistanceMatrix, inst: Instance) -> Route:
     km = segment.total_km()
-    legs = [0, *segment.stops, 0]
-    duracao = sum(dm.time(a, b, vehicle.velocidade_kmh) for a, b in pairwise(legs))
+    sequence = [delivery.id for delivery in segment.deliveries]
+    violacoes = _segment_violations(segment, vehicle, km)
+    fleet = segment.fleet
+    if fleet is None:
+        legs = [0, *segment.stops, 0]
+        duracao = sum(dm.time(a, b, vehicle.velocidade_kmh) for a, b in pairwise(legs))
+    else:
+        duracao = duracao_rota(dm, vehicle, sequence, inst, fleet)
+        chegadas = cronograma_rota(dm, vehicle, sequence, inst, fleet)
+        violacoes["deadline"] = violacao_deadline(chegadas, segment.deliveries)
+        violacoes["jornada"] = violacao_jornada(duracao, fleet)
     return Route(
         vehicle_id=vehicle.id,
-        sequence=[delivery.id for delivery in segment.deliveries],
+        sequence=sequence,
         distancia_km=km,
         duracao_min=duracao,
         carga_kg=segment.peso_kg,
         carga_l=segment.volume_l,
         custo=_route_cost(vehicle, km),
-        violacoes=_violations(vehicle, segment.peso_kg, segment.volume_l, km, segment.refrigerado),
+        violacoes=violacoes,
     )
 
 
-def decode(chromosome: Chromosome, inst: Instance, dm: DistanceMatrix) -> list[Route]:
+def decode(
+    chromosome: Chromosome,
+    inst: Instance,
+    dm: DistanceMatrix,
+    fleet: FleetConfig | None = None,
+) -> list[Route]:
     validate_chromosome(chromosome, inst)
     index_of = {delivery.id: i for i, delivery in enumerate(inst.deliveries, start=1)}
     delivery_of = {delivery.id: delivery for delivery in inst.deliveries}
 
     free = list(inst.fleet)
     routes: list[Route] = []
-    segment = _Segment(dm)
+    segment = _Segment(dm, fleet)
     for delivery_id in chromosome:
         index, delivery = index_of[delivery_id], delivery_of[delivery_id]
         can_extend = not segment.stops or any(
@@ -128,11 +186,11 @@ def decode(chromosome: Chromosome, inst: Instance, dm: DistanceMatrix) -> list[R
         if not can_extend and len(free) > 1:
             vehicle = _choose_vehicle(segment, free)
             free.remove(vehicle)
-            routes.append(_build_route(segment, vehicle, dm))
-            segment = _Segment(dm)
+            routes.append(_build_route(segment, vehicle, dm, inst))
+            segment = _Segment(dm, fleet)
         segment.add(index, delivery)
 
-    routes.append(_build_route(segment, _choose_vehicle(segment, free), dm))
+    routes.append(_build_route(segment, _choose_vehicle(segment, free), dm, inst))
     return routes
 
 
@@ -151,17 +209,21 @@ def _feasible_segments(
     weights: list[float],
     km: list[list[float]],
     servico_min: float,
+    cfg: FitnessConfig,
+    fleet: FleetConfig | None = None,
 ) -> list[list[tuple[int, float]]]:
-    """Para cada início i, as rotas viáveis i..j-1 como (j, custo operacional + prioridade).
+    """Para cada início i, as rotas viáveis i..j-1 como (j, custo da rota no fitness).
 
-    Carga, refrigerados e km com retorno só crescem ao estender a rota (desigualdade
-    triangular), então a primeira violação encerra a extensão.
+    Custo = operacional + prioridade e, com `fleet`, as penalidades soft de deadline e jornada.
+    Carga, incompatíveis e km com retorno só crescem ao estender a rota (desigualdade
+    triangular), então a primeira violação hard encerra a extensão; as soft não encerram.
     """
     n = len(stops)
+    sem_volumoso = _sem_volumoso(vehicle, fleet)
     segments: list[list[tuple[int, float]]] = []
     for start in range(n):
         out: list[tuple[int, float]] = []
-        open_km = relogio = prioridade = peso_kg = volume_l = 0.0
+        open_km = relogio = prioridade = peso_kg = volume_l = atraso = 0.0
         last = 0
         for j in range(start, n):
             delivery, stop = deliveries[j], stops[j]
@@ -169,6 +231,7 @@ def _feasible_segments(
             volume_l += delivery.volume_l
             if (
                 (delivery.refrigerado and not vehicle.aceita_refrigerado)
+                or (sem_volumoso and _volumoso(delivery, fleet))
                 or peso_kg > vehicle.capacidade_kg
                 or volume_l > vehicle.capacidade_l
             ):
@@ -177,12 +240,19 @@ def _feasible_segments(
             open_km += leg
             relogio += leg / vehicle.velocidade_kmh * 60.0
             prioridade += weights[j] * relogio
+            if fleet is not None and delivery.deadline_min is not None:
+                atraso += max(0.0, relogio - delivery.deadline_min)
             relogio += servico_min
             last = stop
             total_km = open_km + km[stop][0]
             if total_km > vehicle.autonomia_km:
                 break
-            out.append((j + 1, _route_cost(vehicle, total_km) + prioridade))
+            cost = _route_cost(vehicle, total_km) + prioridade
+            if fleet is not None:
+                duracao = relogio + km[stop][0] / vehicle.velocidade_kmh * 60.0
+                cost += cfg.penalty("deadline", atraso)
+                cost += cfg.penalty("jornada", violacao_jornada(duracao, fleet))
+            out.append((j + 1, cost))
         segments.append(out)
     return segments
 
@@ -193,6 +263,7 @@ def split_decode(
     dm: DistanceMatrix,
     cfg: FitnessConfig,
     servico_min: float,
+    fleet: FleetConfig | None = None,
 ) -> list[Route]:
     validate_chromosome(chromosome, inst)
     index_of = {delivery.id: i for i, delivery in enumerate(inst.deliveries, start=1)}
@@ -206,7 +277,7 @@ def split_decode(
     groups = _vehicle_groups(inst.fleet)
     limits = tuple(len(group) for group in groups)
     segments = [
-        _feasible_segments(group[0], stops, deliveries, weights, km, servico_min)
+        _feasible_segments(group[0], stops, deliveries, weights, km, servico_min, cfg, fleet)
         for group in groups
     ]
 
@@ -230,7 +301,7 @@ def split_decode(
                         back[j][next_state] = (i, state, g)
 
     if not best[n]:
-        return decode(chromosome, inst, dm)
+        return decode(chromosome, inst, dm, fleet)
 
     state = min(best[n], key=lambda s: (best[n][s], s))
     cuts: list[tuple[int, int, int]] = []
@@ -244,8 +315,8 @@ def split_decode(
     free = [list(group) for group in groups]
     routes = []
     for i, j, g in cuts:
-        segment = _Segment(dm)
+        segment = _Segment(dm, fleet)
         for k in range(i, j):
             segment.add(stops[k], deliveries[k])
-        routes.append(_build_route(segment, free[g].pop(0), dm))
+        routes.append(_build_route(segment, free[g].pop(0), dm, inst))
     return routes
