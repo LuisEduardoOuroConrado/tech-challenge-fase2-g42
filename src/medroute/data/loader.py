@@ -39,7 +39,6 @@ def load_fleet(path: str | Path = "configs/frota.yaml") -> FleetConfig:
             servico_min_padrao=float(g.get("servico_min_padrao", 10)),
             tipos_sem_volumoso=frozenset(sem_volumoso),
             transito=tuple(g.get("transito", [])),
-            penalidade_prioridade=dict(g.get("penalidade_prioridade_rs_min", {})),
         )
     except DataError:
         raise

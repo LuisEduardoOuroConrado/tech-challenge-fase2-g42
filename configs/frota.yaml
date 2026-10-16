@@ -45,10 +45,6 @@ global:
   inicio_jornada: "07:00"
   volumoso_limiar_l: 60      # item acima disso é "volumoso"
   servico_min_padrao: 10     # tempo de atendimento por parada (não está no models.py ainda)
-  penalidade_prioridade_rs_min:  # custo de atraso por min (ADR 0004)
-    critica: 5.0
-    alta: 1.5
-    normal: 0.2
 
 fontes_pendentes:
   - "Frete/km motoboy e van (tabelas de mercado, ex.: pisos de frete)"

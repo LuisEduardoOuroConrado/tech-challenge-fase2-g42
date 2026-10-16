@@ -1,9 +1,9 @@
 """Configuração da frota (YAML) -> lista de Vehicle do domínio + parâmetros globais."""
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
-from medroute.domain.models import Delivery, Priority, Vehicle
+from medroute.domain.models import Delivery, Vehicle
 
 
 @dataclass(frozen=True)
@@ -16,15 +16,14 @@ class FleetConfig:
     servico_min_padrao: float = 10.0
     tipos_sem_volumoso: frozenset[str] = frozenset()
     transito: tuple = ()
-    penalidade_prioridade: dict = field(default_factory=dict)
 
-    def aceita(self, v: Vehicle, d: Delivery) -> bool:
-        """Compatibilidade carga x veículo (refrigerado, volumoso, peso, volume)."""
+    def compativel(self, v: Vehicle, d: Delivery) -> bool:
+        """Só a compatibilidade da carga (refrigerado, volumoso); não olha capacidade."""
         if d.refrigerado and not v.aceita_refrigerado:
             return False
-        if d.volume_l > self.volumoso_limiar_l and v.tipo.value in self.tipos_sem_volumoso:
-            return False
-        return d.peso_kg <= v.capacidade_kg and d.volume_l <= v.capacidade_l
+        return not (d.volume_l > self.volumoso_limiar_l and v.tipo.value in self.tipos_sem_volumoso)
 
-    def penalidade(self, p: Priority) -> float:
-        return float(self.penalidade_prioridade.get(p.value, 0.0))
+    def aceita(self, v: Vehicle, d: Delivery) -> bool:
+        """Compatibilidade + a entrega sozinha cabe no veículo (peso e volume)."""
+        cabe = d.peso_kg <= v.capacidade_kg and d.volume_l <= v.capacidade_l
+        return self.compativel(v, d) and cabe

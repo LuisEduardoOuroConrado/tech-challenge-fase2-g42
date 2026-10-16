@@ -7,7 +7,7 @@
 ## Interfaces
 | Função / classe | Contrato |
 |---|---|
-| `load_fleet(path) -> FleetConfig` | Lê `configs/frota.yaml`; `FleetConfig.vehicles` = 5 `Vehicle` (`moto-01`, `moto-02`, `carro-01`, `carro-02`, `van-01`) + parâmetros globais. `FleetConfig.aceita(veiculo, entrega)` = compatibilidade carga×veículo. |
+| `load_fleet(path) -> FleetConfig` | Lê `configs/frota.yaml`; `FleetConfig.vehicles` = 5 `Vehicle` (`moto-01`, `moto-02`, `carro-01`, `carro-02`, `van-01`) + parâmetros globais. `FleetConfig.compativel(veiculo, entrega)` = só refrigerado/volumoso (sem olhar capacidade); `FleetConfig.aceita(veiculo, entrega)` = `compativel` + a entrega sozinha cabe no veículo. |
 | `load_instance(path, fleet) -> Instance` | Lê JSON e **valida**: regras do próprio modelo (ids únicos, deadline só p/ crítica) + crítica com `deadline_min`, peso/volume > 0, cada entrega atendível por ≥1 veículo, peso total ≤ capacidade da frota. Erros agregados em `DataError`. |
 | `generate_instance(nome, n_total, n_real, seed)` | Determinística. Depósito = Farmácia Central HC-FMUSP. Mix por **quota exata**: 15% críticas, 25% altas, resto normais; ≥10% refrigeradas; domicílios em raio 15 km. |
 | `DistanceMatrix(inst, fleet)` | Índice 0 = depósito, i = posição da entrega em `inst.deliveries` + 1. `km(i,j)`, `matrix()`, `route_km(rota)`, `time(i,j,vel_kmh,saida_min=None)`. |

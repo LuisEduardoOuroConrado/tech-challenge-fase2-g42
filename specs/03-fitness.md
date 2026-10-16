@@ -94,6 +94,12 @@ def penalties(routes, cfg) -> dict[str, float]: ...       # R$ por tipo, vai par
 
 **Situação em 08/10/2026 (Conrado):** contrato implementado em `ga/fitness.py`. `make_fitness` devolve um objeto `Fitness` chamável (vira `fitness_fn`) que também expõe `penalties(routes)` e `priority_cost(routes)`; com ele o GA usa o split ótimo da Spec 02. `cronograma_rota` e `custo_prioridade` estão **provisoriamente** em `ga/fitness.py`, com a assinatura da seção 3 e só P0 (sem trânsito). Quando `constraints/` entrar (Beatriz, 14/10), troca-se a definição local pelo import e os testes de `tests/unit/ga/test_fitness.py` passam a valer como teste de integração das duas partes. `evaluate` e `penalties(routes)` sem configuração continuam como fitness provisório, padrão do `GeneticAlgorithm`.
 
+**Situação em 15/10/2026 (Beatriz):** `src/medroute/constraints/` implementado com a assinatura da seção 3: violações (P0 e P1), `cronograma_rota` com e sem `saida_min`, `custo_prioridade` e `duracao_rota`. Duas decisões de implementação:
+1. `violacao_compatibilidade` usa o novo `FleetConfig.compativel` (só refrigerado e volumoso) e não `FleetConfig.aceita`, porque `aceita` também confere peso e volume e o excesso de carga já é cobrado por `violacao_capacidade` (cobrança dupla). `aceita` continua existindo e passou a incluir `compativel`.
+2. Foi acrescentado `duracao_rota(dm, veiculo, rota, instance, fleet, saida_min=None)`: minutos da saída até a volta ao depósito, com as paradas. É o valor que `violacao_jornada` recebe.
+
+`ga/fitness.py` agora importa `cronograma_rota` e `custo_prioridade` de `constraints/` (a definição provisória saiu) e a chave `penalidade_prioridade_rs_min` saiu de `configs/frota.yaml`. **Pendente no decoder (Conrado, P1, 21/10):** `_violations` e `Route.duracao_min` ainda não usam `violacao_deadline`, `violacao_jornada` nem o volumoso, e `duracao_min` não soma o tempo de parada; para a jornada use `duracao_rota`.
+
 Resultado com o fitness definitivo (pop 100, 300 gerações, seed 7): `sp_40` usa 2 carros + 2 motos, R$ 1.206 (operacional R$ 755 + prioridade R$ 451), sem violação e sem crítica atrasada; `sp_80` usa a frota, R$ 3.350, sem violação, em ~2 min.
 
 ## 6. Decisões (fechadas na revisão de 05/10/2026)
