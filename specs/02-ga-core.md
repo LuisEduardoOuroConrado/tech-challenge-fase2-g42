@@ -202,6 +202,11 @@ experimentos não precisarem mudar de formato quando ela entrar no GA.
    completo diminuir (busca local lamarckiana, como no GA híbrido de Prins, 2004).
 3. Desligadas (padrão), nenhuma das duas opções consome o `rng`: resultados de
    configurações anteriores não mudam.
+4. **Padrão da CLI (alteração de 16/10/2026):** `medroute solve` usa o híbrido
+   (`--semente-nn`, `--busca-local 0.3`); `--no-semente-nn --busca-local 0` volta
+   ao GA puro. O `GAConfig` continua com as duas opções desligadas, para que
+   scripts e testes existentes (ex.: `scripts/compare_sp15.py`) reproduzam os
+   resultados já registrados.
 
 Motivo da alteração: com o fitness definitivo e a frota completa, o GA puro perdia
 para o NN + 2-opt avaliado com o mesmo split (em `sp_40`, R$ 1.143 × R$ 1.035 de
