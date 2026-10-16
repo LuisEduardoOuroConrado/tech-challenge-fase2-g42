@@ -5,10 +5,9 @@ from time import perf_counter
 from medroute.data.distance import DistanceMatrix
 from medroute.domain.models import Instance, Solution
 from medroute.ga import fitness
-from medroute.ga.decoder import decode
 from medroute.ga.operators import two_opt_local
 
-from ._common import FitnessFunction, build_solution
+from ._common import FitnessFunction, build_solution, decode_routes
 from .nearest_neighbor import nearest_neighbor_order
 
 
@@ -27,7 +26,7 @@ def solve_nearest_neighbor_two_opt(
     evaluate = fitness.evaluate if fitness_fn is None else fitness_fn
 
     def score(chromosome: list[str]) -> float:
-        return evaluate(decode(chromosome, inst, dm))
+        return evaluate(decode_routes(chromosome, inst, dm, evaluate))
 
     initial = nearest_neighbor_order(inst, dm)
     initial_fitness = score(initial)
