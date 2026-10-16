@@ -1,0 +1,21 @@
+name: comparativo_s1_atualizado
+instances: [../../data/instances/sp_15.json]
+fleet: ../frota.yaml
+fitness: ../fitness.yaml
+out: ../../data/resultados/comparativo_s1_atualizado
+vehicles: [van-01]
+seeds: [7, 17, 42, 73, 101]
+ga_configs:
+  puro: &base
+    population_size: 100
+    generations: 300
+    crossover_rate: 0.9
+    mutation_rate: 0.2
+    elitism: 2
+    tournament_size: 3
+    crossover: ox
+    mutation: inversion
+  hibrido:
+    <<: *base
+    seed_nearest_neighbor: true
+    local_search_rate: 0.3

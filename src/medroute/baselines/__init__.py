@@ -2,6 +2,12 @@
 
 from .nearest_neighbor import solve_nearest_neighbor
 from .random import solve_random
+from .savings import solve_savings
 from .two_opt import solve_nearest_neighbor_two_opt
 
-__all__ = ["solve_nearest_neighbor", "solve_nearest_neighbor_two_opt", "solve_random"]
+__all__ = [
+    "solve_nearest_neighbor",
+    "solve_nearest_neighbor_two_opt",
+    "solve_random",
+    "solve_savings",
+]

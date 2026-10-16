@@ -1,9 +1,9 @@
 """Critério da S1 "GA vence NN e NN+2-opt" com o fitness definitivo (Spec 03).
 
-Diferente de `compare_sp15.py` (fitness provisório, decoder guloso), aqui NN e NN+2-opt são
-avaliados com o mesmo split ótimo, `FleetConfig` e fitness do GA; o 2-opt também otimiza esse
-fitness. Compara GA puro e GA híbrido (semente NN + busca local) em dois cenários: só a van
-(TSP) e a frota completa.
+NN e NN+2-opt são avaliados com o mesmo split ótimo, `FleetConfig` e fitness do GA; o 2-opt
+também otimiza esse fitness. Compara GA puro e GA híbrido (semente NN + busca local) em dois
+cenários: só a van (TSP) e a frota completa. `compare_sp15.py` usa agora o runner oficial com
+as mesmas regras e inclui Savings e aleatório.
 
     python scripts/criterio_s1.py --inst sp_15
     python scripts/criterio_s1.py --inst sp_40 --seeds 7 17 --csv results/criterio_sp40.csv
@@ -13,11 +13,9 @@ import argparse
 import csv
 from pathlib import Path
 
-from medroute.baselines.nearest_neighbor import nearest_neighbor_order
+from medroute.baselines import solve_nearest_neighbor, solve_nearest_neighbor_two_opt
 from medroute.data import DistanceMatrix, load_fleet, load_instance
 from medroute.ga import GAConfig, GeneticAlgorithm, load_fitness_config, make_fitness
-from medroute.ga.decoder import split_decode
-from medroute.ga.operators import two_opt_local
 
 ROOT = Path(__file__).resolve().parents[1]
 SEEDS = [7, 17, 42, 73, 101]  # as mesmas de reports/secoes/pedro-baselines-s1.md
@@ -57,12 +55,10 @@ def main() -> None:
         dm = DistanceMatrix(inst, fleet)
         fitness_fn = make_fitness(inst, dm, fleet, cfg)
 
-        def score(chromosome, inst=inst, dm=dm, fitness_fn=fitness_fn):
-            routes = split_decode(chromosome, inst, dm, cfg, fitness_fn.servico_min, fleet)
-            return fitness_fn(routes)
-
-        nn = nearest_neighbor_order(inst, dm)
-        ref = {"nn": score(nn), "nn_2opt": score(two_opt_local(nn, score))}
+        ref = {
+            "nn": solve_nearest_neighbor(inst, dm, fitness_fn=fitness_fn).fitness,
+            "nn_2opt": solve_nearest_neighbor_two_opt(inst, dm, fitness_fn=fitness_fn).fitness,
+        }
         print(
             f"== {args.inst} | {cenario}: NN R$ {ref['nn']:.2f} | NN+2-opt R$ {ref['nn_2opt']:.2f}"
         )

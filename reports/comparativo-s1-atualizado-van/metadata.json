@@ -1,0 +1,394 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-10-16T21:22:06.762165+00:00",
+  "experiment": {
+    "name": "comparativo_s1_atualizado",
+    "instances": [
+      "/Users/pedro.almeida/pos-fiap/tech-challenge-2/tech-challenge-fase2-g42/data/instances/sp_15.json"
+    ],
+    "fleet": "/Users/pedro.almeida/pos-fiap/tech-challenge-2/tech-challenge-fase2-g42/configs/frota.yaml",
+    "fitness": "/Users/pedro.almeida/pos-fiap/tech-challenge-2/tech-challenge-fase2-g42/configs/fitness.yaml",
+    "seeds": [
+      7,
+      17,
+      42,
+      73,
+      101
+    ],
+    "ga_configs": {
+      "puro": {
+        "population_size": 100,
+        "generations": 300,
+        "crossover_rate": 0.9,
+        "mutation_rate": 0.2,
+        "elitism": 2,
+        "tournament_size": 3,
+        "crossover": "ox",
+        "mutation": "inversion",
+        "patience": null,
+        "improvement_tolerance": 1e-09,
+        "seed_nearest_neighbor": false,
+        "local_search_rate": 0.0
+      },
+      "hibrido": {
+        "population_size": 100,
+        "generations": 300,
+        "crossover_rate": 0.9,
+        "mutation_rate": 0.2,
+        "elitism": 2,
+        "tournament_size": 3,
+        "crossover": "ox",
+        "mutation": "inversion",
+        "patience": null,
+        "improvement_tolerance": 1e-09,
+        "seed_nearest_neighbor": true,
+        "local_search_rate": 0.3
+      }
+    },
+    "vehicles": [
+      "van-01"
+    ],
+    "two_opt_max_passes": 100,
+    "out": "/Users/pedro.almeida/pos-fiap/tech-challenge-2/tech-challenge-fase2-g42/reports/comparativo-s1-atualizado-van"
+  },
+  "instances": [
+    {
+      "nome": "sp_15",
+      "depot": {
+        "id": "deposito",
+        "nome": "Farmácia Central HC-FMUSP",
+        "lat": -23.5559,
+        "lon": -46.6693
+      },
+      "deliveries": [
+        {
+          "id": "entrega-01",
+          "nome": "InCor",
+          "lat": -23.5568,
+          "lon": -46.6708,
+          "peso_kg": 13.7,
+          "volume_l": 32.2,
+          "prioridade": "normal",
+          "refrigerado": false,
+          "deadline_min": null
+        },
+        {
+          "id": "entrega-02",
+          "nome": "ICESP",
+          "lat": -23.5583,
+          "lon": -46.6699,
+          "peso_kg": 12.0,
+          "volume_l": 47.6,
+          "prioridade": "normal",
+          "refrigerado": true,
+          "deadline_min": null
+        },
+        {
+          "id": "entrega-03",
+          "nome": "IPq HC-FMUSP",
+          "lat": -23.5563,
+          "lon": -46.6712,
+          "peso_kg": 22.2,
+          "volume_l": 77.5,
+          "prioridade": "normal",
+          "refrigerado": false,
+          "deadline_min": null
+        },
+        {
+          "id": "entrega-04",
+          "nome": "Instituto da Criança (ICr)",
+          "lat": -23.5571,
+          "lon": -46.6718,
+          "peso_kg": 30.9,
+          "volume_l": 80.3,
+          "prioridade": "normal",
+          "refrigerado": false,
+          "deadline_min": null
+        },
+        {
+          "id": "entrega-05",
+          "nome": "Domicílio 01",
+          "lat": -23.449479,
+          "lon": -46.650904,
+          "peso_kg": 1.6,
+          "volume_l": 5.0,
+          "prioridade": "normal",
+          "refrigerado": false,
+          "deadline_min": null
+        },
+        {
+          "id": "entrega-06",
+          "nome": "Domicílio 02",
+          "lat": -23.544062,
+          "lon": -46.5933,
+          "peso_kg": 1.1,
+          "volume_l": 3.9,
+          "prioridade": "normal",
+          "refrigerado": false,
+          "deadline_min": null
+        },
+        {
+          "id": "entrega-07",
+          "nome": "Domicílio 03",
+          "lat": -23.607295,
+          "lon": -46.782304,
+          "peso_kg": 3.3,
+          "volume_l": 7.7,
+          "prioridade": "critica",
+          "refrigerado": false,
+          "deadline_min": 180.0
+        },
+        {
+          "id": "entrega-08",
+          "nome": "Domicílio 04",
+          "lat": -23.447146,
+          "lon": -46.597171,
+          "peso_kg": 2.1,
+          "volume_l": 3.7,
+          "prioridade": "normal",
+          "refrigerado": false,
+          "deadline_min": null
+        },
+        {
+          "id": "entrega-09",
+          "nome": "Domicílio 05",
+          "lat": -23.469904,
+          "lon": -46.651528,
+          "peso_kg": 1.9,
+          "volume_l": 6.0,
+          "prioridade": "normal",
+          "refrigerado": true,
+          "deadline_min": null
+        },
+        {
+          "id": "entrega-10",
+          "nome": "Domicílio 06",
+          "lat": -23.61887,
+          "lon": -46.671612,
+          "peso_kg": 3.3,
+          "volume_l": 8.1,
+          "prioridade": "critica",
+          "refrigerado": false,
+          "deadline_min": 180.0
+        },
+        {
+          "id": "entrega-11",
+          "nome": "Domicílio 07",
+          "lat": -23.548965,
+          "lon": -46.646581,
+          "peso_kg": 2.6,
+          "volume_l": 9.7,
+          "prioridade": "normal",
+          "refrigerado": false,
+          "deadline_min": null
+        },
+        {
+          "id": "entrega-12",
+          "nome": "Domicílio 08",
+          "lat": -23.660225,
+          "lon": -46.702319,
+          "peso_kg": 2.8,
+          "volume_l": 3.5,
+          "prioridade": "alta",
+          "refrigerado": false,
+          "deadline_min": null
+        },
+        {
+          "id": "entrega-13",
+          "nome": "Domicílio 09",
+          "lat": -23.609472,
+          "lon": -46.706011,
+          "peso_kg": 0.6,
+          "volume_l": 4.4,
+          "prioridade": "alta",
+          "refrigerado": false,
+          "deadline_min": null
+        },
+        {
+          "id": "entrega-14",
+          "nome": "Domicílio 10",
+          "lat": -23.434772,
+          "lon": -46.663901,
+          "peso_kg": 1.3,
+          "volume_l": 3.4,
+          "prioridade": "alta",
+          "refrigerado": false,
+          "deadline_min": null
+        },
+        {
+          "id": "entrega-15",
+          "nome": "Domicílio 11",
+          "lat": -23.594621,
+          "lon": -46.794311,
+          "peso_kg": 3.3,
+          "volume_l": 10.0,
+          "prioridade": "alta",
+          "refrigerado": false,
+          "deadline_min": null
+        }
+      ],
+      "fleet": [
+        {
+          "id": "van-01",
+          "tipo": "van",
+          "capacidade_kg": 800.0,
+          "capacidade_l": 3000.0,
+          "autonomia_km": 400.0,
+          "velocidade_kmh": 24.0,
+          "custo_km": 2.5,
+          "custo_fixo": 200.0,
+          "aceita_refrigerado": true
+        }
+      ]
+    }
+  ],
+  "fleet_config": {
+    "tipos": {
+      "moto": {
+        "quantidade": 2,
+        "capacidade_kg": 15,
+        "capacidade_l": 40,
+        "autonomia_km": 120,
+        "velocidade_kmh": 35,
+        "custo_km": 0.8,
+        "custo_fixo_dia": 60,
+        "aceita_refrigerado": false,
+        "aceita_volumoso": false
+      },
+      "carro": {
+        "quantidade": 2,
+        "capacidade_kg": 150,
+        "capacidade_l": 400,
+        "autonomia_km": 300,
+        "velocidade_kmh": 28,
+        "custo_km": 1.5,
+        "custo_fixo_dia": 120,
+        "aceita_refrigerado": true,
+        "aceita_volumoso": true
+      },
+      "van": {
+        "quantidade": 1,
+        "capacidade_kg": 800,
+        "capacidade_l": 3000,
+        "autonomia_km": 400,
+        "velocidade_kmh": 24,
+        "custo_km": 2.5,
+        "custo_fixo_dia": 200,
+        "aceita_refrigerado": true,
+        "aceita_volumoso": true
+      }
+    },
+    "global": {
+      "fator_tortuosidade": 1.3,
+      "jornada_max_min": 480,
+      "transito": [
+        {
+          "inicio": "06:00",
+          "fim": "09:00",
+          "fator": 1.4
+        },
+        {
+          "inicio": "09:00",
+          "fim": "17:00",
+          "fator": 1.0
+        },
+        {
+          "inicio": "17:00",
+          "fim": "20:00",
+          "fator": 1.5
+        }
+      ],
+      "inicio_jornada": "07:00",
+      "volumoso_limiar_l": 60,
+      "servico_min_padrao": 10
+    },
+    "fontes_pendentes": [
+      "Frete/km motoboy e van (tabelas de mercado, ex.: pisos de frete)",
+      "Custo operacional por km (ANTT / manutenção + combustível)",
+      "Autonomia com tanque cheio (fichas técnicas dos modelos de referência)",
+      "Velocidade média urbana em SP (CET - relatórios de mobilidade)"
+    ]
+  },
+  "fitness_config": {
+    "prioridade_rs_min": {
+      "critica": 0.5,
+      "alta": 0.15,
+      "normal": 0.05
+    },
+    "penalidades": {
+      "capacidade": {
+        "fixo": 1000.0,
+        "unitario": 2000.0
+      },
+      "autonomia": {
+        "fixo": 1000.0,
+        "unitario": 20.0
+      },
+      "compatibilidade": {
+        "fixo": 0.0,
+        "unitario": 1000.0
+      },
+      "deadline": {
+        "fixo": 0.0,
+        "unitario": 10.0
+      },
+      "jornada": {
+        "fixo": 0.0,
+        "unitario": 5.0
+      }
+    }
+  },
+  "fitness": "definitivo: custo operacional + prioridade + penalidades P0/P1",
+  "decoder": "split ótimo compartilhado; fallback guloso se não houver split hard viável",
+  "duracao": "viagem + atendimento + retorno ao depósito; sem fator de trânsito",
+  "reference": "nearest_neighbor, mesma instância e seed",
+  "python": "3.12.14",
+  "platform": "macOS-26.5.2-arm64-arm-64bit",
+  "sha256_inputs": {
+    "/Users/pedro.almeida/pos-fiap/tech-challenge-2/tech-challenge-fase2-g42/configs/frota.yaml": "e7ee6a407f316bc3abdbf6ab04be60b93469166026464d13f692802d9922be77",
+    "/Users/pedro.almeida/pos-fiap/tech-challenge-2/tech-challenge-fase2-g42/configs/fitness.yaml": "54f97a62abecf1a0598797ef3002452d2eee8e3ad549de43f020d2c6786d6e33",
+    "/Users/pedro.almeida/pos-fiap/tech-challenge-2/tech-challenge-fase2-g42/data/instances/sp_15.json": "ac56f03fdb891e79df2cb3e7c1b4d0e46c652f977bc7b2d87446291c042efdc6"
+  },
+  "sha256_source": {
+    "__init__.py": "b982d8ecd9601488f4c7bd08618562fa7c30cc9b07b1ce05b6c4a0a3256c14bd",
+    "__main__.py": "9d024e3f155cfa036a7f342757e1261091d1449226516a1f30cbd3775e02450b",
+    "app/__init__.py": "f17c102c1a094d20f0f224c1fdb0785342808c8038c105328b3ab63ed3603fd1",
+    "app/cli.py": "fc4ac699dce942f294ec35853d3fcc85ee5c55fca95d24ea38f7f1827b4edc7d",
+    "baselines/__init__.py": "ff362a5a7ca8db4d3dfa1116874845785724aa0834e453b791d8374bf6d0456f",
+    "baselines/_common.py": "1b7d1509e18acd3c7e41ab219451231c376127f9d38a4ee342fa4f391056e238",
+    "baselines/nearest_neighbor.py": "09b18d68912abbeb726c14342f3cb0c49f1c42bf4d4334e067f6fa7305a4e61b",
+    "baselines/random.py": "8a0fa35c365a847efdf486123046443ee98356140c9b2e0b4019b2ba20102007",
+    "baselines/savings.py": "83ceebd216ffa6a5afbf2a3c699bc3200e14747bce502882e8a5e731c042eb88",
+    "baselines/two_opt.py": "060ff2526b3727d0980802044232ca1c85aeb6c2882b702a13e4869cf5a3daef",
+    "constraints/__init__.py": "78a982d308a4f9bc426836f0975084d287dd86254fa272084e1d75bf0cdbb58b",
+    "constraints/schedule.py": "09a628e51cf2110c8376dae84f441f45fcd052e1e779ffdfaa4a104397a7c3e8",
+    "constraints/violations.py": "e871143ec631434a034c79eb614ed9d9460cab8dc4b46b517cd099236e9e595c",
+    "data/__init__.py": "ed2d151db1d6579adf14217db19391a29b98141ba1949f7f85df4ba9082bfd71",
+    "data/cli.py": "5e08deb1edb6bdd836c42782b9f6296fcf2788e116c4ea45b6981eeee492c47a",
+    "data/distance.py": "f075497eb8829f200da89d6d57b02863ab95f247dd5301561b76c70eefe1120d",
+    "data/fleet.py": "451f66ba62d15298bcf4ac889abdcc5a21f21cc42587f797a7d54c50445e7eb2",
+    "data/generator.py": "4c4e1409c6d2bf3a0d500887361d9e825eea9af6c75247b37d432aefc4dcb988",
+    "data/loader.py": "f82382878baf36322d80c3bc3a2bddc8fce59bdf2599065bfcb28f021cb7c423",
+    "domain/__init__.py": "61c40bbfc4a66c423da46174274c96e238beccdc885478e43817c3c52b533f1b",
+    "domain/models.py": "22086bc59db4368ac3f4c7503be6d3c2e8955a6526c27cf9b22fc8bb14261a31",
+    "experiments/__init__.py": "70fe2dfcc7d0b969ddd8c3c09a4f8eb7b9f7a70d625eeccf79e47d3f824714be",
+    "experiments/metrics.py": "9d9eccc1beabd80332b25b4a2e0aed9d04ca88e0f844011004058ded513cfa3e",
+    "experiments/runner.py": "6a98b150da6069b28dc7e9dc2ea7c0f3f2babaf8bf04f92b590aa48e8868868a",
+    "ga/__init__.py": "f83aac5fd02c4e7c9502c1bd441aca7227effe645cbfd33ccd9f96acf05e96d2",
+    "ga/decoder.py": "dbbea5206ba2a9f7bfa3b48060789f1c655a72c795565f625e8a980b3bcec15e",
+    "ga/encoding.py": "e35ba6537ca1139014366b6ced894ae91aff0de7352969f2556fdcd2ce47dd5b",
+    "ga/engine.py": "461c1ebea1d067fa928c2e0bf710a1b19e8148b4d48237bca6912914ad9cce8e",
+    "ga/fitness.py": "04b6e85a7c4265372ff5e77a3811179b5ad7e7bbb6cb157963ce994dc2fe9dea",
+    "ga/operators.py": "d24269214d677b97aac394d5192e5b5cbc1d90d3c2884360fcaa7583b3ea30db",
+    "llm/__init__.py": "d8bc1d2361ecf87c62532bdf819f05ea93cdbacd0888e047e73221be7eadcaef",
+    "llm/cache.py": "3362fd30aa5a4a632a2cd039a1b40ab22cfd34d1e68a517ffacbb5e57622cc4f",
+    "llm/client.py": "b915fb0bd3eef325f021a018e97f5dbcd0ca47d7795d5a9f9421cba035199613",
+    "llm/context.py": "25a4282ae6f5786a271e7f8d30e95ee5daab4a20362b4d2cb663bdb69636640a",
+    "llm/instructions.py": "168220a5cc3bb0c86bfb57ac6dd7d6d931cc446b08fdabfef718cd05e263d388",
+    "llm/prompts.py": "8293160ef43a48734dc6134853c0d473fd344ac5cc5ef936f2e58d92ce33dedf",
+    "llm/reports.py": "ca1d33fd38560f558b28f935d51b03f07021b1ea451d94e24f5e16ead30dc9e5",
+    "llm/text.py": "8d1e8f9a4d03f596492ba7791c865c0c2d3b51652569d3f5365f826788512d48",
+    "viz/__init__.py": "d9ee9d0588064597aae9fd62ef6e8c480202cff846e4b96396c04c71dd8f7f18",
+    "viz/map.py": "dcbb96ed83e5034167a3166d61bc4f1e90fe905c9e14bc4e8b3c1370dfe78de9"
+  }
+}
