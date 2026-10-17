@@ -13,7 +13,7 @@ from medroute.data import (
     save_instance,
     validate_instance,
 )
-from medroute.data.generator import DEPOT
+from medroute.data.generator import DEPOT, REAL_UNITS
 from medroute.domain.models import Priority, VehicleType
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -145,3 +145,19 @@ def test_rota_km_e_tempo(fleet):
     assert dm.time(0, 1, 30, saida_min=22 * 60) == pytest.approx(base)
     with pytest.raises(ValueError):
         dm.time(0, 1, 0)
+
+
+def test_unidades_reais(fleet):
+    nomes = [u[0] for u in REAL_UNITS]
+    assert len(nomes) == 10 and len(set(nomes)) == 10
+    for _, lat, lon in REAL_UNITS:
+        assert haversine_km(DEPOT.lat, DEPOT.lon, lat, lon) <= 15.0
+    inst = generate_instance("sp_40", 40, 10, fleet, seed=42)
+    assert [d.nome for d in inst.deliveries[:10]] == nomes
+    assert all(d.nome.startswith("Domicílio") for d in inst.deliveries[10:])
+
+
+def test_sp15_mantem_as_quatro_primeiras_unidades():
+    # os testes do módulo LLM (tests/unit/llm) citam estes nomes e ids; mudar a ordem os quebra.
+    nomes = [u[0] for u in REAL_UNITS[:4]]
+    assert nomes == ["InCor", "ICESP", "IPq HC-FMUSP", "Instituto da Criança (ICr)"]
