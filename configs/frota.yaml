@@ -1,6 +1,7 @@
 # Frota fixa (ADR 0005): o GA escolhe quais veículos usar, não cria veículos.
-# ATENÇÃO: valores são HIPÓTESES plausíveis para o código começar (kickoff C2).
-# Fontes para o relatório: ver "fontes_pendentes" abaixo (entrega Beatriz até 07/10).
+# Valores do kickoff (C2). Fontes e avaliação de cada número: docs/fontes-frota.md
+# (moto/carro/van: capacidade, autonomia, velocidade e R$/km conferidos onde havia fonte;
+# "fixo_dia" e frete/km de van e motoboy em SP continuam SEM fonte).
 tipos:
   moto:
     quantidade: 2
@@ -47,7 +48,6 @@ global:
   servico_min_padrao: 10     # tempo de atendimento por parada (não está no models.py ainda)
 
 fontes_pendentes:
-  - "Frete/km motoboy e van (tabelas de mercado, ex.: pisos de frete)"
-  - "Custo operacional por km (ANTT / manutenção + combustível)"
-  - "Autonomia com tanque cheio (fichas técnicas dos modelos de referência)"
-  - "Velocidade média urbana em SP (CET - relatórios de mobilidade)"
+  - "custo_fixo_dia dos 3 tipos (diária do condutor + custos fixos): sem fonte"
+  - "frete/km de motoboy e de van em SP (tabela de mercado): sem fonte encontrada"
+  - "capacidade do baú da moto (kg/L) e van de 800 kg: sem fonte (ver docs/fontes-frota.md)"
