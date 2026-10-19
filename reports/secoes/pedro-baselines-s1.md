@@ -1,5 +1,10 @@
 # Comparativo inicial de roteamento — entrega de Pedro em 09/10
 
+> Registro histórico com fitness provisório. A entrega de 16/10 usa fitness
+> definitivo e restrições P1; consulte [comparativo atualizado](pedro-savings-runner-s2.md).
+> Os comandos atuais reproduzem a rodada nova; os parâmetros e hashes da rodada
+> original continuam em `reports/comparativo-s1/metadata.json`.
+
 ## Objetivo
 
 Disponibilizar três abordagens de referência para comparar a qualidade das

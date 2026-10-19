@@ -6,12 +6,13 @@ from medroute.baselines import (
     solve_nearest_neighbor,
     solve_nearest_neighbor_two_opt,
     solve_random,
+    solve_savings,
 )
 from medroute.data import DistanceMatrix
 from medroute.domain.models import Solution
 from medroute.ga import fitness
 
-SOLVERS = [solve_nearest_neighbor, solve_nearest_neighbor_two_opt, solve_random]
+SOLVERS = [solve_nearest_neighbor, solve_nearest_neighbor_two_opt, solve_random, solve_savings]
 
 
 @pytest.mark.parametrize("solve", SOLVERS)

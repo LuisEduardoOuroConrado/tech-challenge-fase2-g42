@@ -405,6 +405,23 @@ do relatório, 2–3 min no vídeo.
 - **`sp_80`:** com as paradas na duração, o GA puro estoura a jornada (rota de 678 min, R$ 6.051); o híbrido fica
   em R$ 2.854 sem violação.
 
+### 8.1.4 Entrega de Pedro em 16/10 (nesta branch; aguarda PR/merge)
+
+- `feature/pedro-savings-runner-1610`: Savings, runner YAML × seeds, baselines
+  com fitness definitivo e split/P1 compartilhados. Plano revisado em
+  `docs/plano-pedro-1610.md`; análise em `reports/secoes/pedro-savings-runner-s2.md`.
+- Validação: 315 testes, cobertura total 97%, baselines 100%, runner 97%, ruff
+  e demo aprovados. Rodadas salvas: van em `sp_15` (30 soluções) e frota em
+  `sp_15`/`sp_40` (70 soluções, três configs do GA × cinco seeds + baselines).
+- **Correção do comparativo:** o script do critério da seção 8.1.3 usava uma
+  passagem de 2-opt. Agora chama o baseline público com até 100 passagens,
+  como o runner. NN+2-opt: R$ 737,95 (van) e R$ 431,02 (frota, `sp_15`).
+  O híbrido OX vence 5/5 com a van e empata 5/5 na frota; em `sp_40`, vence
+  2/5 contra NN+2-opt. Os resultados da seção anterior são históricos com
+  outro limite de busca local. O comparativo de 09/10 também foi preservado.
+- E1–E6 completos seguem para 23/10. Após a correção das coordenadas da Beatriz,
+  repetir as rodadas; pesos e dados desta execução estão identificados nos metadados.
+
 ### 8.2 Handoffs — quem entrega o quê, para quem, até quando
 
 A regra: a data é o **último dia** para entregar sem atrasar quem depende. Entregar antes libera o outro antes.
@@ -417,12 +434,12 @@ A regra: a data é o **último dia** para entregar sem atrasar quem depende. Ent
 | **02/10 (sex)** | Conrado, Beatriz, Rodrigo | Specs 01/02/03/05 aprovadas (1 revisor cada) | implementação da S1 | ✅ 01/02/03 aprovadas 05/10; 05 aprovada 08/10 (PRs #6/#7) |
 | **07/10 (qua)** | Beatriz | Instância `sp_40` (10 unidades reais + 30 sintéticas) | Conrado, Pedro, Alexandre testam em escala real | ✅ 03/10 (adiantado; `sp_80` junto) |
 | **09/10 (sex)** | Conrado | GA TSP (1 veículo): encoding, torneio, OX/PMX, swap/inversion, elitismo, `historico_fitness` | Pedro (comparativo), Alexandre (mapa com rota real) | ✅ 05/10, PR #3 |
-| **09/10 (sex)** | Pedro | Nearest Neighbor, NN+2-opt, aleatório + `metrics.py` (mesma assinatura `solve_*`) | Conrado (referência de qualidade do GA) | ✅ 09/10, PR #10 (merge 11/10); GA vence NN 5/5, NN+2-opt 2/5 seeds (fitness provisório); com o fitness definitivo o híbrido vence os dois 5/5 (8.1.3) |
+| **09/10 (sex)** | Pedro | Nearest Neighbor, NN+2-opt, aleatório + `metrics.py` (mesma assinatura `solve_*`) | Conrado (referência de qualidade do GA) | ✅ 09/10, PR #10 (merge 11/10); comparativo definitivo revisado em 16/10, seção 8.1.4 |
 | **09/10 (sex)** | Rodrigo | `LLMClient` (mock + Groq) + prompt de instruções por motorista funcionando sobre a fixture | Alexandre (`medroute instruct` na CLI) | ✅ 08/10, PR #4 |
 | **09/10 (sex)** | Alexandre | Mapa folium básico (1 rota) + CLI `gen` / `solve` / `map` | demo da S1 | ✅ 05/10 (feito por Conrado; mapa já multi-veículo) |
 | **14/10 (qua)** | Beatriz | `constraints/` capacidade, autonomia, prioridade (funções puras testadas) | Conrado (fitness P0) | ✅ 16/10, PR #14 (P0 e P1 juntos) |
 | **16/10 (sex)** | Conrado | Decoder giant-tour→split + fitness em R$ com penalidades P0 → **VRP funcionando em `sp_40`** | Pedro (experimentos), Rodrigo (Solutions reais), Alexandre (mapa multi-veículo) | ✅ PRs #8/#12/#14 (fitness usa `constraints/`; sp_40: 4 veículos, sem violação) |
-| **16/10 (sex)** | Pedro | Clarke-Wright Savings + `experiments/runner.py` (configs YAML × seeds) | rodada de experimentos na S3 | ⏳ |
+| **16/10 (sex)** | Pedro | Clarke-Wright Savings + `experiments/runner.py` (configs YAML × seeds) | rodada de experimentos na S3 | Implementado na branch `feature/pedro-savings-runner-1610`; testes e comparativo em `reports/secoes/pedro-savings-runner-s2.md`; aguarda PR/merge |
 | **16/10 (sex)** | Rodrigo | Relatório diário/semanal com recomendações (Groq real) + cache de respostas | Alexandre (`medroute report`) | ✅ 16/10, PR #13 |
 | **16/10 (sex)** | Alexandre | CLI completa (`compare`, `instruct`, `report`) + mapa multi-veículo (cor por veículo, ícone por prioridade) | demo da S2 | 🟡 mapa e `instruct` (PR #9) prontos; faltam `compare`/`report` |
 | **21/10 (qua)** | Beatriz | `constraints/` deadline, compatibilidade, jornada + fator de trânsito na `DistanceMatrix.time()` | Conrado (fitness P1) | ✅ 16/10, PR #14 (adiantado; trânsito via `saida_min`) |
