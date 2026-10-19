@@ -31,8 +31,8 @@ print(savings.model_dump_json(indent=2))
 Com `make_fitness`, os baselines usam o mesmo `split_decode` do GA: custo
 operacional + prioridade + penalidades de capacidade, autonomia, compatibilidade,
 deadline e jornada. `FleetConfig` chega ao decoder, que inclui atendimento e
-retorno na duração. `Solution.penalidades` usa os pesos definitivos. O trânsito
-continua sem fator por período, conforme o fitness atual do GA (`saida_min=None`).
+retorno na duração. `Solution.penalidades` usa os pesos definitivos. O fator de
+trânsito também vem do split: as rotas saem em `inicio_jornada` (Spec 03, 19/10).
 
 O 2-opt avalia cada inversão com esse mesmo split e fitness. Com frota finita,
 uma inversão também pode alterar cortes e veículos. O limite de 100 passagens

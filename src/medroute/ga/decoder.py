@@ -14,8 +14,9 @@ que registra a violação.
 Com `fleet` (P1, Spec 03 seção 3) os dois decoders também tratam o volumoso como
 incompatibilidade hard, registram `deadline` e `jornada` em `Route.violacoes` (via
 `medroute.constraints`) e `Route.duracao_min` passa a somar o tempo de parada. O split ótimo
-inclui as penalidades soft de deadline e jornada no custo de cada rota. Sem `fleet` (ex.:
-baselines) o comportamento é o do P0. O fator de trânsito ainda não entra (`saida_min=None`).
+inclui as penalidades soft de deadline e jornada no custo de cada rota. Com `fleet` também entra
+o fator de trânsito: todas as rotas saem em `inicio_jornada` (`FleetConfig.saida_min`) e cada
+trecho é multiplicado pelo fator da faixa em que sai. Sem `fleet` o comportamento é o do P0.
 """
 
 from __future__ import annotations
@@ -149,8 +150,8 @@ def _build_route(segment: _Segment, vehicle: Vehicle, dm: DistanceMatrix, inst: 
         legs = [0, *segment.stops, 0]
         duracao = sum(dm.time(a, b, vehicle.velocidade_kmh) for a, b in pairwise(legs))
     else:
-        duracao = duracao_rota(dm, vehicle, sequence, inst, fleet)
-        chegadas = cronograma_rota(dm, vehicle, sequence, inst, fleet)
+        duracao = duracao_rota(dm, vehicle, sequence, inst, fleet, fleet.saida_min)
+        chegadas = cronograma_rota(dm, vehicle, sequence, inst, fleet, fleet.saida_min)
         violacoes["deadline"] = violacao_deadline(chegadas, segment.deliveries)
         violacoes["jornada"] = violacao_jornada(duracao, fleet)
     return Route(
@@ -211,15 +212,23 @@ def _feasible_segments(
     servico_min: float,
     cfg: FitnessConfig,
     fleet: FleetConfig | None = None,
+    dm: DistanceMatrix | None = None,
 ) -> list[list[tuple[int, float]]]:
     """Para cada início i, as rotas viáveis i..j-1 como (j, custo da rota no fitness).
 
     Custo = operacional + prioridade e, com `fleet`, as penalidades soft de deadline e jornada.
-    Carga, incompatíveis e km com retorno só crescem ao estender a rota (desigualdade
-    triangular), então a primeira violação hard encerra a extensão; as soft não encerram.
+    Com `fleet` e `dm`, cada trecho leva o fator de trânsito do minuto em que sai, como em
+    `cronograma_rota`. Carga, incompatíveis e km com retorno só crescem ao estender a rota
+    (desigualdade triangular), então a primeira violação hard encerra a extensão; as soft não.
     """
     n = len(stops)
     sem_volumoso = _sem_volumoso(vehicle, fleet)
+    saida = fleet.saida_min if fleet is not None and dm is not None else None
+
+    def minutos(leg_km: float, relogio: float) -> float:
+        base = leg_km / vehicle.velocidade_kmh * 60.0
+        return base if saida is None else base * dm.fator_transito(saida + relogio)
+
     segments: list[list[tuple[int, float]]] = []
     for start in range(n):
         out: list[tuple[int, float]] = []
@@ -238,7 +247,7 @@ def _feasible_segments(
                 break
             leg = km[last][stop]
             open_km += leg
-            relogio += leg / vehicle.velocidade_kmh * 60.0
+            relogio += minutos(leg, relogio)
             prioridade += weights[j] * relogio
             if fleet is not None and delivery.deadline_min is not None:
                 atraso += max(0.0, relogio - delivery.deadline_min)
@@ -249,7 +258,7 @@ def _feasible_segments(
                 break
             cost = _route_cost(vehicle, total_km) + prioridade
             if fleet is not None:
-                duracao = relogio + km[stop][0] / vehicle.velocidade_kmh * 60.0
+                duracao = relogio + minutos(km[stop][0], relogio)
                 cost += cfg.penalty("deadline", atraso)
                 cost += cfg.penalty("jornada", violacao_jornada(duracao, fleet))
             out.append((j + 1, cost))
@@ -277,7 +286,7 @@ def split_decode(
     groups = _vehicle_groups(inst.fleet)
     limits = tuple(len(group) for group in groups)
     segments = [
-        _feasible_segments(group[0], stops, deliveries, weights, km, servico_min, cfg, fleet)
+        _feasible_segments(group[0], stops, deliveries, weights, km, servico_min, cfg, fleet, dm)
         for group in groups
     ]
 

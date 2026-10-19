@@ -115,7 +115,12 @@ class Fitness:
         total = 0.0
         for route in routes:
             chegadas = cronograma_rota(
-                self.dm, self._vehicles[route.vehicle_id], route.sequence, self.inst, self.fleet
+                self.dm,
+                self._vehicles[route.vehicle_id],
+                route.sequence,
+                self.inst,
+                self.fleet,
+                self.fleet.saida_min,
             )
             entregas = [self._deliveries[delivery_id] for delivery_id in route.sequence]
             total += custo_prioridade(chegadas, entregas, self.cfg.prioridade_rs_min)

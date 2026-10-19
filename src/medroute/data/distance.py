@@ -32,6 +32,11 @@ class DistanceMatrix:
             fator_tortuosidade = fleet.fator_tortuosidade if fleet else 1.30
         self.fator = fator_tortuosidade
         self.transito = list(fleet.transito) if fleet else []
+        # Faixas já em minutos: fator_transito roda dentro do split ótimo.
+        self._faixas = [
+            (_hhmm_to_min(p["inicio"]), _hhmm_to_min(p["fim"]), float(p["fator"]))
+            for p in self.transito
+        ]
         self.inicio_jornada_min = _hhmm_to_min(fleet.inicio_jornada) if fleet else 420.0
         pts = [(instance.depot.lat, instance.depot.lon)] + [
             (e.lat, e.lon) for e in instance.deliveries
@@ -61,11 +66,12 @@ class DistanceMatrix:
         return float(sum(self._km[a, b] for a, b in pairwise(seq)))
 
     def fator_transito(self, minuto_do_dia: float | None) -> float:
-        if minuto_do_dia is None or not self.transito:
+        if minuto_do_dia is None or not self._faixas:
             return 1.0
-        for p in self.transito:
-            if _hhmm_to_min(p["inicio"]) <= minuto_do_dia % 1440 < _hhmm_to_min(p["fim"]):
-                return float(p["fator"])
+        minuto = minuto_do_dia % 1440
+        for inicio, fim, fator in self._faixas:
+            if inicio <= minuto < fim:
+                return fator
         return 1.0
 
     def time(self, i: int, j: int, velocidade_kmh: float, saida_min: float | None = None) -> float:
