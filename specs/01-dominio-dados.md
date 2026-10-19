@@ -48,7 +48,10 @@ Lacunas a cobrir (não bloqueiam a aprovação): `test_mix_e_raio` checa ≥1 re
 - **`Instance` sem `seed`: ok.** A seed fica no CLI (`medroute gen --seed`, padrão 42) e no README.
 - **`Vehicle.aceita_refrigerado` com default `True`: ok**, desde que o YAML declare `false` explicitamente para a moto (já declara e há teste).
 
+## Fontes e coordenadas
+Ver `docs/fontes-frota.md`: fonte e situação (✅/⚠️/❌) de cada número da frota, coordenadas das 10 unidades reais e o que ainda precisa de decisão do grupo.
+
 ## Fora desta spec / pendências
-- Fontes dos números da frota (C2): entrego no PR até 07/10.
-- Coordenadas reais aproximadas: conferir (CNES/Maps) até 07/10; itens "(ref.)" são UBS de referência a confirmar.
-- `sp_40` e `sp_80` já gerados (seed 42); sp_40 oficial entra no prazo de 07/10 após conferência das coordenadas.
+- Sem fonte: custo fixo/dia dos 3 tipos e R$/km da van; decisão do grupo sobre as propostas da seção 2 de `docs/fontes-frota.md`.
+- Coordenadas das unidades reais: conferidas em 14/10/2026 (parte por CEP/rua, parte ajustada à mão no Google Maps). As três "UBS de referência" do PR de 02/10 eram placeholders e foram trocadas por unidades reais do HC.
+- `sp_15`, `sp_40` e `sp_80` foram regenerados (seed 42) com as coordenadas corrigidas.

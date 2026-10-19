@@ -1,7 +1,8 @@
 """Gerador de instâncias (seed fixa). Depósito = farmácia central do HC-FMUSP.
 
-ATENÇÃO: coordenadas das unidades reais são aproximadas (~100 m) e devem ser
-conferidas no Google Maps/CNES antes do relatório (registrar fonte no PR).
+Coordenadas: ver docs/fontes-frota.md (seção 3). Todas vêm de fonte pública
+(IBGE via CEP em ruacep.com.br; Wikipédia para o complexo do HC), com precisão de
+rua/CEP (centenas de metros). Unidades no mesmo complexo compartilham o ponto.
 """
 from __future__ import annotations
 
@@ -12,22 +13,23 @@ from medroute.domain.models import Delivery, Depot, Instance, Priority
 
 from .fleet import FleetConfig
 
-DEPOT = Depot(id="deposito", nome="Farmácia Central HC-FMUSP", lat=-23.5559, lon=-46.6693)
+# Complexo HC-FMUSP: ajustado no Google Maps (Beatriz, 16/10)
+DEPOT = Depot(id="deposito", nome="Farmácia Central HC-FMUSP", lat=-23.55770, lon=-46.66893)
 
-# (nome, lat, lon)  -- 10 unidades reais da rede
+# (nome, lat, lon): 10 unidades reais da rede HC-FMUSP. Endereços e fontes: docs/fontes-frota.md.
+# A ordem importa: sp_15 usa as 4 primeiras e os testes do módulo LLM dependem desses nomes.
 REAL_UNITS = [
-    ("InCor", -23.5568, -46.6708),
-    ("ICESP", -23.5583, -46.6699),
-    ("IPq HC-FMUSP", -23.5563, -46.6712),
-    ("Instituto da Criança (ICr)", -23.5571, -46.6718),
-    ("IOT HC-FMUSP", -23.5544, -46.6694),
-    ("Instituto de Radiologia (InRad)", -23.5575, -46.6684),
-    ("HU-USP", -23.5662, -46.7357),
-    ("UBS Butantã (ref.)", -23.5712, -46.7275),
-    ("UBS Vila Mariana (ref.)", -23.5896, -46.6366),
-    ("UBS Jardim Paulistano (ref.)", -23.5690, -46.6990),
+    ("InCor", -23.55695, -46.66814),                       # Enéas C. Aguiar, 44
+    ("ICESP", -23.55591, -46.66817),                       # Dr. Arnaldo, 251
+    ("IPq HC-FMUSP", -23.55906, -46.67080),                # R. Ovídio P. de Campos, 785
+    ("Instituto da Criança (ICr)", -23.55552, -46.67318),  # Enéas C. Aguiar, 647
+    ("HU-USP", -23.56494, -46.74057),                      # Lineu Prestes, 2565
+    ("Hospital Auxiliar de Cotoxó", -23.53617, -46.68823),  # R. Cotoxó, 1142
+    ("IMREA Lapa", -23.52162, -46.69779),                  # R. Guaicurus, 1274
+    ("IOT HC-FMUSP", -23.55782, -46.67117),                # R. Ovídio P. de Campos, 333
+    ("Instituto de Radiologia (InRad)", -23.55660, -46.67050),  # R. Ovídio P. de Campos
+    ("Instituto Central (ICHC)", -23.55771, -46.66892),    # Enéas C. Aguiar, 255
 ]
-# Unidades com "(ref.)" são UBS de referência: trocar pelo nome/endereço oficial (CNES) ao conferir.
 RAIO_KM = 15.0
 
 
