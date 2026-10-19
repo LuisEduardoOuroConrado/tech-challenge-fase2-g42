@@ -464,6 +464,9 @@ do relatório, 2–3 min no vídeo.
   híbrido da CLI (seed 7): R$ 2.714,96, 5 veículos, sem violação.
 - **Leitura:** com trânsito o pico da manhã torna caro chegar tarde, e o GA híbrido passa a ganhar com folga do
   NN+2-opt em `sp_40` (−9% na média), onde sem trânsito só empatava. Na van única a folga ficou pequena (R$ 2).
+- **CLI completa** (PR #23): `medroute compare` (runner + tabela-resumo) e `medroute report` (relatório
+  diário/semanal da LLM a partir de Solutions ou do `solutions.json` do `compare`). Fecha o atraso da parte E
+  na entrega de 16/10; o Alexandre segue com Streamlit e roteiro do vídeo. 325 testes.
 
 ### 8.2 Handoffs — quem entrega o quê, para quem, até quando
 
@@ -484,7 +487,7 @@ A regra: a data é o **último dia** para entregar sem atrasar quem depende. Ent
 | **16/10 (sex)** | Conrado | Decoder giant-tour→split + fitness em R$ com penalidades P0 → **VRP funcionando em `sp_40`** | Pedro (experimentos), Rodrigo (Solutions reais), Alexandre (mapa multi-veículo) | ✅ PRs #8/#12/#14 (fitness usa `constraints/`; sp_40: 4 veículos, sem violação) |
 | **16/10 (sex)** | Pedro | Clarke-Wright Savings + `experiments/runner.py` (configs YAML × seeds) | rodada de experimentos na S3 | ✅ PR #17 (merge 19/10); rodadas refeitas nos dados reais (seção 8.1.5) |
 | **16/10 (sex)** | Rodrigo | Relatório diário/semanal com recomendações (Groq real) + cache de respostas | Alexandre (`medroute report`) | ✅ 16/10, PR #13 |
-| **16/10 (sex)** | Alexandre | CLI completa (`compare`, `instruct`, `report`) + mapa multi-veículo (cor por veículo, ícone por prioridade) | demo da S2 | 🔴 atrasado: mapa e `instruct` (PR #9) prontos; faltam `compare` (API do runner pronta) e `report` |
+| **16/10 (sex)** | Alexandre | CLI completa (`compare`, `instruct`, `report`) + mapa multi-veículo (cor por veículo, ícone por prioridade) | demo da S2 | ✅ 19/10: `compare` e `report` no PR #23 (feitos por Conrado); `instruct` PR #9; mapa multi-veículo |
 | **21/10 (qua)** | Beatriz | `constraints/` deadline, compatibilidade, jornada + fator de trânsito na `DistanceMatrix.time()` | Conrado (fitness P1) | ✅ 16/10, PR #14 (adiantado; trânsito via `saida_min`) |
 | **21/10 (qua)** | Conrado | Fitness P1 (tempo de chegada, deadline, jornada, compatibilidade) + 2-opt local no GA | Pedro (experimento E5 de sensibilidade), Rodrigo (instruções com horários) | 🟡 2-opt (GA híbrido, PR #12) e decoder P1 (PR #15) na `main`; falta ligar o fator de trânsito |
 | **21/10 (qua)** | Alexandre | Roteiro do vídeo (quem fala o quê, em quantos minutos) | todos preparam sua fala | — |
