@@ -122,14 +122,17 @@ resolveram:
 
 O híbrido é o padrão do `medroute solve`; `--no-semente-nn --busca-local 0` volta ao GA puro.
 
-Resultados nos dados reais (19/10, 5 seeds, pop 100 × 300 gerações; ver `PLANEJAMENTO.md` seção 8.1.5 e
-`reports/comparativo-s2/`):
+Resultados nos dados reais com fator de trânsito (19/10, 5 seeds, pop 100 × 300 gerações; ver
+`PLANEJAMENTO.md` seção 8.1.6 e `reports/comparativo-s2/`):
 
 | Cenário | NN+2-opt | GA puro | GA híbrido |
 |---|---|---|---|
-| `sp_15`, só a van (TSP) | R$ 740,10 | R$ 732,99 · vence 5/5 | R$ 731,80 · vence 5/5 |
-| `sp_15`, frota completa | R$ 432,42 | R$ 445,10 · vence 2/5 | R$ 431,35 · vence 3/5, empata 1 (PMX: 5/5) |
-| `sp_40`, frota completa | R$ 1.081,97 | R$ 1.193,33 · vence 0/5 | R$ 1.078,44 · vence 3/5 (melhor R$ 977,16) |
+| `sp_15`, só a van (TSP) | R$ 782,90 | R$ 782,34 · vence 4/5, empata 1 | R$ 780,77 · vence 4/5 |
+| `sp_15`, frota completa | R$ 461,72 | R$ 472,48 · vence 2/5 | R$ 458,64 · vence 4/5 (PMX: 4/5) |
+| `sp_40`, frota completa | R$ 1.263,23 | R$ 1.377,15 · vence 1/5 | R$ 1.145,65 · vence 5/5 (melhor R$ 1.058,53) |
+
+O GA puro perde para o NN+2-opt na frota completa; o híbrido vence, e a diferença cresce com o tamanho da
+instância (−9% na média em `sp_40`).
 
 ## 7. Mapa dos arquivos
 

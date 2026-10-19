@@ -3,9 +3,9 @@
 Branch: `feature/pedro-savings-runner-1610`, criada após pull da `main` em `cf29b0c`.
 
 > **Atualização 19/10:** as pastas `reports/comparativo-s1-atualizado-van/` e `reports/comparativo-s2/`
-> foram regeneradas com os mesmos comandos sobre os dados reais do PR #18 (`main` `2af2c82`). Os resultados
-> novos estão na seção 8.1.5 do `PLANEJAMENTO.md`. As tabelas abaixo são da rodada de 16/10 nas instâncias
-> antigas; as evidências dela continuam no commit `7e2f971`.
+> foram regeneradas com os mesmos comandos sobre os dados reais do PR #18 e o fator de trânsito do PR #21
+> (`main` `646db7a`). Os resultados novos estão na seção 8.1.6 do `PLANEJAMENTO.md`. As tabelas abaixo são da
+> rodada de 16/10 nas instâncias antigas; as evidências dela continuam no commit `7e2f971`.
 
 ## Entrega
 
