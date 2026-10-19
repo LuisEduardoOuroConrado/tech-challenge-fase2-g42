@@ -77,7 +77,7 @@ começar sobre uma fixture (`tests/fixtures/solution_sp15.json`) antes de o GA e
 | `experiments/` | Pedro | README | Runner YAML (instâncias × configurações × seeds), métricas, resumo e exportação CSV/JSON. |
 | `llm/` | Rodrigo | 05 | Cliente (mock, Groq, OpenAI), prompts versionados, contexto da rota, instruções por motorista, relatório diário/semanal, cache em disco. |
 | `viz/` | Alexandre | README | Mapa folium: uma cor por veículo, ícone por prioridade, popup com ordem, carga e prazo. |
-| `app/` | Alexandre | README | CLI `typer`: `demo`, `gen`, `solve`, `map`, `instruct`. Planejados: `compare`, `report`, `ask` e o app Streamlit. |
+| `app/` | Alexandre | README | CLI `typer`: `demo`, `gen`, `solve`, `map`, `instruct`, `compare` (runner) e `report` (relatório da LLM). Planejados: `ask` e o app Streamlit. |
 
 Dependências só apontam "para dentro": `domain` não importa nada do projeto; `data` e `constraints` dependem só
 de `domain`; `ga` e `baselines` dependem dos três; `llm`, `viz`, `experiments` e `app` ficam na borda.

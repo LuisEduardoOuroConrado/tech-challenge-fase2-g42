@@ -1,5 +1,6 @@
 """Interface de linha de comando do medroute."""
 
+import json
 import os
 from pathlib import Path
 from typing import Annotated
@@ -33,6 +34,7 @@ INSTANCES_DIR = Path("data/instances")
 RESULTS_DIR = Path("data/resultados")
 FLEET_PATH = Path("configs/frota.yaml")
 FITNESS_PATH = Path("configs/fitness.yaml")
+EXPERIMENT_PATH = Path("configs/experimentos/s2.yaml")
 
 FleetOption = Annotated[Path, typer.Option("--frota", help="YAML da frota.")]
 
@@ -197,6 +199,37 @@ InstOption = Annotated[
     str | None,
     typer.Option("--inst", help="Instância; padrão: a indicada na solução."),
 ]
+ProviderOption = Annotated[
+    str | None,
+    typer.Option(help="mock, groq ou openai; padrão: LLM_PROVIDER do .env."),
+]
+
+
+def _llm_client(provedor: str | None):
+    """Cliente da LLM a partir do .env; `provedor` sobrescreve o LLM_PROVIDER."""
+    from dotenv import load_dotenv
+
+    from medroute.llm import client_from_env
+
+    load_dotenv()
+    env = dict(os.environ)
+    if provedor is not None:
+        env["LLM_PROVIDER"] = provedor
+    return client_from_env(env)
+
+
+def _load_solutions(paths: list[Path]) -> list[Solution]:
+    """Lê Solutions de JSONs com uma Solution ou uma lista (o solutions.json do compare)."""
+    solutions: list[Solution] = []
+    for path in paths:
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            items = data if isinstance(data, list) else [data]
+            solutions += [Solution.model_validate(item) for item in items]
+        except (OSError, ValueError) as error:
+            console.print(f"[red]Solução inválida em {path}:[/red] {error}")
+            raise typer.Exit(1) from error
+    return solutions
 
 
 @app.command(name="map")
@@ -227,26 +260,17 @@ def instruct(
         Path | None,
         typer.Option(help="Markdown de saída; padrão: <solução>_instrucoes.md."),
     ] = None,
-    provedor: Annotated[
-        str | None,
-        typer.Option(help="mock, groq ou openai; padrão: LLM_PROVIDER do .env."),
-    ] = None,
+    provedor: ProviderOption = None,
     frota: FleetOption = FLEET_PATH,
 ) -> None:
     """Gera as instruções por motorista (LLM) de uma Solution salva."""
-    from dotenv import load_dotenv
-
-    from medroute.llm import LLMError, client_from_env, generate_instructions
+    from medroute.llm import LLMError, generate_instructions
 
     solution = _load_solution(solucao)
     instance, _ = _load(inst or solution.instance_nome, frota)
 
-    load_dotenv()
-    env = dict(os.environ)
-    if provedor is not None:
-        env["LLM_PROVIDER"] = provedor
     try:
-        client = client_from_env(env)
+        client = _llm_client(provedor)
         with console.status(f"Gerando instruções ({client.provider})..."):
             instrucoes = generate_instructions(solution, instance, client)
     except LLMError as error:
@@ -265,3 +289,108 @@ def instruct(
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(texto, encoding="utf-8")
     console.print(f"{len(instrucoes)} rota(s) com instruções -> {path}")
+
+
+@app.command()
+def compare(
+    config: Annotated[
+        Path, typer.Option("--config", help="YAML do experimento (configs/experimentos/).")
+    ] = EXPERIMENT_PATH,
+    seed: Annotated[
+        list[int] | None,
+        typer.Option("--seed", help="Sobrescreve as seeds do YAML; repita para várias."),
+    ] = None,
+    out: Annotated[
+        Path | None, typer.Option(help="Pasta dos resultados; padrão: `out` do YAML.")
+    ] = None,
+) -> None:
+    """Compara o GA com os baselines (NN, NN+2-opt, Savings, aleatório) via runner."""
+    from medroute.experiments.runner import (
+        ExperimentConfig,
+        load_experiment_config,
+        run_experiment,
+        write_results,
+    )
+
+    try:
+        cfg = load_experiment_config(config)
+        updates = {}
+        if out is not None:
+            updates["out"] = out.resolve()
+        if seed:
+            updates["seeds"] = seed
+        cfg = ExperimentConfig.model_validate({**cfg.model_dump(), **updates})
+        with console.status("Rodando o experimento...") as status:
+            result = run_experiment(cfg, progress=status.update)
+        destination = write_results(result, cfg.out)
+    except (OSError, ValueError) as error:
+        console.print(f"[red]Experimento inválido:[/red] {error}")
+        raise typer.Exit(1) from error
+
+    table = Table(title=f"{cfg.name} · {len(cfg.seeds)} seed(s) · fitness em R$")
+    for column in ("Instância", "Algoritmo"):
+        table.add_column(column)
+    for column in ("Média ± dp", "Melhor", "km", "Violação", "s"):
+        table.add_column(column, justify="right")
+    for row in result.summary:
+        table.add_row(
+            row["instance_nome"],
+            row["algoritmo"],
+            f"{row['fitness_media']:.2f} ± {row['fitness_dp']:.2f}",
+            f"{row['fitness_min']:.2f}",
+            f"{row['distancia_total_km_media']:.1f}",
+            f"{row['percentual_execucoes_com_violacao']:.0f}%",
+            f"{row['tempo_exec_s_media']:.1f}",
+        )
+    console.print(table)
+    console.print(f"Resultados: {destination}")
+
+
+@app.command()
+def report(
+    solucoes: Annotated[
+        list[Path],
+        typer.Argument(help="JSONs de Solution ou o solutions.json gerado pelo compare."),
+    ],
+    inst: Annotated[
+        str | None,
+        typer.Option("--inst", help="Instância; obrigatória se os JSONs tiverem mais de uma."),
+    ] = None,
+    periodo: Annotated[str, typer.Option(help="diario ou semanal.")] = "diario",
+    out: Annotated[
+        Path | None,
+        typer.Option(help="Markdown de saída; padrão: <json>_relatorio_<periodo>.md."),
+    ] = None,
+    provedor: ProviderOption = None,
+    frota: FleetOption = FLEET_PATH,
+) -> None:
+    """Gera o relatório diário ou semanal (LLM) comparando as Solutions de uma instância."""
+    from medroute.llm import LLMError, generate_report
+
+    if periodo not in ("diario", "semanal"):
+        console.print(f"[red]Período inválido:[/red] {periodo} (use diario ou semanal)")
+        raise typer.Exit(1)
+    solutions = _load_solutions(solucoes)
+    nomes = sorted({solution.instance_nome for solution in solutions})
+    if inst is None and len(nomes) > 1:
+        console.print(f"[red]Mais de uma instância nos JSONs; use --inst:[/red] {', '.join(nomes)}")
+        raise typer.Exit(1)
+    instance, _ = _load(inst or nomes[0], frota)
+    solutions = [solution for solution in solutions if solution.instance_nome == instance.nome]
+    if not solutions:
+        console.print(f"[red]Nenhuma solução da instância {instance.nome}.[/red]")
+        raise typer.Exit(1)
+
+    try:
+        client = _llm_client(provedor)
+        with console.status(f"Gerando relatório ({client.provider})..."):
+            texto = generate_report(solutions, instance, periodo, client)
+    except LLMError as error:
+        console.print(f"[red]Erro na LLM:[/red] {error}")
+        raise typer.Exit(1) from error
+
+    sufixo = f"_{instance.nome}" if len(nomes) > 1 else ""
+    path = out or solucoes[0].with_name(f"{solucoes[0].stem}{sufixo}_relatorio_{periodo}.md")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(texto, encoding="utf-8")
+    console.print(f"Relatório {periodo} ({len(solutions)} soluções) -> {path}")

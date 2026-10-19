@@ -100,3 +100,90 @@ def test_instruct_rejeita_provedor_invalido(tmp_path: Path, monkeypatch) -> None
 
     assert result.exit_code == 1
     assert not (tmp_path / "i.md").exists()
+
+
+def experiment_yaml(tmp_path: Path) -> Path:
+    """Experimento mínimo: sp_15, uma seed, um GA pequeno."""
+    path = tmp_path / "exp.yaml"
+    ga = {
+        "population_size": 6,
+        "generations": 2,
+        "crossover_rate": 0.9,
+        "mutation_rate": 0.2,
+        "elitism": 1,
+        "tournament_size": 2,
+        "crossover": "ox",
+        "mutation": "inversion",
+    }
+    config = {
+        "name": "teste",
+        "instances": [SP15],
+        "fleet": FROTA,
+        "fitness": str(ROOT / "configs" / "fitness.yaml"),
+        "seeds": [7],
+        "ga_configs": {"mini": ga},
+        "two_opt_max_passes": 1,
+        "out": str(tmp_path / "padrao"),
+    }
+    path.write_text(json.dumps(config), encoding="utf-8")  # JSON é YAML válido
+    return path
+
+
+def test_compare_roda_o_runner_e_mostra_o_resumo(tmp_path: Path) -> None:
+    out = tmp_path / "res"
+    args = ["compare", "--config", str(experiment_yaml(tmp_path)), "--seed", "3", "--out", str(out)]
+    result = runner.invoke(app, args)
+
+    assert result.exit_code == 0, result.output
+    assert {p.name for p in out.iterdir()} == {
+        "solutions.json",
+        "metrics.csv",
+        "summary.csv",
+        "convergence.csv",
+        "metadata.json",
+    }
+    solutions = json.loads((out / "solutions.json").read_text("utf-8"))
+    assert {s["seed"] for s in solutions} == {3}  # --seed sobrescreve o YAML
+    assert {s["algoritmo"] for s in solutions} >= {"ga_mini", "nearest_neighbor_two_opt"}
+    assert "ga_mini" in result.output
+    assert not (tmp_path / "padrao").exists()  # --out sobrescreve o YAML
+
+
+def test_compare_rejeita_yaml_invalido(tmp_path: Path) -> None:
+    path = tmp_path / "ruim.yaml"
+    path.write_text("name: x\n", encoding="utf-8")
+    assert runner.invoke(app, ["compare", "--config", str(path)]).exit_code == 1
+
+
+def test_report_gera_markdown_com_mock(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.chdir(tmp_path)  # isola de um .env local
+    fixture = ROOT / "tests" / "fixtures" / "solution_sp15.json"
+    solution_path = tmp_path / "sol.json"
+    solution_path.write_text(fixture.read_text("utf-8"), encoding="utf-8")
+
+    args = ["report", str(solution_path), "--inst", SP15, "--frota", FROTA, "--provedor", "mock"]
+    result = runner.invoke(app, [*args, "--periodo", "semanal"])
+
+    assert result.exit_code == 0, result.output
+    md = (tmp_path / "sol_relatorio_semanal.md").read_text("utf-8")
+    assert md.startswith("# Relatório semanal de entregas")
+
+
+def test_report_le_lista_e_exige_inst_com_varias_instancias(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.chdir(tmp_path)
+    fixture = json.loads((ROOT / "tests" / "fixtures" / "solution_sp15.json").read_text("utf-8"))
+    outra = {**fixture, "instance_nome": "sp_40", "algoritmo": "outro"}
+    lista = tmp_path / "solutions.json"
+    lista.write_text(json.dumps([fixture, outra]), encoding="utf-8")
+    base = ["report", str(lista), "--frota", FROTA, "--provedor", "mock"]
+
+    assert runner.invoke(app, base).exit_code == 1  # duas instâncias, sem --inst
+    result = runner.invoke(app, [*base, "--inst", SP15])
+    assert result.exit_code == 0, result.output
+    assert (tmp_path / "solutions_sp_15_relatorio_diario.md").exists()
+
+
+def test_report_rejeita_periodo_invalido(tmp_path: Path) -> None:
+    fixture = ROOT / "tests" / "fixtures" / "solution_sp15.json"
+    result = runner.invoke(app, ["report", str(fixture), "--periodo", "mensal"])
+    assert result.exit_code == 1
