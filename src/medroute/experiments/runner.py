@@ -149,7 +149,7 @@ def run_experiment(
             "fitness_config": weights.model_dump(mode="json"),
             "fitness": "definitivo: custo operacional + prioridade + penalidades P0/P1",
             "decoder": "split ótimo compartilhado; fallback guloso se não houver split hard viável",
-            "duracao": "viagem + atendimento + retorno ao depósito; sem fator de trânsito",
+            "duracao": "viagem + atendimento + retorno; trânsito com saída em inicio_jornada",
             "reference": "nearest_neighbor, mesma instância e seed",
             "python": platform.python_version(),
             "platform": platform.platform(),

@@ -25,7 +25,22 @@ python -m pytest
 medroute demo
 ```
 
-Consulte `PLANEJAMENTO.md` para arquitetura, responsabilidades e cronograma.
+Consulte `PLANEJAMENTO.md` para o cronograma e [`docs/arquitetura.md`](docs/arquitetura.md) para a
+arquitetura.
+
+## CLI
+
+```bash
+medroute gen                                   # instâncias sp_15, sp_40, sp_80
+medroute solve --inst sp_40 --seed 7           # GA híbrido -> data/resultados/*.json + mapa
+medroute map data/resultados/sp_40_ga_vrp_s7.json
+medroute instruct data/resultados/sp_40_ga_vrp_s7.json          # instruções por motorista (LLM)
+medroute compare --config configs/experimentos/s2.yaml --seed 7 # GA × baselines (runner)
+medroute report data/resultados/comparativo_s2/solutions.json --inst sp_40 --periodo semanal
+```
+
+`instruct` e `report` usam o `LLM_PROVIDER` do `.env` (`--provedor mock` roda sem rede). O `report` aceita
+uma ou mais `Solution` ou o `solutions.json` do `compare`; com várias instâncias, `--inst` escolhe uma.
 
 ## Baselines e experimentos (entrega de 16/10)
 
@@ -37,6 +52,7 @@ split, frota e restrições P0/P1.
 python scripts/compare_sp15.py
 python scripts/compare_sp15.py --frota-completa
 python -m medroute.experiments.runner --config configs/experimentos/s2.yaml
+# equivalente, com tabela-resumo: medroute compare --config configs/experimentos/s2.yaml
 ```
 
 O comparativo S1 atualizado roda GA puro/híbrido e quatro baselines, com cinco
