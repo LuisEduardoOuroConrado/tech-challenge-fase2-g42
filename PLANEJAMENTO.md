@@ -405,7 +405,7 @@ do relatório, 2–3 min no vídeo.
 - **`sp_80`:** com as paradas na duração, o GA puro estoura a jornada (rota de 678 min, R$ 6.051); o híbrido fica
   em R$ 2.854 sem violação.
 
-### 8.1.4 Entrega de Pedro em 16/10 (nesta branch; aguarda PR/merge)
+### 8.1.4 Entrega de Pedro em 16/10 (PR #17, merge 19/10)
 
 - `feature/pedro-savings-runner-1610`: Savings, runner YAML × seeds, baselines
   com fitness definitivo e split/P1 compartilhados. Plano revisado em
@@ -422,26 +422,48 @@ do relatório, 2–3 min no vídeo.
 - E1–E6 completos seguem para 23/10. Após a correção das coordenadas da Beatriz,
   repetir as rodadas; pesos e dados desta execução estão identificados nos metadados.
 
+### 8.1.5 Situação em 19/10 (seg, início da S3)
+
+- **Na `main` (`2af2c82`):** Savings + runner (Pedro, PR #17) e dados reais (Beatriz, PR #18: 10 unidades
+  reais do HC, coordenadas conferidas no Google Maps, depósito no complexo do HC, `docs/fontes-frota.md`).
+  `sp_15`/`sp_40`/`sp_80` foram regenerados: os números das seções 8.1.2–8.1.4 são históricos. 317 testes verdes.
+- **Rodadas oficiais refeitas nos dados novos** (`reports/comparativo-s1-atualizado-van/` e
+  `reports/comparativo-s2/`; mesmos comandos e parâmetros da seção 8.1.4). V/E/D contra o NN+2-opt por seed:
+
+  | Cenário | NN+2-opt | GA puro | GA híbrido (OX) | GA PMX (híbrido) |
+  |---|---|---|---|---|
+  | `sp_15`, só a van | R$ 740,10 | R$ 732,99 · 5/0/0 | R$ 731,80 · 5/0/0 | — |
+  | `sp_15`, frota | R$ 432,42 | R$ 445,10 · 2/0/3 | R$ 431,35 · 3/1/1 | R$ 428,99 · 5/0/0 |
+  | `sp_40`, frota | R$ 1.081,97 | R$ 1.193,33 · 0/0/5 | R$ 1.078,44 ± 97,56 · 3/0/2 (melhor R$ 977,16) | R$ 1.085,55 ± 72,20 · 2/0/3 |
+
+  Savings e NN ficam atrás em todos os cenários (na van única violam deadline). `sp_80` com o híbrido da CLI
+  (seed 7): R$ 2.520,09, 4 veículos, sem violação.
+- **Critério da S1 segue atendido** (van: GA vence 5/5; frota `sp_15`: PMX 5/5, híbrido 3/1/1). Em `sp_40` o GA
+  empata na média com o NN+2-opt e tem desvio alto: assunto do E1 (população/gerações).
+- **Pendente de decisão (até 21/10, antes dos E1–E6):** propostas da seção 2 de `docs/fontes-frota.md` — van
+  650 kg / 3.100 L, carro 300 L, possível dupla contagem R$/km × custo fixo (Spec 03), premissas sem fonte.
+  Mudar a frota obriga a refazer as rodadas.
+
 ### 8.2 Handoffs — quem entrega o quê, para quem, até quando
 
 A regra: a data é o **último dia** para entregar sem atrasar quem depende. Entregar antes libera o outro antes.
 
-| Até | Quem | Entrega | Desbloqueia | Status (16/10) |
+| Até | Quem | Entrega | Desbloqueia | Status (19/10) |
 |-----|------|---------|-------------|----------------|
 | **30/09 (qua)** | Conrado | `domain/models.py` congelado + `tests/fixtures/solution_sp15.json` (Solution de exemplo feito à mão) | **todos** — Rodrigo (prompts), Alexandre (mapa), Pedro (métricas) começam sobre a fixture | ✅ 28/09 |
 | **30/09 (qua)** | Alexandre | Esqueleto do repo (`src/medroute`, `tests/`, `requirements.txt`, `pyproject.toml`, GitHub Actions rodando `pytest` + `ruff`) | todos abrem PR com CI | ✅ 28/09 (feito por Conrado) |
 | **02/10 (sex)** | Beatriz | Loader + gerador + instância `sp_15` + `DistanceMatrix` haversine×fator + `configs/frota.yaml` | Conrado (GA em dados reais na S1), Pedro (baselines) | ✅ 03/10, PR #2 (+1 dia) |
 | **02/10 (sex)** | Conrado, Beatriz, Rodrigo | Specs 01/02/03/05 aprovadas (1 revisor cada) | implementação da S1 | ✅ 01/02/03 aprovadas 05/10; 05 aprovada 08/10 (PRs #6/#7) |
-| **07/10 (qua)** | Beatriz | Instância `sp_40` (10 unidades reais + 30 sintéticas) | Conrado, Pedro, Alexandre testam em escala real | ✅ 03/10 (adiantado; `sp_80` junto) |
+| **07/10 (qua)** | Beatriz | Instância `sp_40` (10 unidades reais + 30 sintéticas) | Conrado, Pedro, Alexandre testam em escala real | ✅ 03/10 (adiantado; `sp_80` junto); unidades reais e coordenadas conferidas no PR #18 (19/10) |
 | **09/10 (sex)** | Conrado | GA TSP (1 veículo): encoding, torneio, OX/PMX, swap/inversion, elitismo, `historico_fitness` | Pedro (comparativo), Alexandre (mapa com rota real) | ✅ 05/10, PR #3 |
 | **09/10 (sex)** | Pedro | Nearest Neighbor, NN+2-opt, aleatório + `metrics.py` (mesma assinatura `solve_*`) | Conrado (referência de qualidade do GA) | ✅ 09/10, PR #10 (merge 11/10); comparativo definitivo revisado em 16/10, seção 8.1.4 |
 | **09/10 (sex)** | Rodrigo | `LLMClient` (mock + Groq) + prompt de instruções por motorista funcionando sobre a fixture | Alexandre (`medroute instruct` na CLI) | ✅ 08/10, PR #4 |
 | **09/10 (sex)** | Alexandre | Mapa folium básico (1 rota) + CLI `gen` / `solve` / `map` | demo da S1 | ✅ 05/10 (feito por Conrado; mapa já multi-veículo) |
 | **14/10 (qua)** | Beatriz | `constraints/` capacidade, autonomia, prioridade (funções puras testadas) | Conrado (fitness P0) | ✅ 16/10, PR #14 (P0 e P1 juntos) |
 | **16/10 (sex)** | Conrado | Decoder giant-tour→split + fitness em R$ com penalidades P0 → **VRP funcionando em `sp_40`** | Pedro (experimentos), Rodrigo (Solutions reais), Alexandre (mapa multi-veículo) | ✅ PRs #8/#12/#14 (fitness usa `constraints/`; sp_40: 4 veículos, sem violação) |
-| **16/10 (sex)** | Pedro | Clarke-Wright Savings + `experiments/runner.py` (configs YAML × seeds) | rodada de experimentos na S3 | Implementado na branch `feature/pedro-savings-runner-1610`; testes e comparativo em `reports/secoes/pedro-savings-runner-s2.md`; aguarda PR/merge |
+| **16/10 (sex)** | Pedro | Clarke-Wright Savings + `experiments/runner.py` (configs YAML × seeds) | rodada de experimentos na S3 | ✅ PR #17 (merge 19/10); rodadas refeitas nos dados reais (seção 8.1.5) |
 | **16/10 (sex)** | Rodrigo | Relatório diário/semanal com recomendações (Groq real) + cache de respostas | Alexandre (`medroute report`) | ✅ 16/10, PR #13 |
-| **16/10 (sex)** | Alexandre | CLI completa (`compare`, `instruct`, `report`) + mapa multi-veículo (cor por veículo, ícone por prioridade) | demo da S2 | 🟡 mapa e `instruct` (PR #9) prontos; faltam `compare`/`report` |
+| **16/10 (sex)** | Alexandre | CLI completa (`compare`, `instruct`, `report`) + mapa multi-veículo (cor por veículo, ícone por prioridade) | demo da S2 | 🔴 atrasado: mapa e `instruct` (PR #9) prontos; faltam `compare` (API do runner pronta) e `report` |
 | **21/10 (qua)** | Beatriz | `constraints/` deadline, compatibilidade, jornada + fator de trânsito na `DistanceMatrix.time()` | Conrado (fitness P1) | ✅ 16/10, PR #14 (adiantado; trânsito via `saida_min`) |
 | **21/10 (qua)** | Conrado | Fitness P1 (tempo de chegada, deadline, jornada, compatibilidade) + 2-opt local no GA | Pedro (experimento E5 de sensibilidade), Rodrigo (instruções com horários) | 🟡 2-opt (GA híbrido, PR #12) e decoder P1 (PR #15) na `main`; falta ligar o fator de trânsito |
 | **21/10 (qua)** | Alexandre | Roteiro do vídeo (quem fala o quê, em quantos minutos) | todos preparam sua fala | — |
@@ -606,7 +628,7 @@ Inviável para 5 pessoas desenvolvendo.
 | # | Pendência | Quem resolve | Como / até quando |
 |---|-----------|--------------|-------------------|
 | 1 | Cada integrante confirma a própria carga de P1 e suas datas (8.2) | todos | aprovar o PR do plano até **30/09** |
-| 3 | Fontes para justificar os números da frota (frete/km, autonomia, velocidade média CET) — valores atuais ficam até então | Beatriz | PR em `configs/frota.yaml` com as fontes até **07/10** |
+| 3 | ~~Fontes para justificar os números da frota~~ **feito no PR #18 (19/10)**, `docs/fontes-frota.md`; falta o grupo decidir as propostas da seção 2 | Beatriz → grupo | decisão até **21/10** |
 | 4 | Quem coloca o cartão na OpenAI (~US$ 5–10, limite de gasto US$ 10 no painel) | Conrado (a confirmar) | mensagem no grupo |
 | 10a | Localizar e baixar o código base de TSP fornecido pela FIAP → `reference/tsp_base/` | a nomear (quem achar primeiro avisa no grupo) | PR até **01/10** |
 | 10b | ~~Dar acesso de escrita ao repo~~ **feito em 27/09**; cada um testa push em `feature/` e avisa no grupo | todos | push de teste até **30/09** |
