@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "created_at_utc": "2026-10-19T20:02:18.062620+00:00",
+  "created_at_utc": "2026-10-19T20:51:30.993922+00:00",
   "experiment": {
     "name": "comparativo_s2",
     "instances": [
@@ -930,8 +930,8 @@
     "constraints\\violations.py": "e871143ec631434a034c79eb614ed9d9460cab8dc4b46b517cd099236e9e595c",
     "data\\__init__.py": "ed2d151db1d6579adf14217db19391a29b98141ba1949f7f85df4ba9082bfd71",
     "data\\cli.py": "5e08deb1edb6bdd836c42782b9f6296fcf2788e116c4ea45b6981eeee492c47a",
-    "data\\distance.py": "f075497eb8829f200da89d6d57b02863ab95f247dd5301561b76c70eefe1120d",
-    "data\\fleet.py": "451f66ba62d15298bcf4ac889abdcc5a21f21cc42587f797a7d54c50445e7eb2",
+    "data\\distance.py": "18816fe9a63138af588ef69fb9488ac698ad23e9e56ec3d3fcc27030bcf795f0",
+    "data\\fleet.py": "b504265caf50e1ae031fa6693f0a5cc1a0282f5d7056a911c12031e35b276afa",
     "data\\generator.py": "38e891ba721f54021ed56c3dec67c7c7f6e6402e92a343337015290622be4d09",
     "data\\loader.py": "f82382878baf36322d80c3bc3a2bddc8fce59bdf2599065bfcb28f021cb7c423",
     "domain\\__init__.py": "61c40bbfc4a66c423da46174274c96e238beccdc885478e43817c3c52b533f1b",
@@ -940,10 +940,10 @@
     "experiments\\metrics.py": "9d9eccc1beabd80332b25b4a2e0aed9d04ca88e0f844011004058ded513cfa3e",
     "experiments\\runner.py": "6a98b150da6069b28dc7e9dc2ea7c0f3f2babaf8bf04f92b590aa48e8868868a",
     "ga\\__init__.py": "f83aac5fd02c4e7c9502c1bd441aca7227effe645cbfd33ccd9f96acf05e96d2",
-    "ga\\decoder.py": "dbbea5206ba2a9f7bfa3b48060789f1c655a72c795565f625e8a980b3bcec15e",
+    "ga\\decoder.py": "bc134f48f9c5e30e89169b9d3221d07317864c3b02cdf3980595063ff8fac677",
     "ga\\encoding.py": "e35ba6537ca1139014366b6ced894ae91aff0de7352969f2556fdcd2ce47dd5b",
     "ga\\engine.py": "461c1ebea1d067fa928c2e0bf710a1b19e8148b4d48237bca6912914ad9cce8e",
-    "ga\\fitness.py": "04b6e85a7c4265372ff5e77a3811179b5ad7e7bbb6cb157963ce994dc2fe9dea",
+    "ga\\fitness.py": "108bd1c1c4ad5ca74482fab98983414a0ac35f146d54659ba42599099bc07156",
     "ga\\operators.py": "d24269214d677b97aac394d5192e5b5cbc1d90d3c2884360fcaa7583b3ea30db",
     "llm\\__init__.py": "d8bc1d2361ecf87c62532bdf819f05ea93cdbacd0888e047e73221be7eadcaef",
     "llm\\cache.py": "3362fd30aa5a4a632a2cd039a1b40ab22cfd34d1e68a517ffacbb5e57622cc4f",

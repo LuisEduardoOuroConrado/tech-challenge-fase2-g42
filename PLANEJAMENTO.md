@@ -444,6 +444,27 @@ do relatório, 2–3 min no vídeo.
   650 kg / 3.100 L, carro 300 L, possível dupla contagem R$/km × custo fixo (Spec 03), premissas sem fonte.
   Mudar a frota obriga a refazer as rodadas.
 
+### 8.1.6 Fator de trânsito ligado (19/10, PRs #20 e #21)
+
+- **Docs do Conrado adiantados** (PR #20, prazo 23/10): `docs/do-tsp-ao-vrp.md` (R10) e `docs/arquitetura.md`
+  com Mermaid (R17).
+- **Trânsito no fitness** (PR #21, prazo 21/10): todas as rotas saem em `inicio_jornada` (07:00) e cada trecho
+  leva o fator da faixa em que sai (06–09 ×1,4; 09–17 ×1,0; 17–20 ×1,5). Vale para o GA e para os baselines
+  (mesmo split). 320 testes. **A tabela da seção 8.1.5 passa a ser histórica.**
+- **Rodadas oficiais refeitas com trânsito** (mesmos comandos e parâmetros; `reports/comparativo-s1-atualizado-van/`
+  e `reports/comparativo-s2/`). V/E/D contra o NN+2-opt por seed:
+
+  | Cenário | NN+2-opt | GA puro | GA híbrido (OX) | GA PMX (híbrido) |
+  |---|---|---|---|---|
+  | `sp_15`, só a van | R$ 782,90 | R$ 782,34 · 4/1/0 | R$ 780,77 · 4/0/1 | — |
+  | `sp_15`, frota | R$ 461,72 | R$ 472,48 · 2/0/3 | R$ 458,64 · 4/0/1 | R$ 456,20 · 4/0/1 |
+  | `sp_40`, frota | R$ 1.263,23 | R$ 1.377,15 · 1/0/4 | R$ 1.145,65 ± 64,55 · **5/0/0** (melhor R$ 1.058,53) | R$ 1.135,36 ± 72,57 · **5/0/0** |
+
+  Savings (R$ 1.318,14) e NN (R$ 1.432,09) ficam atrás no `sp_40`; na van única violam deadline. `sp_80` com o
+  híbrido da CLI (seed 7): R$ 2.714,96, 5 veículos, sem violação.
+- **Leitura:** com trânsito o pico da manhã torna caro chegar tarde, e o GA híbrido passa a ganhar com folga do
+  NN+2-opt em `sp_40` (−9% na média), onde sem trânsito só empatava. Na van única a folga ficou pequena (R$ 2).
+
 ### 8.2 Handoffs — quem entrega o quê, para quem, até quando
 
 A regra: a data é o **último dia** para entregar sem atrasar quem depende. Entregar antes libera o outro antes.
