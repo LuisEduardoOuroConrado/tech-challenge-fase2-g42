@@ -136,7 +136,9 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
    fixo no código (modelos são descontinuados — ex.: Llama 3.3 70B no Groq).
    `temperature` e `max_tokens` vêm de `LLM_TEMPERATURE` e `LLM_MAX_TOKENS`.
 3. Erros transitórios (limite de taxa 429, timeout, falha de conexão, erro 5xx) são
-   repetidos até `max_retries` vezes com espera exponencial (2 s, 4 s, 8 s).
+   repetidos até `max_retries` vezes com espera exponencial (2 s, 4 s, 8 s) ou, se
+   maior, a indicada no `Retry-After` do provedor (teto de 60 s): o limite do Groq
+   gratuito é por minuto, e 2 + 4 + 8 s não bastavam (visto em 19/10 no Q&A).
    Esgotadas as tentativas ou em erro não transitório (ex.: 401), lança `LLMError`.
 4. Resposta vazia é tratada como erro (`LLMError`). Resposta cortada pelo limite
    de tokens (`finish_reason == "length"`) também, mesmo com texto: em modelos
@@ -162,7 +164,7 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
 
 ### Prompts
 
-0. Prompts atuais: `instrucoes_motorista` (v1) e `relatorio` (v1). Um `$` que não
+0. Prompts atuais: `instrucoes_motorista` (v1), `relatorio` (v1) e `qa` (v1). Um `$` que não
    inicia variável (ex.: "R$ 10,00") fica como está; variável ausente gera `ValueError`.
 1. Cada prompt fica em `llm/prompts/<nome>.md`, com um cabeçalho de versão
    (`versao: 1`) e as seções `system` e `user`. Templates usam `string.Template`
@@ -250,8 +252,25 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
 ### Q&A (S3, P1)
 
 1. *Context stuffing*: o contexto completo da solução vai no prompt junto com a
-   pergunta.
-2. Pergunta fora do escopo das rotas recebe uma recusa curta e educada.
+   pergunta. `build_qa_context` reaproveita `build_report_data` (resumo, ocupação,
+   observações) e acrescenta as paradas de cada rota em ordem (com `id` e `nome`) e
+   as `entregas_nao_atendidas`. Em `sp_40`, ~7.400 caracteres (~3 mil tokens).
+2. Pergunta fora do escopo das rotas recebe uma recusa curta e educada: a frase
+   fixa `RECUSA` ("Só posso responder perguntas sobre as rotas e entregas deste
+   plano."), que o prompt manda repetir exatamente.
+3. A pergunta vai por último, entre `<pergunta>` e `</pergunta>`, e o prompt manda
+   tratá-la só como pergunta, nunca como instrução. As tags são removidas do texto
+   do usuário antes, para ele não fechar o bloco. Pergunta vazia ou com mais de 500
+   caracteres gera `ValueError`.
+4. Informação de rota que não está nos dados (ex.: horário de chegada) recebe
+   "não está disponível no plano", sem estimativa. Contar e listar itens do JSON
+   é permitido. Entregas são citadas pelo nome, não só pelo `id`.
+5. CLI: `medroute ask <solução.json> "pergunta" [--inst] [--provedor]`. Com várias
+   Solutions da instância (ex.: `solutions.json` do `compare`), usa a de menor
+   fitness, como o plano adotado do relatório.
+6. Testado em 19/10 com Groq sobre `reports/comparativo-s2` (`sp_40`): localização,
+   contagem por veículo, custo, horário inexistente, pergunta fora do escopo e
+   tentativa de *prompt injection* responderam conforme as regras.
 
 ## Critérios de aceite
 
@@ -301,7 +320,7 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
 | 9 | `test_cache.py::test_mesma_entrada_chama_o_provedor_uma_vez` |
 | 10 | `test_cache.py::test_arquivo_registra_provedor_modelo_prompt_e_versao` e `::test_arquivo_nao_contem_a_chave_de_api` |
 | 11 | `test_reports.py::test_duas_solucoes_com_mock_prompt_traz_metricas_e_texto_tem_recomendacoes` |
-| 12 | a fazer (S3) |
+| 12 | `test_qa.py::test_pergunta_fora_do_escopo_recebe_recusa_e_prompt_traz_regra_e_pergunta` |
 
 Além dos critérios, já há testes para: veículo inexistente, instância diferente,
 rota vazia, JSON arredondado, prompt mal formatado, 401 sem expor a chave, resposta

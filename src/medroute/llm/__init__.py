@@ -5,6 +5,7 @@ from .client import LLMClient, LLMError, MockClient, OpenAICompatibleClient, cli
 from .context import RouteContext, StopContext, build_route_contexts
 from .instructions import generate_instructions
 from .prompts import Prompt, load_prompt
+from .qa import answer
 from .reports import generate_report
 
 __all__ = [
@@ -16,6 +17,7 @@ __all__ = [
     "Prompt",
     "RouteContext",
     "StopContext",
+    "answer",
     "build_route_contexts",
     "client_from_env",
     "generate_instructions",

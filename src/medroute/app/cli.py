@@ -394,3 +394,52 @@ def report(
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(texto, encoding="utf-8")
     console.print(f"Relatório {periodo} ({len(solutions)} soluções) -> {path}")
+
+
+@app.command()
+def ask(
+    solucao: Annotated[
+        Path,
+        typer.Argument(help="JSON da Solution ou o solutions.json gerado pelo compare."),
+    ],
+    pergunta: Annotated[str, typer.Argument(help="Pergunta em linguagem natural, entre aspas.")],
+    inst: Annotated[
+        str | None,
+        typer.Option("--inst", help="Instância; obrigatória se o JSON tiver mais de uma."),
+    ] = None,
+    provedor: ProviderOption = None,
+    frota: FleetOption = FLEET_PATH,
+) -> None:
+    """Responde a uma pergunta (LLM) sobre as rotas de uma Solution.
+
+    Com várias Solutions da instância (ex.: solutions.json), usa a de menor fitness.
+    """
+    from rich.markdown import Markdown
+
+    from medroute.llm import LLMError, answer
+
+    solutions = _load_solutions([solucao])
+    nomes = sorted({solution.instance_nome for solution in solutions})
+    if inst is None and len(nomes) > 1:
+        console.print(f"[red]Mais de uma instância no JSON; use --inst:[/red] {', '.join(nomes)}")
+        raise typer.Exit(1)
+    instance, _ = _load(inst or nomes[0], frota)
+    candidatas = [solution for solution in solutions if solution.instance_nome == instance.nome]
+    if not candidatas:
+        console.print(f"[red]Nenhuma solução da instância {instance.nome}.[/red]")
+        raise typer.Exit(1)
+    solution = min(candidatas, key=lambda s: s.fitness)
+
+    try:
+        client = _llm_client(provedor)
+        with console.status(f"Consultando a LLM ({client.provider})..."):
+            resposta = answer(pergunta, solution, instance, client)
+    except (LLMError, ValueError) as error:
+        console.print(f"[red]Não foi possível responder:[/red] {error}")
+        raise typer.Exit(1) from error
+
+    console.print(
+        f"[dim]Plano: {solution.algoritmo} (seed {solution.seed}) · "
+        f"LLM: {client.provider}/{client.model}[/dim]"
+    )
+    console.print(Markdown(resposta))

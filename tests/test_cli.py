@@ -187,3 +187,39 @@ def test_report_rejeita_periodo_invalido(tmp_path: Path) -> None:
     fixture = ROOT / "tests" / "fixtures" / "solution_sp15.json"
     result = runner.invoke(app, ["report", str(fixture), "--periodo", "mensal"])
     assert result.exit_code == 1
+
+
+def test_ask_responde_com_mock(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.chdir(tmp_path)  # isola de um .env local
+    fixture = ROOT / "tests" / "fixtures" / "solution_sp15.json"
+    args = ["ask", str(fixture), "Quantas paradas tem a moto-01?", "--frota", FROTA]
+    result = runner.invoke(app, [*args, "--inst", SP15, "--provedor", "mock"])
+
+    assert result.exit_code == 0, result.output
+    assert "Plano: fixture_manual (seed 17)" in result.output
+    assert "LLM: mock/mock" in result.output
+
+
+def test_ask_usa_a_melhor_solucao_da_lista(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.chdir(tmp_path)
+    fixture = json.loads((ROOT / "tests" / "fixtures" / "solution_sp15.json").read_text("utf-8"))
+    pior = {**fixture, "algoritmo": "pior", "fitness": fixture["fitness"] + 100}
+    outra = {**fixture, "instance_nome": "sp_40", "algoritmo": "outra"}
+    lista = tmp_path / "solutions.json"
+    lista.write_text(json.dumps([pior, fixture, outra]), encoding="utf-8")
+    base = ["ask", str(lista), "Qual rota é a mais longa?", "--frota", FROTA, "--provedor", "mock"]
+
+    assert runner.invoke(app, base).exit_code == 1  # duas instâncias, sem --inst
+    result = runner.invoke(app, [*base, "--inst", SP15])
+    assert result.exit_code == 0, result.output
+    assert "Plano: fixture_manual" in result.output
+
+
+def test_ask_rejeita_pergunta_vazia(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.chdir(tmp_path)
+    fixture = ROOT / "tests" / "fixtures" / "solution_sp15.json"
+    args = ["ask", str(fixture), "   ", "--inst", SP15, "--frota", FROTA, "--provedor", "mock"]
+    result = runner.invoke(app, args)
+
+    assert result.exit_code == 1
+    assert "pergunta está vazia" in result.output

@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from .prompts import Prompt
 
 DEFAULT_GROQ_BASE_URL = "https://api.groq.com/openai/v1"
+MAX_ESPERA_S = 60.0  # teto para a espera sugerida pelo provedor (Retry-After)
 
 # Erros que valem nova tentativa: limite de taxa, timeout, conexão e falha 5xx do servidor.
 TRANSIENT_ERRORS = (
@@ -101,7 +102,7 @@ class OpenAICompatibleClient:
             except TRANSIENT_ERRORS as e:
                 if tentativa == self.max_retries:
                     raise self._error(e, f"após {tentativa + 1} tentativas") from e
-                self._sleep(2 ** (tentativa + 1))  # 2 s, 4 s, 8 s...
+                self._sleep(_espera(e, tentativa))
             except openai.OpenAIError as e:
                 raise self._error(e) from e
 
@@ -126,6 +127,22 @@ class OpenAICompatibleClient:
             f"{self.provider}: falha ao chamar o modelo {self.model} "
             f"({', '.join(p for p in partes if p)})"
         )
+
+
+def _espera(e: Exception, tentativa: int) -> float:
+    """Espera exponencial (2 s, 4 s, 8 s...) ou o Retry-After do provedor, se maior.
+
+    O limite do Groq gratuito é por minuto: 2 + 4 + 8 s não bastam para liberar a cota,
+    e o 429 informa em Retry-After (segundos) quando ela volta.
+    """
+    espera = float(2 ** (tentativa + 1))
+    response = getattr(e, "response", None)
+    bruto = response.headers.get("retry-after") if response is not None else None
+    try:
+        sugerida = float(bruto) if bruto else 0.0
+    except ValueError:  # Retry-After também pode vir como data HTTP; nesse caso, ignora
+        sugerida = 0.0
+    return min(max(espera, sugerida), MAX_ESPERA_S)
 
 
 def client_from_env(env: Mapping[str, str] | None = None) -> LLMClient:
