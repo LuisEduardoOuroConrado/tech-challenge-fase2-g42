@@ -106,12 +106,14 @@ Resultado com o fitness definitivo (pop 100, 300 gerações, seed 7): `sp_40` us
 
 Efeito (pop 100, 300 gerações, seed 7): `sp_15` igual (R$ 428); `sp_40` R$ 1.178, sem violação; `sp_80` com o GA puro passa a pagar R$ 2.174 de jornada (rota de 678 min, pois antes a duração não contava as 80 paradas de 10 min), total R$ 6.051. O GA híbrido (semente NN + busca local 0,3) chega a R$ 2.854 em `sp_80` sem violação, com todas as rotas abaixo de 480 min.
 
+**Situação em 19/10/2026 (Conrado):** fator de trânsito ligado. Decisão: **todas as rotas saem juntas em `inicio_jornada` (07:00)**, já que cada veículo faz uma rota por dia. `FleetConfig.saida_min` devolve esse minuto do dia (420) quando o `frota.yaml` tem faixas de `transito`, e None quando não tem (volta ao P0). O `Fitness` (custo de prioridade) e os dois decoders (`deadline`, `jornada`, `Route.duracao_min`) passam `saida_min` para `cronograma_rota`/`duracao_rota`. O split ótimo aplica o mesmo fator a cada trecho pelo minuto em que ele sai, então o custo do DP continua igual ao fitness (teste `test_custo_do_split_com_transito_bate_com_o_fitness`). Com as faixas atuais (06–09 ×1,4; 09–17 ×1,0; 17–20 ×1,5), os trechos até 09:00 ficam 40% mais lentos. Os baselines usam o mesmo split e herdam o trânsito. Custo: o `sp_40` com o híbrido levou ~30% mais tempo por seed.
+
 ## 6. Decisões (fechadas na revisão de 05/10/2026)
 1. **`custo_prioridade` pesa o tempo até a chegada**, não só o atraso — é o que o ADR 0004 (aceito) define. O atraso além do prazo é cobrado à parte pela penalidade `deadline`.
 2. **Capacidade soma** as frações de excesso em kg e em litros.
 3. **Pesos:** os de penalidade da proposta original servem de base, com fixo de R$ 1.000 nas hard (seção 4); os de prioridade foram reduzidos 10× para 0,50 / 0,15 / 0,05 com base na calibração da seção 4.
 4. **`servico_min` e `aceita_volumoso` não entram no `models.py`** (decidido na Spec 01): tempo de parada de `FleetConfig.servico_min_padrao`, volumoso via `FleetConfig.aceita`. O fitness recebe o `FleetConfig`.
-5. **P0 usa tempo sem trânsito** (`saida_min=None`); o fator por período entra em P1.
+5. **P0 usa tempo sem trânsito** (`saida_min=None`); o fator por período entra em P1 (ligado em 19/10, com saída de todas as rotas em `inicio_jornada`).
 
 ## 7. Critérios de aceite
 1. **Dada** uma solução sem violações, **quando** avaliada, **então** `fitness = custo_operacional + custo_prioridade` e `Solution.penalidades` soma 0.

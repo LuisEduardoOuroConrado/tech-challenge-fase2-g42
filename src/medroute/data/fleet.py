@@ -17,6 +17,17 @@ class FleetConfig:
     tipos_sem_volumoso: frozenset[str] = frozenset()
     transito: tuple = ()
 
+    @property
+    def saida_min(self) -> float | None:
+        """Minuto do dia em que as rotas saem do depósito (`inicio_jornada`).
+
+        Todas as rotas saem juntas no início da jornada. Sem faixas de `transito` no YAML devolve
+        None, e o tempo de viagem fica sem fator de trânsito (P0)."""
+        if not self.transito:
+            return None
+        h, m = self.inicio_jornada.split(":")
+        return int(h) * 60 + int(m)
+
     def compativel(self, v: Vehicle, d: Delivery) -> bool:
         """Só a compatibilidade da carga (refrigerado, volumoso); não olha capacidade."""
         if d.refrigerado and not v.aceita_refrigerado:

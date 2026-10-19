@@ -7,7 +7,7 @@ from medroute.constraints import cronograma_rota, duracao_rota
 from medroute.data import DistanceMatrix, FleetConfig
 from medroute.domain.models import Priority
 from medroute.ga import GAConfig, GeneticAlgorithm, load_fitness_config, make_fitness
-from medroute.ga.decoder import decode, split_decode
+from medroute.ga.decoder import _feasible_segments, decode, split_decode
 
 CFG = load_fitness_config()
 
@@ -136,3 +136,56 @@ def test_ga_com_fitness_definitivo_usa_o_decoder_p1():
     )
     ga = GeneticAlgorithm(inst, dm, config, fitness_fn=fitness)
     assert all("jornada" in r.violacoes for r in ga.decode(ids(inst)))
+
+
+# Fator de trânsito (P1): todas as rotas saem em `inicio_jornada`. A faixa curta e forte faz
+# o fator mudar no meio da rota, o caso em que o split e o cronograma poderiam divergir.
+TRANSITO = ({"inicio": "07:00", "fim": "07:20", "fator": 3.0},)
+
+
+def setup_transito(inst, **fleet_args):
+    fleet = FleetConfig(vehicles=tuple(inst.fleet), transito=TRANSITO, **fleet_args)
+    dm = DistanceMatrix(inst, fleet)
+    return dm, fleet, make_fitness(inst, dm, fleet, CFG)
+
+
+def test_saida_das_rotas_e_o_inicio_da_jornada_so_com_transito():
+    vehicles = (make_vehicle("van-01"),)
+    assert FleetConfig(vehicles=vehicles, transito=TRANSITO).saida_min == 7 * 60
+    cedo = FleetConfig(vehicles=vehicles, transito=TRANSITO, inicio_jornada="06:30")
+    assert cedo.saida_min == 390
+    assert FleetConfig(vehicles=vehicles).saida_min is None
+
+
+def test_decoder_aplica_o_transito_na_duracao_e_nas_chegadas():
+    inst = update(make_instance(4), {"e04": critica(1.0)})
+    dm, fleet, _ = setup_transito(inst)
+    [route] = decode(ids(inst), inst, dm, fleet)
+    vehicle = inst.fleet[0]
+    assert route.duracao_min == pytest.approx(
+        duracao_rota(dm, vehicle, ids(inst), inst, fleet, saida_min=7 * 60)
+    )
+    chegada = cronograma_rota(dm, vehicle, ids(inst), inst, fleet, saida_min=7 * 60)["e04"]
+    assert route.violacoes["deadline"] == pytest.approx(chegada - 1.0)
+    [sem_transito] = decode(ids(inst), inst, *setup(inst)[:2])
+    assert route.duracao_min > sem_transito.duracao_min
+
+
+def test_custo_do_split_com_transito_bate_com_o_fitness():
+    inst = update(make_instance(6), {"e05": critica(15.0)})
+    dm, fleet, fitness = setup_transito(inst, jornada_max_min=60.0)
+    [route] = split_decode(ids(inst), inst, dm, CFG, fitness.servico_min, fleet)
+    weights = [CFG.prioridade_rs_min[d.prioridade] for d in inst.deliveries]
+    segments = _feasible_segments(
+        inst.fleet[0],
+        list(range(1, 7)),
+        list(inst.deliveries),
+        weights,
+        dm.matrix().tolist(),
+        fitness.servico_min,
+        CFG,
+        fleet,
+        dm,
+    )
+    custo_no_split = dict(segments[0])[6]
+    assert custo_no_split == pytest.approx(fitness([route]))
