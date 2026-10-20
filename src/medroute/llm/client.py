@@ -81,6 +81,7 @@ class OpenAICompatibleClient:
         self.max_tokens = max_tokens
         self.max_retries = max_retries
         self._sleep = sleep
+        self.espera_total_s = 0.0  # tempo esperado por limite de taxa (para a avaliação)
         # As retentativas são nossas (Spec 05), então desligamos as do SDK.
         self._sdk = sdk_client or OpenAI(
             api_key=api_key, base_url=base_url, timeout=timeout_s, max_retries=0
@@ -102,7 +103,9 @@ class OpenAICompatibleClient:
             except TRANSIENT_ERRORS as e:
                 if tentativa == self.max_retries:
                     raise self._error(e, f"após {tentativa + 1} tentativas") from e
-                self._sleep(_espera(e, tentativa))
+                espera = _espera(e, tentativa)
+                self.espera_total_s += espera
+                self._sleep(espera)
             except openai.OpenAIError as e:
                 raise self._error(e) from e
 
