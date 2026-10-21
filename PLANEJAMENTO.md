@@ -476,6 +476,11 @@ do relatório, 2–3 min no vídeo.
   com 6 blocos em 14 min (um por integrante, o Alexandre abre e fecha), comandos da demo conferidos e
   checklist da gravação de 27/10. Ficam marcados como pendentes os números dos E1–E6, a rubrica da LLM e o
   Streamlit (todos para 23/10).
+- **Rubrica da LLM** (PR #27, Rodrigo, adiantado do prazo de 23/10): `llm/evaluation.py` confere a resposta crua
+  de cada provedor com critérios determinísticos (ordem das paradas, números com fonte, seções, recomendações,
+  comportamento no Q&A). Em `sp_40`: instruções e Q&A 100% nos dois modelos; relatório 100% no gpt-4o-mini e 50%
+  no Groq (o semanal passou de 350 palavras e trouxe um número sem fonte), além de 180 s de espera por limite de
+  taxa no Q&A do Groq. Confirma o gpt-4o-mini para o relatório final e o vídeo. 379 testes.
 
 ### 8.2 Handoffs — quem entrega o quê, para quem, até quando
 
@@ -501,7 +506,7 @@ A regra: a data é o **último dia** para entregar sem atrasar quem depende. Ent
 | **21/10 (qua)** | Conrado | Fitness P1 (tempo de chegada, deadline, jornada, compatibilidade) + 2-opt local no GA | Pedro (experimento E5 de sensibilidade), Rodrigo (instruções com horários) | 🟡 2-opt (GA híbrido, PR #12) e decoder P1 (PR #15) na `main`; falta ligar o fator de trânsito |
 | **21/10 (qua)** | Alexandre | Roteiro do vídeo (quem fala o quê, em quantos minutos) | todos preparam sua fala | 🟡 rascunho em `docs/roteiro-video.md` (20/10, Conrado): 6 blocos, 14 min; Alexandre e grupo validam |
 | **23/10 (sex)** | Pedro | Experimentos E1–E6 rodados: tabelas (média ± dp, 5 seeds), curvas de convergência, figuras em `reports/figuras/` | relatório (seção comparativo) | — |
-| **23/10 (sex)** | Rodrigo | Q&A (`medroute ask`) + rubrica de avaliação aplicada a Groq × gpt-4o-mini | relatório (seção LLM), Streamlit | 🟡 `medroute ask` no PR #25 (19/10); falta a rubrica (crédito OpenAI ativo desde 20/10) |
+| **23/10 (sex)** | Rodrigo | Q&A (`medroute ask`) + rubrica de avaliação aplicada a Groq × gpt-4o-mini | relatório (seção LLM), Streamlit | ✅ `medroute ask` no PR #25 (19/10); rubrica no PR #27 (`reports/avaliacao-llm/`) |
 | **23/10 (sex)** | Alexandre | Streamlit (instância → otimizar → mapa → instruções → pergunta) + testes de integração | vídeo | — |
 | **23/10 (sex)** | Conrado | `docs/do-tsp-ao-vrp.md` (antes × depois do código base) + `docs/arquitetura.md` com Mermaid | relatório (seções GA e arquitetura) | — |
 | **26/10 (seg)** | **todos** | Texto da própria seção do relatório em `reports/secoes/<parte>.md` · **code freeze** | Alexandre monta o PDF | — |
