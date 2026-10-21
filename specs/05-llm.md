@@ -272,6 +272,33 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
    contagem por veículo, custo, horário inexistente, pergunta fora do escopo e
    tentativa de *prompt injection* responderam conforme as regras.
 
+### Avaliação da qualidade (S3, R14)
+
+1. `llm/evaluation.py` roda os mesmos casos em cada provedor e confere a resposta
+   **crua** da LLM (antes de nova tentativa ou texto padrão). Uso:
+   `python -m medroute.llm.evaluation --solucoes <solutions.json> --inst sp_40
+   --provedores groq openai --out reports/avaliacao-llm`.
+2. Casos: instruções de cada rota do melhor plano; relatório diário e semanal com
+   todos os algoritmos; 10 perguntas de Q&A geradas a partir da própria solução
+   (localizar, buscar por id, contar, custo, rota mais longa, explicar custo, dois
+   dados inexistentes, fora do escopo e *prompt injection*). As respostas esperadas
+   saem dos dados, então a rubrica vale se as rodadas oficiais forem refeitas.
+3. Critérios essenciais: instruções = ordem das paradas, números com fonte e alertas
+   citados; relatório = três seções, 3 a 5 recomendações e números com fonte; Q&A =
+   comportamento (fatos esperados, "não disponível" ou recusa exata) e números com
+   fonte. Informativos: tamanho, tempo, esperas por limite e novas tentativas.
+4. **Números com fonte:** todo número do texto precisa existir nos dados enviados,
+   com a tolerância do arredondamento escrito; nomes e ids são retirados antes e
+   inteiros até 10 passam (contagens). Diferença calculada pelo modelo conta como
+   sem fonte, porque o prompt proíbe refazer contas.
+5. O tempo do modelo exclui as esperas por limite de taxa, medidas à parte
+   (`OpenAICompatibleClient.espera_total_s`). Para medir tempo, rodar com um
+   `LLM_CACHE_DIR` vazio; respostas do cache aparecem como "cache".
+6. `--reavaliar resultados.json` recalcula a rubrica sem chamar a LLM, mantendo
+   respostas e tempos: corrigir um critério não gasta cota.
+7. Resultado oficial em `reports/avaliacao-llm/` (19/10, uma execução por caso).
+   LLM-as-judge fica fora; a rubrica é determinística e reproduzível.
+
 ## Critérios de aceite
 
 1. **Dado** `LLM_PROVIDER` ausente, **quando** `client_from_env` é chamado,
