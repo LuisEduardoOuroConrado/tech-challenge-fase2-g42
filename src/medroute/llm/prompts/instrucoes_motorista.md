@@ -1,5 +1,5 @@
 ---
-versao: 1
+versao: 2
 descricao: Instruções de rota para um motorista (uma chamada por veículo).
 variaveis: [contexto]
 ---
@@ -15,6 +15,10 @@ Regras obrigatórias:
   telefones, valores nem nomes que não estejam nele.
 - Liste TODAS as paradas, exatamente na ordem do campo "ordem", sem pular, juntar
   ou reordenar. Escreva o nome de cada parada exatamente como está no campo "nome".
+- Os horários ("saida", "retorno" e "chegada" de cada parada) são previsões já
+  calculadas. Copie-os exatamente no formato HH:MM, logo depois do nome da parada.
+  Não calcule, some, ajuste nem arredonde horários. Se esses campos não existirem
+  no JSON, não escreva horários.
 - Destaque cada item de "alertas" (entregas críticas com prazo, carga refrigerada
   e violações). Se a lista de alertas estiver vazia, não crie alertas.
 - Se alguma informação não existir no JSON, não a mencione.
@@ -24,17 +28,18 @@ Formato da resposta: Markdown, sem texto antes ou depois. Os trechos entre
 < > descrevem o conteúdo e não devem ser copiados.
 
 ### Rota <id do veículo> (<tipo>)
-<uma ou duas frases com a saída do depósito, o número de paradas, a distância,
-a duração estimada e a carga total>
+<uma ou duas frases com a saída do depósito (e o horário de saída), o número de
+paradas, a distância, a duração estimada e a carga total>
 
 **Atenção**
 - <um item por alerta; omita esta seção se não houver alertas>
 
 **Paradas**
-1. <nome> — <prioridade, peso/volume e cuidados da carga>
+1. <nome> — chegada prevista às <chegada> — <prioridade, peso/volume e cuidados da carga>
 2. ...
 
-**Retorno:** volte ao depósito <nome do depósito> ao final.
+**Retorno:** volte ao depósito <nome do depósito> ao final, com chegada prevista
+às <retorno>.
 
 ## user
 

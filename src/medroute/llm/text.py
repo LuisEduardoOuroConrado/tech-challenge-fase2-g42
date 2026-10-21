@@ -24,3 +24,9 @@ def numero_br(valor: float, casas: int = 1) -> str:
 def moeda(valor: float) -> str:
     """1586.65 -> 'R$ 1.586,65'."""
     return f"R$ {numero_br(valor, 2)}"
+
+
+def hora(minuto_do_dia: float) -> str:
+    """Minuto do dia, arredondado ao minuto: 462.4 -> '07:42'."""
+    minutos = round(minuto_do_dia) % (24 * 60)
+    return f"{minutos // 60:02d}:{minutos % 60:02d}"

@@ -84,6 +84,7 @@ class StopContext(BaseModel):
     volume_l: float
     refrigerado: bool
     deadline_min: float | None
+    chegada_min: float | None = None     # minutos após a saída (com frota)
 
 class RouteContext(BaseModel):
     vehicle_id: str
@@ -96,8 +97,11 @@ class RouteContext(BaseModel):
     carga_l: float
     custo: float
     violacoes: dict[str, float]          # apenas as maiores que zero
+    saida_min: float | None = None       # minuto do dia da saída (420 = 07:00)
 
-def build_route_contexts(solution: Solution, inst: Instance) -> list[RouteContext]: ...
+def build_route_contexts(
+    solution: Solution, inst: Instance, fleet: FleetConfig | None = None
+) -> list[RouteContext]: ...
 
 # llm/prompts.py
 def load_prompt(nome: str) -> Prompt: ...  # lê llm/prompts/<nome>.md
@@ -107,6 +111,7 @@ def generate_instructions(
     solution: Solution,
     inst: Instance,
     client: LLMClient,
+    fleet: FleetConfig | None = None,    # com frota, traz horários de chegada
 ) -> dict[str, str]: ...                 # vehicle_id -> texto em Markdown
 
 # llm/reports.py  (P0 — S2)
@@ -164,7 +169,7 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
 
 ### Prompts
 
-0. Prompts atuais: `instrucoes_motorista` (v1), `relatorio` (v1) e `qa` (v1). Um `$` que não
+0. Prompts atuais: `instrucoes_motorista` (v2), `relatorio` (v1) e `qa` (v1). Um `$` que não
    inicia variável (ex.: "R$ 10,00") fica como está; variável ausente gera `ValueError`.
 1. Cada prompt fica em `llm/prompts/<nome>.md`, com um cabeçalho de versão
    (`versao: 1`) e as seções `system` e `user`. Templates usam `string.Template`
@@ -197,9 +202,17 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
    escreve `Domicílio<U+202F>02`, o que reprovava respostas corretas (visto em 13/10).
    A nova tentativa anexa ao prompt um aviso de correção; isso orienta o modelo e
    muda a chave do cache, que de outra forma devolveria a mesma resposta infiel.
-5. Horários de chegada por parada ficam fora da S1. Entram quando
-   `cronograma_rota` (Spec 03, Beatriz, 14/10) estiver na `main`: o contexto ganha
-   `chegada_min` por parada e o prompt sobe para `versao: 2`.
+5. **Horários de chegada (prompt v2, 20/10).** Com a frota (`fleet`), o contexto usa
+   `cronograma_rota` e `duracao_rota` (Spec 03) com saída em `inicio_jornada` (07:00)
+   e o fator de trânsito, como no GA. O JSON ganha `saida` e `retorno` no resumo e
+   `chegada` por parada, já em `HH:MM`; o alerta de entrega crítica ganha o prazo
+   em relógio ("até 10:00"). O prompt manda copiar os horários sem recalcular.
+   A duração vem do mesmo cronograma, para o retorno nunca ficar antes da última
+   parada (nas soluções de `sp_40` ela é igual à da `Solution`).
+   A fidelidade passa a exigir, depois do nome de cada parada e antes da seguinte,
+   o seu horário exato; o *fallback* também traz os horários. Sem frota não há
+   horários e tudo funciona como na v1. O comando `instruct` passa a frota de `--frota`.
+   O Q&A segue sem horários (a pergunta de horário continua "não disponível").
 
 ### Relatórios (S2)
 
@@ -283,7 +296,8 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
    (localizar, buscar por id, contar, custo, rota mais longa, explicar custo, dois
    dados inexistentes, fora do escopo e *prompt injection*). As respostas esperadas
    saem dos dados, então a rubrica vale se as rodadas oficiais forem refeitas.
-3. Critérios essenciais: instruções = ordem das paradas, números com fonte e alertas
+3. Critérios essenciais: instruções = ordem das paradas, horários (cada parada com o
+   seu horário exato; sem frota, igual à ordem), números com fonte e alertas
    citados; relatório = três seções, 3 a 5 recomendações e números com fonte; Q&A =
    comportamento (fatos esperados, "não disponível" ou recusa exata) e números com
    fonte. Informativos: tamanho, tempo, esperas por limite e novas tentativas.
@@ -296,8 +310,11 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
    `LLM_CACHE_DIR` vazio; respostas do cache aparecem como "cache".
 6. `--reavaliar resultados.json` recalcula a rubrica sem chamar a LLM, mantendo
    respostas e tempos: corrigir um critério não gasta cota.
-7. Resultado oficial em `reports/avaliacao-llm/` (19/10, uma execução por caso).
+7. Resultado oficial em `reports/avaliacao-llm/` (20/10, instruções v2, uma execução
+   por caso; a rodada de 19/10, com instruções v1, fica no histórico do Git).
    LLM-as-judge fica fora; a rubrica é determinística e reproduzível.
+8. A rubrica carrega a frota de `--frota` (padrão `configs/frota.yaml`), então as
+   instruções são avaliadas com horários. Para reavaliar, usar a mesma frota da execução.
 
 ## Critérios de aceite
 
@@ -331,6 +348,9 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
 12. **Dada** uma pergunta fora do escopo das rotas, **quando** `answer` é chamado com
     um cliente falso que segue o prompt, **então** o prompt enviado contém a regra de
     recusa e a pergunta original (S3).
+13. **Dadas** a fixture, a frota e uma resposta da LLM sem os horários de chegada,
+    **quando** `generate_instructions` é chamado, **então** o resultado é o *fallback*
+    com o horário previsto de cada parada e do retorno (prompt v2).
 
 ### Mapa critério → teste (revisão de 08/10)
 
@@ -348,6 +368,7 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
 | 10 | `test_cache.py::test_arquivo_registra_provedor_modelo_prompt_e_versao` e `::test_arquivo_nao_contem_a_chave_de_api` |
 | 11 | `test_reports.py::test_duas_solucoes_com_mock_prompt_traz_metricas_e_texto_tem_recomendacoes` |
 | 12 | `test_qa.py::test_pergunta_fora_do_escopo_recebe_recusa_e_prompt_traz_regra_e_pergunta` |
+| 13 | `test_instructions.py::test_horario_errado_duas_vezes_usa_fallback_com_horarios` |
 
 Além dos critérios, já há testes para: veículo inexistente, instância diferente,
 rota vazia, JSON arredondado, prompt mal formatado, 401 sem expor a chave, resposta
