@@ -1,6 +1,6 @@
 # Roteiro do vídeo — Tech Challenge Fase 2 · G42
 
-- **Status:** rascunho 20/10/2026 (prazo do roteiro: 21/10; dono da parte E: Alexandre)
+- **Status:** rascunho 20/10/2026, com o resultado da rubrica da LLM (PR #27) (prazo do roteiro: 21/10; dono da parte E: Alexandre)
 - **Duração-alvo:** 14 min (limite do enunciado: 15 min; 1 min de folga para a edição)
 - **Gravação:** 27/10 (ter), cada um grava a sua parte (tela + voz). Edição: Alexandre, 28/10. Publicação
   (YouTube, não listado): 29/10.
@@ -116,8 +116,10 @@ medroute ask data/resultados/sp_40_ga_vrp_s7.json "Qual veículo chega mais tard
 - **Relatório diário/semanal:** eficiência, economia e uma seção de recomendações (R13).
 - **Perguntas em linguagem natural:** `medroute ask` sobre as rotas.
 - Prompts versionados em `llm/prompts/`, cache de respostas e três provedores (mock, Groq, OpenAI).
-- Avaliação da qualidade: rubrica aplicada a Groq × gpt-4o-mini.
-  **[PENDENTE: resultado da rubrica, prazo 23/10.]**
+- **Avaliação da qualidade** (mostrar `reports/avaliacao-llm/resumo.md`): rubrica determinística sobre a
+  resposta crua de cada modelo, sem LLM-as-judge. Em `sp_40`, instruções e Q&A passam em 100% nos dois
+  modelos; no relatório, o gpt-4o-mini passa em 100% e o Groq em 50% (o semanal ficou longo e trouxe um número
+  sem fonte). Por isso o relatório final e esta demo usam o gpt-4o-mini.
 
 ## Bloco 6 — Demo ponta a ponta e fechamento (Alexandre, 2,5 min)
 
@@ -125,7 +127,7 @@ medroute ask data/resultados/sp_40_ga_vrp_s7.json "Qual veículo chega mais tard
 
 **Fala-guia:**
 - O mesmo fluxo dos blocos anteriores numa interface só.
-- Qualidade: projeto Python com venv e `pyproject.toml`, testes automatizados (348 hoje) e CI no GitHub
+- Qualidade: projeto Python com venv e `pyproject.toml`, testes automatizados (379 hoje) e CI no GitHub
   Actions a cada PR.
 - Fechamento: o que entregamos, limitações (distância haversine × fator, não ruas reais; frota fixa) e
   próximos passos.
