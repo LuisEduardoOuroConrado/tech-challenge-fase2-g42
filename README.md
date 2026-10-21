@@ -37,10 +37,20 @@ medroute map data/resultados/sp_40_ga_vrp_s7.json
 medroute instruct data/resultados/sp_40_ga_vrp_s7.json          # instruções por motorista (LLM)
 medroute compare --config configs/experimentos/s2.yaml --seed 7 # GA × baselines (runner)
 medroute report data/resultados/comparativo_s2/solutions.json --inst sp_40 --periodo semanal
+medroute ask data/resultados/sp_40_ga_vrp_s7.json "Qual veículo chega mais tarde e por quê?"
+medroute app                                   # app Streamlit em http://localhost:8501
 ```
 
-`instruct` e `report` usam o `LLM_PROVIDER` do `.env` (`--provedor mock` roda sem rede). O `report` aceita
-uma ou mais `Solution` ou o `solutions.json` do `compare`; com várias instâncias, `--inst` escolhe uma.
+`instruct`, `report` e `ask` usam o `LLM_PROVIDER` do `.env` (`--provedor mock` roda sem rede). O `report`
+aceita uma ou mais `Solution` ou o `solutions.json` do `compare`; com várias instâncias, `--inst` escolhe uma.
+
+## App Streamlit
+
+`medroute app` (ou `streamlit run src/medroute/app/streamlit_app.py`, rodando da raiz do repositório) abre o
+fluxo completo numa tela: escolher a instância → otimizar com o GA (ou carregar um JSON salvo em
+`data/resultados/`) → métricas, mapa, tabela de rotas e curva de convergência → instruções por motorista,
+relatório diário/semanal e perguntas em linguagem natural. O provedor da LLM é escolhido na barra lateral
+(`mock` não usa rede; `openai` usa o crédito pré-pago e as respostas ficam em cache).
 
 ## Baselines e experimentos (entrega de 16/10)
 

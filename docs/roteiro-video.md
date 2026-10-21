@@ -1,6 +1,6 @@
 # Roteiro do vídeo — Tech Challenge Fase 2 · G42
 
-- **Status:** rascunho 20/10/2026, com o resultado da rubrica da LLM (PR #27) (prazo do roteiro: 21/10; dono da parte E: Alexandre)
+- **Status:** rascunho 20/10/2026, com a rubrica da LLM (PR #27) e o app Streamlit (prazo do roteiro: 21/10; dono da parte E: Alexandre)
 - **Duração-alvo:** 14 min (limite do enunciado: 15 min; 1 min de folga para a edição)
 - **Gravação:** 27/10 (ter), cada um grava a sua parte (tela + voz). Edição: Alexandre, 28/10. Publicação
   (YouTube, não listado): 29/10.
@@ -125,14 +125,20 @@ medroute ask data/resultados/sp_40_ga_vrp_s7.json "Qual veículo chega mais tard
 
 **Tela:** Streamlit: escolher instância → otimizar → mapa → instruções → pergunta. Depois, GitHub com o CI verde.
 
+```powershell
+medroute app
+```
+
+> Para não esperar o GA na gravação: rodar antes `medroute solve --inst sp_40 --seed 7` e, no app, escolher
+> **Usar solução salva**. Provedor `openai` na barra lateral, com o cache já aquecido no bloco 5.
+
 **Fala-guia:**
-- O mesmo fluxo dos blocos anteriores numa interface só.
-- Qualidade: projeto Python com venv e `pyproject.toml`, testes automatizados (379 hoje) e CI no GitHub
-  Actions a cada PR.
+- O mesmo fluxo dos blocos anteriores numa interface só: métricas (fitness, custo operacional, prioridade),
+  mapa, tabela de rotas e curva de convergência; depois as abas de instruções, relatório e perguntas.
+- Qualidade: projeto Python com venv e `pyproject.toml`, testes automatizados (385 hoje, incluindo o app e o
+  fluxo da demo) e CI no GitHub Actions a cada PR.
 - Fechamento: o que entregamos, limitações (distância haversine × fator, não ruas reais; frota fixa) e
   próximos passos.
-
-**[PENDENTE: Streamlit pronto, prazo 23/10. Plano B: a mesma sequência pela CLI, como nos blocos 3 e 5.]**
 
 ---
 
