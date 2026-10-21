@@ -92,6 +92,19 @@ def demo() -> None:
     console.print("[green]medroute instalado e pronto para uso.[/green]")
 
 
+@app.command(name="app")
+def app_(
+    porta: Annotated[int, typer.Option(help="Porta do servidor Streamlit.")] = 8501,
+) -> None:
+    """Abre o app Streamlit (instância → otimizar → mapa → instruções → pergunta)."""
+    import subprocess
+    import sys
+
+    script = Path(__file__).with_name("streamlit_app.py")
+    comando = [sys.executable, "-m", "streamlit", "run", str(script), "--server.port", str(porta)]
+    raise typer.Exit(subprocess.call(comando))
+
+
 @app.command()
 def gen(
     out: Annotated[Path, typer.Option(help="Pasta de saída das instâncias.")] = INSTANCES_DIR,
