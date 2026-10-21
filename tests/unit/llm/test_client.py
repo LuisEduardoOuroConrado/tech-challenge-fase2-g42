@@ -10,8 +10,8 @@ SECRET = "gsk_segredo_de_teste"
 REQUEST = httpx.Request("POST", "https://api.example.com/v1/chat/completions")
 
 
-def http_error(cls, status):
-    response = httpx.Response(status, request=REQUEST)
+def http_error(cls, status, headers=None):
+    response = httpx.Response(status, request=REQUEST, headers=headers)
     return cls(f"erro com a chave {SECRET}", response=response, body=None)
 
 
@@ -121,6 +121,18 @@ def test_429_seguido_de_sucesso_tenta_de_novo():
     assert client.complete("s", "u") == "ok"
     assert len(sdk.requests) == 2
     assert sleeps == [2]
+
+
+@pytest.mark.parametrize(
+    ("retry_after", "espera"),
+    [("17", 17.0), ("0.5", 2.0), ("600", 60.0), ("Wed, 21 Oct 2026 07:28:00 GMT", 2.0)],
+)
+def test_429_respeita_retry_after_com_teto(retry_after, espera):
+    erro = http_error(openai.RateLimitError, 429, headers={"retry-after": retry_after})
+    client, _, sleeps = make_client(erro, reply("ok"))
+
+    assert client.complete("s", "u") == "ok"
+    assert sleeps == [espera]  # o maior entre 2 s e o sugerido, até 60 s
 
 
 def test_erro_transitorio_esgota_tentativas_com_espera_exponencial():
