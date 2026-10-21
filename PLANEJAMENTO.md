@@ -472,6 +472,10 @@ do relatório, 2–3 min no vídeo.
   Groq × gpt-4o-mini. 348 testes.
 - **Crédito OpenAI ativo** (20/10): US$ 10 pré-pago (Conrado), chave no `.env` local validada com `gpt-4o-mini`.
   O padrão segue `mock`; `LLM_PROVIDER=openai` só para a rubrica, o relatório final e o vídeo (seção 11.2).
+- **Roteiro do vídeo** (20/10, rascunho do Conrado para a entrega de 21/10 do Alexandre): `docs/roteiro-video.md`
+  com 6 blocos em 14 min (um por integrante, o Alexandre abre e fecha), comandos da demo conferidos e
+  checklist da gravação de 27/10. Ficam marcados como pendentes os números dos E1–E6, a rubrica da LLM e o
+  Streamlit (todos para 23/10).
 
 ### 8.2 Handoffs — quem entrega o quê, para quem, até quando
 
@@ -495,7 +499,7 @@ A regra: a data é o **último dia** para entregar sem atrasar quem depende. Ent
 | **16/10 (sex)** | Alexandre | CLI completa (`compare`, `instruct`, `report`) + mapa multi-veículo (cor por veículo, ícone por prioridade) | demo da S2 | ✅ 19/10: `compare` e `report` no PR #23 (feitos por Conrado); `instruct` PR #9; mapa multi-veículo |
 | **21/10 (qua)** | Beatriz | `constraints/` deadline, compatibilidade, jornada + fator de trânsito na `DistanceMatrix.time()` | Conrado (fitness P1) | ✅ 16/10, PR #14 (adiantado; trânsito via `saida_min`) |
 | **21/10 (qua)** | Conrado | Fitness P1 (tempo de chegada, deadline, jornada, compatibilidade) + 2-opt local no GA | Pedro (experimento E5 de sensibilidade), Rodrigo (instruções com horários) | 🟡 2-opt (GA híbrido, PR #12) e decoder P1 (PR #15) na `main`; falta ligar o fator de trânsito |
-| **21/10 (qua)** | Alexandre | Roteiro do vídeo (quem fala o quê, em quantos minutos) | todos preparam sua fala | — |
+| **21/10 (qua)** | Alexandre | Roteiro do vídeo (quem fala o quê, em quantos minutos) | todos preparam sua fala | 🟡 rascunho em `docs/roteiro-video.md` (20/10, Conrado): 6 blocos, 14 min; Alexandre e grupo validam |
 | **23/10 (sex)** | Pedro | Experimentos E1–E6 rodados: tabelas (média ± dp, 5 seeds), curvas de convergência, figuras em `reports/figuras/` | relatório (seção comparativo) | — |
 | **23/10 (sex)** | Rodrigo | Q&A (`medroute ask`) + rubrica de avaliação aplicada a Groq × gpt-4o-mini | relatório (seção LLM), Streamlit | 🟡 `medroute ask` no PR #25 (19/10); falta a rubrica (crédito OpenAI ativo desde 20/10) |
 | **23/10 (sex)** | Alexandre | Streamlit (instância → otimizar → mapa → instruções → pergunta) + testes de integração | vídeo | — |
