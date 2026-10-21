@@ -470,7 +470,7 @@ do relatório, 2–3 min no vídeo.
 - **Q&A da LLM** (PR #25, Rodrigo, prazo 23/10): `medroute ask` responde perguntas sobre as rotas a partir dos
   fatos montados em Python (prompt versionado em `llm/prompts/qa.md`). Falta a rubrica de avaliação aplicada a
   Groq × gpt-4o-mini. 348 testes.
-- **Crédito OpenAI ativo** (20/10): US$ 10 pré-pago (Conrado), chave no `.env` local validada com `gpt-4o-mini`.
+- **Crédito OpenAI ativo** (20/10): US$ 10 pré-pago (Rodrigo), chave no `.env` local validada com `gpt-4o-mini`.
   O padrão segue `mock`; `LLM_PROVIDER=openai` só para a rubrica, o relatório final e o vídeo (seção 11.2).
 - **Roteiro do vídeo** (20/10, rascunho do Conrado para a entrega de 21/10 do Alexandre): `docs/roteiro-video.md`
   com 6 blocos em 14 min (um por integrante, o Alexandre abre e fecha), comandos da demo conferidos e
@@ -615,7 +615,7 @@ Decisões de arquitetura embutidas — **fechadas** (ADRs 0001–0005):
 4. **Fitness em R$** (custo generalizado), não multiobjetivo Pareto/NSGA-II.
 5. **Frota fixa de 3 tipos** (moto/carro/van) em YAML; o GA escolhe quais usar, não cria veículos.
 
-### 11.2 Provedor de LLM — estratégia mista; crédito OpenAI ativo desde 20/10 (Conrado, US$ 10)
+### 11.2 Provedor de LLM — estratégia mista; crédito OpenAI ativo desde 20/10 (Rodrigo, US$ 10)
 
 Estimativa de consumo do projeto inteiro (5 semanas, dev + experimentos + gravação do vídeo):
 
@@ -661,7 +661,7 @@ Inviável para 5 pessoas desenvolvendo.
 
 - **Padrão no desenvolvimento e nos testes:** `mock` (sem rede) → Groq free (`openai/gpt-oss-120b`; o Llama 3.3 70B foi descontinuado).
   Cada dev cria a própria conta Groq para não dividir a cota.
-- **Relatório final e vídeo:** `gpt-4o-mini` com US$ 10 de crédito pré-pago (Conrado, ativo desde 20/10), para garantir qualidade e zero
+- **Relatório final e vídeo:** `gpt-4o-mini` com US$ 10 de crédito pré-pago (Rodrigo, ativo desde 20/10), para garantir qualidade e zero
   risco de 429 na hora da gravação. Respostas usadas no vídeo ficam **cacheadas** em `data/cache/llm/`.
 - Ambos os provedores documentados no relatório como parte da avaliação de qualidade (R14): comparar
   saídas dos dois modelos com a mesma rubrica é um resultado a mais, quase de graça.
@@ -672,7 +672,7 @@ Inviável para 5 pessoas desenvolvendo.
 |---|-----------|--------------|-------------------|
 | 1 | Cada integrante confirma a própria carga de P1 e suas datas (8.2) | todos | aprovar o PR do plano até **30/09** |
 | 3 | ~~Fontes para justificar os números da frota~~ **feito no PR #18 (19/10)**, `docs/fontes-frota.md`; falta o grupo decidir as propostas da seção 2 | Beatriz → grupo | decisão até **21/10** |
-| 4 | ~~Quem coloca o cartão na OpenAI~~ **feito em 20/10**: US$ 10 pré-pago, chave validada com `gpt-4o-mini` | Conrado | quem precisar da chave pede ao Conrado (nunca por commit) |
+| 4 | ~~Quem coloca o cartão na OpenAI~~ **feito em 20/10**: US$ 10 pré-pago, chave validada com `gpt-4o-mini` | Rodrigo | quem precisar da chave pede ao Rodrigo (nunca por commit) |
 | 10a | Localizar e baixar o código base de TSP fornecido pela FIAP → `reference/tsp_base/` | a nomear (quem achar primeiro avisa no grupo) | PR até **01/10** |
 | 10b | ~~Dar acesso de escrita ao repo~~ **feito em 27/09**; cada um testa push em `feature/` e avisa no grupo | todos | push de teste até **30/09** |
 
