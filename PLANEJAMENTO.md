@@ -467,12 +467,17 @@ do relatório, 2–3 min no vídeo.
 - **CLI completa** (PR #23): `medroute compare` (runner + tabela-resumo) e `medroute report` (relatório
   diário/semanal da LLM a partir de Solutions ou do `solutions.json` do `compare`). Fecha o atraso da parte E
   na entrega de 16/10; o Alexandre segue com Streamlit e roteiro do vídeo. 325 testes.
+- **Q&A da LLM** (PR #25, Rodrigo, prazo 23/10): `medroute ask` responde perguntas sobre as rotas a partir dos
+  fatos montados em Python (prompt versionado em `llm/prompts/qa.md`). Falta a rubrica de avaliação aplicada a
+  Groq × gpt-4o-mini. 348 testes.
+- **Crédito OpenAI ativo** (20/10): US$ 10 pré-pago (Conrado), chave no `.env` local validada com `gpt-4o-mini`.
+  O padrão segue `mock`; `LLM_PROVIDER=openai` só para a rubrica, o relatório final e o vídeo (seção 11.2).
 
 ### 8.2 Handoffs — quem entrega o quê, para quem, até quando
 
 A regra: a data é o **último dia** para entregar sem atrasar quem depende. Entregar antes libera o outro antes.
 
-| Até | Quem | Entrega | Desbloqueia | Status (19/10) |
+| Até | Quem | Entrega | Desbloqueia | Status (20/10) |
 |-----|------|---------|-------------|----------------|
 | **30/09 (qua)** | Conrado | `domain/models.py` congelado + `tests/fixtures/solution_sp15.json` (Solution de exemplo feito à mão) | **todos** — Rodrigo (prompts), Alexandre (mapa), Pedro (métricas) começam sobre a fixture | ✅ 28/09 |
 | **30/09 (qua)** | Alexandre | Esqueleto do repo (`src/medroute`, `tests/`, `requirements.txt`, `pyproject.toml`, GitHub Actions rodando `pytest` + `ruff`) | todos abrem PR com CI | ✅ 28/09 (feito por Conrado) |
@@ -492,7 +497,7 @@ A regra: a data é o **último dia** para entregar sem atrasar quem depende. Ent
 | **21/10 (qua)** | Conrado | Fitness P1 (tempo de chegada, deadline, jornada, compatibilidade) + 2-opt local no GA | Pedro (experimento E5 de sensibilidade), Rodrigo (instruções com horários) | 🟡 2-opt (GA híbrido, PR #12) e decoder P1 (PR #15) na `main`; falta ligar o fator de trânsito |
 | **21/10 (qua)** | Alexandre | Roteiro do vídeo (quem fala o quê, em quantos minutos) | todos preparam sua fala | — |
 | **23/10 (sex)** | Pedro | Experimentos E1–E6 rodados: tabelas (média ± dp, 5 seeds), curvas de convergência, figuras em `reports/figuras/` | relatório (seção comparativo) | — |
-| **23/10 (sex)** | Rodrigo | Q&A (`medroute ask`) + rubrica de avaliação aplicada a Groq × gpt-4o-mini | relatório (seção LLM), Streamlit | — |
+| **23/10 (sex)** | Rodrigo | Q&A (`medroute ask`) + rubrica de avaliação aplicada a Groq × gpt-4o-mini | relatório (seção LLM), Streamlit | 🟡 `medroute ask` no PR #25 (19/10); falta a rubrica (crédito OpenAI ativo desde 20/10) |
 | **23/10 (sex)** | Alexandre | Streamlit (instância → otimizar → mapa → instruções → pergunta) + testes de integração | vídeo | — |
 | **23/10 (sex)** | Conrado | `docs/do-tsp-ao-vrp.md` (antes × depois do código base) + `docs/arquitetura.md` com Mermaid | relatório (seções GA e arquitetura) | — |
 | **26/10 (seg)** | **todos** | Texto da própria seção do relatório em `reports/secoes/<parte>.md` · **code freeze** | Alexandre monta o PDF | — |
@@ -596,7 +601,7 @@ Decisões de arquitetura embutidas — **fechadas** (ADRs 0001–0005):
 4. **Fitness em R$** (custo generalizado), não multiobjetivo Pareto/NSGA-II.
 5. **Frota fixa de 3 tipos** (moto/carro/van) em YAML; o GA escolhe quais usar, não cria veículos.
 
-### 11.2 Provedor de LLM — [PENDENTE] confirmar quem banca o crédito (estratégia mista já definida)
+### 11.2 Provedor de LLM — estratégia mista; crédito OpenAI ativo desde 20/10 (Conrado, US$ 10)
 
 Estimativa de consumo do projeto inteiro (5 semanas, dev + experimentos + gravação do vídeo):
 
@@ -642,7 +647,7 @@ Inviável para 5 pessoas desenvolvendo.
 
 - **Padrão no desenvolvimento e nos testes:** `mock` (sem rede) → Groq free (`openai/gpt-oss-120b`; o Llama 3.3 70B foi descontinuado).
   Cada dev cria a própria conta Groq para não dividir a cota.
-- **Relatório final e vídeo:** `gpt-4o-mini` com ~US$ 5 de crédito (Conrado), para garantir qualidade e zero
+- **Relatório final e vídeo:** `gpt-4o-mini` com US$ 10 de crédito pré-pago (Conrado, ativo desde 20/10), para garantir qualidade e zero
   risco de 429 na hora da gravação. Respostas usadas no vídeo ficam **cacheadas** em `data/cache/llm/`.
 - Ambos os provedores documentados no relatório como parte da avaliação de qualidade (R14): comparar
   saídas dos dois modelos com a mesma rubrica é um resultado a mais, quase de graça.
@@ -653,7 +658,7 @@ Inviável para 5 pessoas desenvolvendo.
 |---|-----------|--------------|-------------------|
 | 1 | Cada integrante confirma a própria carga de P1 e suas datas (8.2) | todos | aprovar o PR do plano até **30/09** |
 | 3 | ~~Fontes para justificar os números da frota~~ **feito no PR #18 (19/10)**, `docs/fontes-frota.md`; falta o grupo decidir as propostas da seção 2 | Beatriz → grupo | decisão até **21/10** |
-| 4 | Quem coloca o cartão na OpenAI (~US$ 5–10, limite de gasto US$ 10 no painel) | Conrado (a confirmar) | mensagem no grupo |
+| 4 | ~~Quem coloca o cartão na OpenAI~~ **feito em 20/10**: US$ 10 pré-pago, chave validada com `gpt-4o-mini` | Conrado | quem precisar da chave pede ao Conrado (nunca por commit) |
 | 10a | Localizar e baixar o código base de TSP fornecido pela FIAP → `reference/tsp_base/` | a nomear (quem achar primeiro avisa no grupo) | PR até **01/10** |
 | 10b | ~~Dar acesso de escrita ao repo~~ **feito em 27/09**; cada um testa push em `feature/` e avisa no grupo | todos | push de teste até **30/09** |
 
