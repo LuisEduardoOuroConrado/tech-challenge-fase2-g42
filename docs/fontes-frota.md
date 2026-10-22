@@ -20,19 +20,32 @@ Fontes de segunda mão (blogs e sites de ficha técnica) estão marcadas; o idea
 | Moto velocidade 35 km/h | 35 | sem fonte direta; com o fator de pico de 1,4 cai para 25 km/h (CET: ver abaixo) | ✅ plausível, um pouco otimista |
 | Moto R$/km | 0,80 | custo direto ≈ R$ 0,48/km: combustível 0,15 (40 km/L a R$ 6,17/L) + revisões 0,07 + depreciação 0,26 [2]. Não inclui pneus, seguro nem remuneração | ✅ (acima do custo direto, cobre o que falta) |
 | Moto fixo/dia | R$ 60 | sem fonte (a fonte [2] só traz custos mensais de alimentação, celular, seguro) | ❌ |
-| **Carro** capacidade 150 kg / 400 L | 150 / 400 | porta-malas do Argo: 300 L [3]; 150 kg é premissa operacional | ⚠️ 400 L > 300 L do Argo |
+| **Carro** capacidade 150 kg / 400 L | 150 / 400 | porta-malas do Argo: 300 L [3]; do sedã Cronos 1.0: 525 L [11]. Com o Cronos como referência de capacidade, 400 L é conservador; 150 kg é premissa operacional | ✅ (decisão 22/10, referência Cronos) |
 | Carro autonomia | 300 km | tanque 48 L; 13,9 km/L (gasolina, cidade, Inmetro) e 9,9 km/L (etanol) [3] → 475 a 667 km | ✅ (conservador) |
 | Carro velocidade 28 km/h | 28 | com fator de pico 1,4 → 20 km/h; CET: 17,9 km/h (pico manhã) e 15,1 (pico tarde) em 2019 [6] | ✅ |
 | Carro R$/km | 1,50 | combustível ≈ 0,46; custo de rodar ≈ 1,33 sem estacionamento/pedágio/lavagem; 1,94 com tudo (12.000 km/ano) [4] | ✅ dentro da faixa 1,33–1,94 |
 | Carro fixo/dia | R$ 120 | sem fonte | ❌ |
-| **Van** capacidade 800 kg / 3000 L | 800 / 3000 | Fiorino: carga útil 650 kg; compartimento 3.100 L [5a] ou 3.345 L [5b] | ⚠️ 800 kg > 650 kg; 3000 L ✅ |
+| **Van** capacidade 650 kg / 3100 L | 650 / 3100 (era 800 / 3000) | Fiorino: carga útil 650 kg; compartimento 3.100 L [5a] ou 3.345 L [5b] | ✅ (decisão 22/10) |
 | Van autonomia | 400 km | tanque 55 L; 11,7 km/L (G) e 8,1 km/L (A) [5b] → 446 a 644 km (assumindo G = gasolina e A = etanol; a página não explica) | ✅ (conservador) |
 | Van velocidade 24 km/h | 24 | com fator de pico → 16 a 17 km/h, na faixa da CET | ✅ |
 | Van R$/km | 2,50 | sem fonte. A tabela de frete da ANTT [7] é para carga rodoviária (fórmula distância × CCD + CC) e não traz coeficiente para veículo leve urbano | ❌ |
 | Van fixo/dia | R$ 200 | sem fonte | ❌ |
 | Fator de trânsito (1,4 manhã / 1,5 tarde) | 1,4 / 1,5 | CET: velocidade média cai de ~24,8 km/h (2018) para 17,9 (2019) no pico da manhã e de 18,5 para 15,1 no pico da tarde; série 2015-2019 [6]. O relatório da CET de 2024 só traz índice de lentidão, não km/h [8] | ✅ ordem de grandeza (dado mais recente por velocidade é 2019) |
 
-### Pontos que merecem decisão do grupo (propostas, nada foi alterado)
+### Decisões de 22/10
+
+| Ponto | Decisão | Efeito nos resultados |
+|---|---|---|
+| 1. Van | **650 kg / 3.100 L** (Fiorino) em `configs/frota.yaml` e nas frotas de `sp_15`/`sp_40`/`sp_80` | nenhum: a demanda total da maior instância (`sp_80`) é 270 kg / 996 L, abaixo do limite mesmo numa van só. Conferido: `medroute solve` em `sp_40` (seed 7) e na van única de `sp_15` dão o mesmo fitness e as mesmas rotas antes e depois |
+| 2. Carro | **mantém 400 L**, com o Fiat Cronos (sedã, 525 L [11]) como referência de capacidade; o Argo fica como referência de consumo e custo | nenhum. Adotar 300 L mudaria o `sp_40` (rotas de carro chegam a 399 L) e exigiria refazer as rodadas |
+| 3. Dupla contagem | **sem mudança nos valores; definição explícita:** R$/km = custo total do veículo por km rodado (combustível, manutenção, depreciação, seguro); fixo/dia = diária do condutor. Com essa divisão nada é contado duas vezes | nenhum. A sensibilidade ao equilíbrio "mais um veículo × mais km" fica para o E5 |
+| 4. Autonomia | tratada como limite operacional por jornada (texto do relatório) | nenhum |
+| 5. Sem fonte | custo fixo/dia dos três tipos, R$/km da van e baú da moto declarados como **premissas** no relatório (`fontes_pendentes` em `configs/frota.yaml`) | nenhum |
+
+As rodadas oficiais de 19/10 (`reports/comparativo-s2/`, `reports/comparativo-s1-atualizado-van/`) continuam
+válidas; os metadados delas citam a frota antiga da van, o que não altera nenhum número.
+
+### Pontos que merecem decisão do grupo (propostas de 07/10, decididas acima)
 1. **Van:** se a referência for a Fiorino, usar **650 kg / 3100 L**. Se quiserem 800 kg, citar outro modelo (não encontrei fonte).
 2. **Carro:** se a referência for o Argo, usar **300 L**.
 3. **Possível dupla contagem de custo:** o fitness soma R$/km **e** custo fixo por dia. O valor de 1,50 R$/km do carro já inclui depreciação, seguro e IPVA (que são fixos). Sugestão: R$/km só com custo variável (combustível + manutenção, ≈ 0,6 no carro) e o fixo/dia com depreciação + seguro + condutor. Isso mexe no peso relativo de "usar mais um veículo" × "rodar mais km", então é decisão do Conrado (spec 03).
@@ -73,3 +86,4 @@ Fonte das coordenadas: IBGE, via página do CEP em ruacep.com.br [9], e Wikipéd
 8. CET, Relatório Administrativo 2024 (lentidão, sem km/h): <https://cetsp.com.br/media/1618397/relatorioadm2024_consolidado.pdf>
 9. Coordenadas IBGE por CEP: <https://www.ruacep.com.br/sp/sao-paulo/cerqueira-cesar/05403901-avenida-doutor-eneas-carvalho-de-aguiar-647/> (e as páginas dos CEPs 05403-900, 05403-010, 01246-000, 05508-000, 05021-001, 05033-002 no mesmo site)
 10. Complexo do HC (coordenadas): <https://en.wikipedia.org/wiki/Hospital_das_Cl%C3%ADnicas_da_Universidade_de_S%C3%A3o_Paulo>
+11. Fiat Cronos Drive 1.0 (porta-malas 525 L, ficha técnica 2025): <https://autoentusiastas.com.br/2024/08/fiat-cronos-drive-10-manual-no-uso> *(site especializado; ficha oficial da Stellantis em <https://www.media.stellantis.com/br-pt/download-model-document/238> não traz o porta-malas)*

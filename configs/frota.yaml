@@ -25,8 +25,8 @@ tipos:
     aceita_volumoso: true
   van:
     quantidade: 1
-    capacidade_kg: 800
-    capacidade_l: 3000
+    capacidade_kg: 650    # Fiat Fiorino furgão (docs/fontes-frota.md [5a])
+    capacidade_l: 3100
     autonomia_km: 400
     velocidade_kmh: 24
     custo_km: 2.50
@@ -50,4 +50,4 @@ global:
 fontes_pendentes:
   - "custo_fixo_dia dos 3 tipos (diária do condutor + custos fixos): sem fonte"
   - "frete/km de motoboy e de van em SP (tabela de mercado): sem fonte encontrada"
-  - "capacidade do baú da moto (kg/L) e van de 800 kg: sem fonte (ver docs/fontes-frota.md)"
+  - "capacidade do baú da moto (kg/L): sem fonte (ver docs/fontes-frota.md)"

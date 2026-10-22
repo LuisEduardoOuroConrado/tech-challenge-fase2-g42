@@ -4,8 +4,8 @@
 para as restrições") · **Base:** `docs/do-tsp-ao-vrp.md`, `docs/arquitetura.md`, Specs 02 e 03.
 
 > **Rascunho de 22/10.** Os números são da rodada oficial de 19/10 (dados reais do PR #18 + fator de trânsito do
-> PR #21, `main` `646db7a`). Se a frota mudar (`docs/fontes-frota.md` seção 2), as tabelas da seção 6 precisam
-> ser refeitas. Os resultados do E1–E6 (Pedro) entram na seção comparativa, não aqui.
+> PR #21, `main` `646db7a`). A frota foi fechada em 22/10 (`docs/fontes-frota.md` seção 2) sem alterar nenhum
+> resultado. Os resultados do E1–E6 (Pedro) entram na seção comparativa, não aqui.
 
 ---
 
@@ -20,7 +20,10 @@ for crítica, tem prazo. A frota é fixa e heterogênea:
 |---|:-:|---|---|---|---|---|---|
 | Moto | 2 | 15 kg / 40 L | 120 km | 35 km/h | 0,80 | 60 | não leva refrigerado nem volumoso |
 | Carro | 2 | 150 kg / 400 L | 300 km | 28 km/h | 1,50 | 120 | — |
-| Van | 1 | 800 kg / 3.000 L | 400 km | 24 km/h | 2,50 | 200 | — |
+| Van | 1 | 650 kg / 3.100 L | 400 km | 24 km/h | 2,50 | 200 | — |
+
+Referências: Honda CG 160 Cargo, Fiat Argo/Cronos e Fiat Fiorino (`docs/fontes-frota.md`). O R$/km é o custo total
+do veículo por km rodado e o fixo/dia é a diária do condutor; a autonomia funciona como limite de km por jornada.
 
 O código base da FIAP resolve um TSP (um veículo, cidades em pixels, distância euclidiana). O nosso problema é
 um **VRP com frota heterogênea, capacidade, autonomia, prioridade, prazo, jornada e trânsito**. Toda decisão
@@ -178,8 +181,8 @@ empates e derrotas por seed contra o NN+2-opt. Fonte: `reports/comparativo-s2/su
 - Distância por haversine × 1,30 (tortuosidade), não por ruas reais (ADR 0003): os km são aproximados.
 - Trânsito por faixa fixa de horário, sem dados reais de tráfego; todas as rotas saem às 07:00.
 - Sem janelas de tempo para entregas não críticas (VRPTW ficou fora do escopo, P2).
-- Custo fixo/dia e R$/km de van e motoboy não têm fonte (`configs/frota.yaml`, `fontes_pendentes`); a
-  sensibilidade aos pesos é o experimento E5.
+- Custo fixo/dia dos três tipos, R$/km da van e capacidade do baú da moto são premissas sem fonte
+  (`configs/frota.yaml`, `fontes_pendentes`); a sensibilidade aos pesos é o experimento E5.
 - Desvios-padrão descritivos (5 seeds, n−1), sem teste de significância.
 
 ## 8. Reprodução

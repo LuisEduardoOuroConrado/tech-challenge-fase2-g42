@@ -59,7 +59,7 @@ Frota heterogênea é o que dá sentido a capacidade, autonomia e custo. Parâme
 |------|:---:|:----------:|:---------:|:-----------------:|:--------:|:--------------:|-----------|
 | Moto | 2 | 15 kg / 40 L | 120 km | 35 km/h | R$ 0,80 | R$ 60 | não leva carga refrigerada nem volumosa |
 | Carro | 2 | 150 kg / 400 L | 300 km | 28 km/h | R$ 1,50 | R$ 120 | — |
-| Van | 1 | 800 kg / 3000 L | 400 km | 24 km/h | R$ 2,50 | R$ 200 | — |
+| Van | 1 | 650 kg / 3100 L (era 800 / 3000; Fiorino, decisão 22/10) | 400 km | 24 km/h | R$ 2,50 | R$ 200 | — |
 
 O GA **não** é obrigado a usar todos os veículos: o custo fixo penaliza acionar um veículo a mais. O número de
 veículos disponíveis é entrada do problema (não é gene).
@@ -496,8 +496,12 @@ do relatório, 2–3 min no vídeo.
   semanal. 399 testes, `ruff check` ok.
 - **Parte A (Conrado) sem pendência de código:** fitness P1 com trânsito (PR #21) e docs `do-tsp-ao-vrp.md` /
   `arquitetura.md` (PR #20) entregues antes do prazo. Falta a seção do relatório (26/10).
-- **Atrasado:** a decisão da frota (seção 8.1.5, prazo 21/10) não foi tomada; `configs/frota.yaml` segue igual ao
-  PR #18. Decidir hoje, ou manter a frota atual de forma explícita, para o Pedro rodar os E1–E6 (prazo 23/10).
+- **Frota decidida (22/10, um dia depois do prazo):** van 650 kg / 3.100 L (Fiorino); carro mantém 400 L com o
+  Cronos (525 L) como referência; R$/km = custo total do veículo por km e fixo/dia = diária do condutor (sem
+  dupla contagem, sem mudar valores); custos sem fonte viram premissas declaradas. Nenhum número muda: a demanda
+  total do `sp_80` (270 kg / 996 L) não chega ao limite da van, e o `solve` em `sp_40` e na van única dá o mesmo
+  fitness e as mesmas rotas. As rodadas de 19/10 seguem válidas. Detalhes em `docs/fontes-frota.md` seção 2.
+  Os E1–E6 podem rodar sobre a frota definitiva.
 - **Risco:** E1–E6 sem branch nem figuras no remoto até 22/10.
 
 ### 8.2 Handoffs — quem entrega o quê, para quem, até quando
@@ -523,7 +527,7 @@ A regra: a data é o **último dia** para entregar sem atrasar quem depende. Ent
 | **21/10 (qua)** | Beatriz | `constraints/` deadline, compatibilidade, jornada + fator de trânsito na `DistanceMatrix.time()` | Conrado (fitness P1) | ✅ 16/10, PR #14 (adiantado; trânsito via `saida_min`) |
 | **21/10 (qua)** | Conrado | Fitness P1 (tempo de chegada, deadline, jornada, compatibilidade) + 2-opt local no GA | Pedro (experimento E5 de sensibilidade), Rodrigo (instruções com horários) | ✅ 19/10: 2-opt (GA híbrido, PR #12), decoder P1 (PR #15) e fator de trânsito no fitness (PR #21) |
 | **21/10 (qua)** | Alexandre | Roteiro do vídeo (quem fala o quê, em quantos minutos) | todos preparam sua fala | 🟡 rascunho em `docs/roteiro-video.md` (20/10, Conrado): 6 blocos, 14 min; Alexandre e grupo validam |
-| **23/10 (sex)** | Pedro | Experimentos E1–E6 rodados: tabelas (média ± dp, 5 seeds), curvas de convergência, figuras em `reports/figuras/` | relatório (seção comparativo) | 🔴 sem branch nem figuras em 22/10; depende da decisão da frota (atrasada desde 21/10) |
+| **23/10 (sex)** | Pedro | Experimentos E1–E6 rodados: tabelas (média ± dp, 5 seeds), curvas de convergência, figuras em `reports/figuras/` | relatório (seção comparativo) | 🔴 sem branch nem figuras em 22/10; frota definitiva fechada em 22/10, nada impede rodar |
 | **23/10 (sex)** | Rodrigo | Q&A (`medroute ask`) + rubrica de avaliação aplicada a Groq × gpt-4o-mini | relatório (seção LLM), Streamlit | ✅ `medroute ask` no PR #25 (19/10); rubrica no PR #27 (`reports/avaliacao-llm/`); horários nas instruções e no Q&A (PRs #32/#33, 21/10) |
 | **23/10 (sex)** | Alexandre | Streamlit (instância → otimizar → mapa → instruções → pergunta) + testes de integração | vídeo | ✅ 20/10 (feito por Conrado): `medroute app` + `tests/integration/test_streamlit_app.py` e `test_pipeline_cli.py` |
 | **23/10 (sex)** | Conrado | `docs/do-tsp-ao-vrp.md` (antes × depois do código base) + `docs/arquitetura.md` com Mermaid | relatório (seções GA e arquitetura) | ✅ 19/10, PR #20 (adiantado) |

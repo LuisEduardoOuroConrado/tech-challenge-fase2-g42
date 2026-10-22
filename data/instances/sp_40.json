@@ -496,8 +496,8 @@
     {
       "id": "van-01",
       "tipo": "van",
-      "capacidade_kg": 800.0,
-      "capacidade_l": 3000.0,
+      "capacidade_kg": 650.0,
+      "capacidade_l": 3100.0,
       "autonomia_km": 400.0,
       "velocidade_kmh": 24.0,
       "custo_km": 2.5,
