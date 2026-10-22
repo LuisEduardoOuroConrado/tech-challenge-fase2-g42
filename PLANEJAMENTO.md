@@ -487,11 +487,24 @@ do relatório, 2–3 min no vídeo.
   lateral. Testes: o app via `streamlit.testing` (LLM mock) e o fluxo da demo encadeado na CLI
   (`solve → map → instruct → report → ask` em `sp_40`). 385 testes.
 
+### 8.1.7 Situação em 22/10 (qui)
+
+- **Na `main` (`a91e16a`):** horários de chegada nas instruções e no Q&A (Rodrigo, PRs #32 e #33): com a frota, o
+  contexto traz a chegada prevista por parada (mesmo `cronograma_rota` do fitness, saída às 07:00 com trânsito) e
+  os prompts v2 copiam os horários sem recalcular. `docs/prompts.md` criado (prompts, regras, técnicas, lições e
+  avaliação). Rubrica refeita em 21/10 com 13 perguntas no Q&A: gpt-4o-mini 19/19; o Groq reprova só o relatório
+  semanal. 399 testes, `ruff check` ok.
+- **Parte A (Conrado) sem pendência de código:** fitness P1 com trânsito (PR #21) e docs `do-tsp-ao-vrp.md` /
+  `arquitetura.md` (PR #20) entregues antes do prazo. Falta a seção do relatório (26/10).
+- **Atrasado:** a decisão da frota (seção 8.1.5, prazo 21/10) não foi tomada; `configs/frota.yaml` segue igual ao
+  PR #18. Decidir hoje, ou manter a frota atual de forma explícita, para o Pedro rodar os E1–E6 (prazo 23/10).
+- **Risco:** E1–E6 sem branch nem figuras no remoto até 22/10.
+
 ### 8.2 Handoffs — quem entrega o quê, para quem, até quando
 
 A regra: a data é o **último dia** para entregar sem atrasar quem depende. Entregar antes libera o outro antes.
 
-| Até | Quem | Entrega | Desbloqueia | Status (20/10) |
+| Até | Quem | Entrega | Desbloqueia | Status (22/10) |
 |-----|------|---------|-------------|----------------|
 | **30/09 (qua)** | Conrado | `domain/models.py` congelado + `tests/fixtures/solution_sp15.json` (Solution de exemplo feito à mão) | **todos** — Rodrigo (prompts), Alexandre (mapa), Pedro (métricas) começam sobre a fixture | ✅ 28/09 |
 | **30/09 (qua)** | Alexandre | Esqueleto do repo (`src/medroute`, `tests/`, `requirements.txt`, `pyproject.toml`, GitHub Actions rodando `pytest` + `ruff`) | todos abrem PR com CI | ✅ 28/09 (feito por Conrado) |
@@ -508,12 +521,12 @@ A regra: a data é o **último dia** para entregar sem atrasar quem depende. Ent
 | **16/10 (sex)** | Rodrigo | Relatório diário/semanal com recomendações (Groq real) + cache de respostas | Alexandre (`medroute report`) | ✅ 16/10, PR #13 |
 | **16/10 (sex)** | Alexandre | CLI completa (`compare`, `instruct`, `report`) + mapa multi-veículo (cor por veículo, ícone por prioridade) | demo da S2 | ✅ 19/10: `compare` e `report` no PR #23 (feitos por Conrado); `instruct` PR #9; mapa multi-veículo |
 | **21/10 (qua)** | Beatriz | `constraints/` deadline, compatibilidade, jornada + fator de trânsito na `DistanceMatrix.time()` | Conrado (fitness P1) | ✅ 16/10, PR #14 (adiantado; trânsito via `saida_min`) |
-| **21/10 (qua)** | Conrado | Fitness P1 (tempo de chegada, deadline, jornada, compatibilidade) + 2-opt local no GA | Pedro (experimento E5 de sensibilidade), Rodrigo (instruções com horários) | 🟡 2-opt (GA híbrido, PR #12) e decoder P1 (PR #15) na `main`; falta ligar o fator de trânsito |
+| **21/10 (qua)** | Conrado | Fitness P1 (tempo de chegada, deadline, jornada, compatibilidade) + 2-opt local no GA | Pedro (experimento E5 de sensibilidade), Rodrigo (instruções com horários) | ✅ 19/10: 2-opt (GA híbrido, PR #12), decoder P1 (PR #15) e fator de trânsito no fitness (PR #21) |
 | **21/10 (qua)** | Alexandre | Roteiro do vídeo (quem fala o quê, em quantos minutos) | todos preparam sua fala | 🟡 rascunho em `docs/roteiro-video.md` (20/10, Conrado): 6 blocos, 14 min; Alexandre e grupo validam |
-| **23/10 (sex)** | Pedro | Experimentos E1–E6 rodados: tabelas (média ± dp, 5 seeds), curvas de convergência, figuras em `reports/figuras/` | relatório (seção comparativo) | — |
-| **23/10 (sex)** | Rodrigo | Q&A (`medroute ask`) + rubrica de avaliação aplicada a Groq × gpt-4o-mini | relatório (seção LLM), Streamlit | ✅ `medroute ask` no PR #25 (19/10); rubrica no PR #27 (`reports/avaliacao-llm/`) |
+| **23/10 (sex)** | Pedro | Experimentos E1–E6 rodados: tabelas (média ± dp, 5 seeds), curvas de convergência, figuras em `reports/figuras/` | relatório (seção comparativo) | 🔴 sem branch nem figuras em 22/10; depende da decisão da frota (atrasada desde 21/10) |
+| **23/10 (sex)** | Rodrigo | Q&A (`medroute ask`) + rubrica de avaliação aplicada a Groq × gpt-4o-mini | relatório (seção LLM), Streamlit | ✅ `medroute ask` no PR #25 (19/10); rubrica no PR #27 (`reports/avaliacao-llm/`); horários nas instruções e no Q&A (PRs #32/#33, 21/10) |
 | **23/10 (sex)** | Alexandre | Streamlit (instância → otimizar → mapa → instruções → pergunta) + testes de integração | vídeo | ✅ 20/10 (feito por Conrado): `medroute app` + `tests/integration/test_streamlit_app.py` e `test_pipeline_cli.py` |
-| **23/10 (sex)** | Conrado | `docs/do-tsp-ao-vrp.md` (antes × depois do código base) + `docs/arquitetura.md` com Mermaid | relatório (seções GA e arquitetura) | — |
+| **23/10 (sex)** | Conrado | `docs/do-tsp-ao-vrp.md` (antes × depois do código base) + `docs/arquitetura.md` com Mermaid | relatório (seções GA e arquitetura) | ✅ 19/10, PR #20 (adiantado) |
 | **26/10 (seg)** | **todos** | Texto da própria seção do relatório em `reports/secoes/<parte>.md` · **code freeze** | Alexandre monta o PDF | — |
 | **27/10 (ter)** | todos | Gravação do vídeo (cada um grava sua parte, 2–3 min, tela + voz) | Alexandre edita | — |
 | **28/10 (qua)** | Alexandre | PDF montado para revisão + vídeo editado (corte) | revisão de todos | — |
