@@ -21,7 +21,7 @@ from medroute.viz import build_map
 
 PROVEDORES = ["mock", "groq", "openai"]
 PERGUNTAS_EXEMPLO = [
-    "Qual veículo chega mais tarde e por quê?",
+    "Quais entregas críticas há em cada rota e com qual prazo?",
     "Quantas entregas críticas cada veículo faz?",
     "Qual rota custa mais caro?",
 ]

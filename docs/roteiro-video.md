@@ -106,20 +106,24 @@ medroute compare
 ```powershell
 medroute instruct data/resultados/sp_40_ga_vrp_s7.json --provedor openai
 medroute report data/resultados/sp_40_ga_vrp_s7.json --periodo diario --provedor openai
-medroute ask data/resultados/sp_40_ga_vrp_s7.json "Qual veículo chega mais tarde e por quê?" --provedor openai
+medroute ask data/resultados/sp_40_ga_vrp_s7.json "Quais entregas críticas há em cada rota e com qual prazo?" --provedor openai
 ```
 
 **Fala-guia:**
 - Os fatos (ordem das paradas, horários, cargas, custos, violações) são montados em Python; a LLM só redige.
   Isso evita que ela invente números.
-- **Instruções por motorista:** passo a passo da rota, com checagem de fidelidade contra a `Solution`.
+- **Instruções por motorista:** passo a passo da rota com o horário previsto de chegada a cada parada
+  (cronograma do GA, saída às 07:00 com trânsito), com checagem de fidelidade de ordem e horários.
 - **Relatório diário/semanal:** eficiência, economia e uma seção de recomendações (R13).
-- **Perguntas em linguagem natural:** `medroute ask` sobre as rotas.
+- **Perguntas em linguagem natural:** `medroute ask` sobre as rotas. A pergunta da demo pede um dado que
+  está no plano (entregas críticas e prazos); o Q&A não tem horários de chegada, então perguntas como
+  "qual veículo chega mais tarde?" recebem "não disponível no plano".
 - Prompts versionados em `llm/prompts/`, cache de respostas e três provedores (mock, Groq, OpenAI).
 - **Avaliação da qualidade** (mostrar `reports/avaliacao-llm/resumo.md`): rubrica determinística sobre a
-  resposta crua de cada modelo, sem LLM-as-judge. Em `sp_40`, instruções e Q&A passam em 100% nos dois
-  modelos; no relatório, o gpt-4o-mini passa em 100% e o Groq em 50% (o semanal ficou longo e trouxe um número
-  sem fonte). Por isso o relatório final e esta demo usam o gpt-4o-mini.
+  resposta crua de cada modelo, sem LLM-as-judge. Em `sp_40` (rodada de 20/10), instruções com horários e
+  Q&A passam em 100% nos dois modelos; no relatório, o gpt-4o-mini passa em 2/2 e o Groq em 0/2 (fez uma
+  conta por conta própria, "110 min", e inventou um limite, "≥ 99 %"). Por isso o relatório final e esta demo
+  usam o gpt-4o-mini.
 
 ## Bloco 6 — Demo ponta a ponta e fechamento (Alexandre, 2,5 min)
 
