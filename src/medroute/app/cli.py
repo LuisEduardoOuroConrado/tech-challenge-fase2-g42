@@ -86,12 +86,6 @@ def main() -> None:
     """Disponibiliza os comandos da plataforma medroute."""
 
 
-@app.command()
-def demo() -> None:
-    """Valida a instalação enquanto os módulos da demonstração são integrados."""
-    console.print("[green]medroute instalado e pronto para uso.[/green]")
-
-
 @app.command(name="app")
 def app_(
     porta: Annotated[int, typer.Option(help="Porta do servidor Streamlit.")] = 8501,
@@ -155,7 +149,7 @@ def solve(
     pesos: Annotated[
         Path, typer.Option("--fitness", help="YAML com os pesos do fitness.")
     ] = FITNESS_PATH,
-) -> None:
+) -> Path:
     """Otimiza as rotas com o GA e salva a Solution em JSON (e o mapa em HTML)."""
     instance, dm = _load(inst, frota)
     if veiculo is not None:
@@ -197,6 +191,7 @@ def solve(
     console.print(f"Solução: {json_path}")
     if mapa:
         console.print(f"Mapa: {save_map(solution, instance, out_dir / f'{stem}.html')}")
+    return json_path
 
 
 def _load_solution(solucao: Path) -> Solution:
@@ -456,3 +451,61 @@ def ask(
         f"LLM: {client.provider}/{client.model}[/dim]"
     )
     console.print(Markdown(resposta))
+
+
+DEMO_PERGUNTA = "A que horas são atendidas as entregas críticas e qual o prazo de cada uma?"
+
+
+@app.command()
+def demo(
+    inst: Annotated[str, typer.Option("--inst", help="Nome (sp_40) ou caminho do JSON.")] = "sp_40",
+    seed: Annotated[int, typer.Option(help="Seed do GA.")] = 7,
+    rapido: Annotated[
+        bool, typer.Option(help="GA reduzido (população 30 × 40 gerações), roda em segundos.")
+    ] = False,
+    provedor: Annotated[
+        str, typer.Option(help="mock (sem rede), groq ou openai; não lê o LLM_PROVIDER.")
+    ] = "mock",
+    pergunta: Annotated[str, typer.Option(help="Pergunta feita no fim da demo.")] = DEMO_PERGUNTA,
+    out_dir: Annotated[Path, typer.Option(help="Pasta dos resultados.")] = RESULTS_DIR / "demo",
+    frota: FleetOption = FLEET_PATH,
+    pesos: Annotated[
+        Path, typer.Option("--fitness", help="YAML com os pesos do fitness.")
+    ] = FITNESS_PATH,
+) -> None:
+    """Demonstração ponta a ponta: GA híbrido + mapa → instruções → relatório → pergunta (LLM)."""
+    populacao, geracoes = (30, 40) if rapido else (100, 300)
+
+    console.rule(f"1/4 · GA híbrido em {inst} (população {populacao} × {geracoes} gerações)")
+    json_path = solve(
+        inst=inst,
+        seed=seed,
+        populacao=populacao,
+        geracoes=geracoes,
+        out_dir=out_dir,
+        frota=frota,
+        pesos=pesos,
+    )
+    console.rule("2/4 · Instruções por motorista (LLM)")
+    instruct(json_path, inst=inst, provedor=provedor, frota=frota)
+    console.rule("3/4 · Relatório semanal (LLM)")
+    report([json_path], inst=inst, periodo="semanal", provedor=provedor, frota=frota)
+    console.rule("4/4 · Pergunta em linguagem natural (LLM)")
+    console.print(f"[bold]Pergunta:[/bold] {pergunta}")
+    if provedor == "mock":
+        # O mock devolve o contexto inteiro (vários KB de JSON): mostra só o começo.
+        with console.capture() as capture:
+            ask(json_path, pergunta, inst=inst, provedor=provedor, frota=frota)
+        console.print(capture.get()[:600] + " [...]", markup=False, highlight=False)
+    else:
+        ask(json_path, pergunta, inst=inst, provedor=provedor, frota=frota)
+
+    console.rule()
+    console.print(f"[green]Demo concluída.[/green] Arquivos em {out_dir}:")
+    for path in sorted(out_dir.glob(f"{json_path.stem}*")):
+        console.print(f"  {path.name}")
+    if provedor == "mock":
+        console.print(
+            "[dim]Com mock, a LLM devolve os fatos que recebeu, sem redigir texto. "
+            "Use --provedor openai (ou groq) para as respostas reais.[/dim]"
+        )

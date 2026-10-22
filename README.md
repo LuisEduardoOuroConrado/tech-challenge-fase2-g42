@@ -22,8 +22,25 @@ No Linux ou macOS, ative o ambiente com `source .venv/bin/activate`.
 ```powershell
 python -m ruff check .
 python -m pytest
-medroute demo
+medroute demo --rapido
 ```
+
+## Demonstração
+
+```bash
+medroute demo                      # sp_40, GA híbrido completo (~2 min), LLM mock
+medroute demo --provedor openai    # mesma demo com as respostas reais da LLM (chave no .env)
+medroute demo --rapido             # GA reduzido, roda em segundos
+```
+
+Roda o fluxo ponta a ponta: GA híbrido + mapa → instruções por motorista → relatório semanal → pergunta em
+linguagem natural, e salva tudo em `data/resultados/demo/`. Com `mock` a LLM devolve os fatos que recebeu
+em vez de redigir o texto.
+
+O notebook [`notebooks/01_demo_completa.ipynb`](notebooks/01_demo_completa.ipynb) mostra o mesmo fluxo com
+as saídas salvas (dados, GA × baselines, resultados oficiais, rotas, convergência, mapa e LLM). Para
+executá-lo: `python -m pip install -e ".[notebook]"` e abrir no VS Code (no Jupyter, instale também
+`jupyterlab`).
 
 Consulte `PLANEJAMENTO.md` para o cronograma e [`docs/arquitetura.md`](docs/arquitetura.md) para a
 arquitetura.

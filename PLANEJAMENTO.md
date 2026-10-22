@@ -503,6 +503,11 @@ do relatório, 2–3 min no vídeo.
   fitness e as mesmas rotas. As rodadas de 19/10 seguem válidas. Detalhes em `docs/fontes-frota.md` seção 2.
   Os E1–E6 podem rodar sobre a frota definitiva.
 - **Risco:** E1–E6 sem branch nem figuras no remoto até 22/10.
+- **Demonstração** (feita por Conrado, item "scripts ou notebooks de demonstração" do enunciado): `medroute demo`
+  roda o fluxo ponta a ponta em `sp_40` (GA híbrido + mapa → instruções → relatório semanal → pergunta; LLM
+  `mock` por padrão, `--provedor openai` para respostas reais, `--rapido` em segundos) e
+  `notebooks/01_demo_completa.ipynb` mostra o mesmo fluxo com as saídas salvas (GA × baselines, resultados
+  oficiais, rotas, convergência, mapa e LLM).
 
 ### 8.2 Handoffs — quem entrega o quê, para quem, até quando
 
