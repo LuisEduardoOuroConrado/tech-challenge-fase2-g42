@@ -106,20 +106,25 @@ medroute compare
 ```powershell
 medroute instruct data/resultados/sp_40_ga_vrp_s7.json --provedor openai
 medroute report data/resultados/sp_40_ga_vrp_s7.json --periodo diario --provedor openai
-medroute ask data/resultados/sp_40_ga_vrp_s7.json "Qual veículo chega mais tarde e por quê?" --provedor openai
+medroute ask data/resultados/sp_40_ga_vrp_s7.json "A que horas são atendidas as entregas críticas e qual o prazo de cada uma?" --provedor openai
 ```
 
 **Fala-guia:**
 - Os fatos (ordem das paradas, horários, cargas, custos, violações) são montados em Python; a LLM só redige.
   Isso evita que ela invente números.
-- **Instruções por motorista:** passo a passo da rota, com checagem de fidelidade contra a `Solution`.
+- **Instruções por motorista:** passo a passo da rota com o horário previsto de chegada a cada parada
+  (cronograma do GA, saída às 07:00 com trânsito), com checagem de fidelidade de ordem e horários.
 - **Relatório diário/semanal:** eficiência, economia e uma seção de recomendações (R13).
-- **Perguntas em linguagem natural:** `medroute ask` sobre as rotas.
+- **Perguntas em linguagem natural:** `medroute ask` sobre as rotas, com os mesmos horários das
+  instruções. A pergunta da demo junta as críticas de todas as rotas com chegada e prazo, lista que o
+  Python já entrega pronta (sem ela, o gpt-4o-mini trocava horários entre paradas vizinhas). Dado que
+  não está no plano (ex.: nome do motorista) recebe "não disponível"; assunto sem relação, a recusa.
 - Prompts versionados em `llm/prompts/`, cache de respostas e três provedores (mock, Groq, OpenAI).
 - **Avaliação da qualidade** (mostrar `reports/avaliacao-llm/resumo.md`): rubrica determinística sobre a
-  resposta crua de cada modelo, sem LLM-as-judge. Em `sp_40`, instruções e Q&A passam em 100% nos dois
-  modelos; no relatório, o gpt-4o-mini passa em 100% e o Groq em 50% (o semanal ficou longo e trouxe um número
-  sem fonte). Por isso o relatório final e esta demo usam o gpt-4o-mini.
+  resposta crua de cada modelo, sem LLM-as-judge. Em `sp_40` (rodada oficial de 21/10), o gpt-4o-mini passa
+  em todos os 19 casos (instruções com horários, relatório e 13 perguntas). O Groq passa em tudo menos no
+  relatório semanal, que reprovou nas 4 rodadas: ele faz contas por conta própria ("110 min") e inventa
+  limites ("90 %"). Por isso o relatório final e esta demo usam o gpt-4o-mini.
 
 ## Bloco 6 — Demo ponta a ponta e fechamento (Alexandre, 2,5 min)
 

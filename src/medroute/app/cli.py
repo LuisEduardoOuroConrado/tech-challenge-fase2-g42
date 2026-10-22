@@ -446,7 +446,7 @@ def ask(
     try:
         client = _llm_client(provedor)
         with console.status(f"Consultando a LLM ({client.provider})..."):
-            resposta = answer(pergunta, solution, instance, client)
+            resposta = answer(pergunta, solution, instance, client, load_fleet(frota))
     except (LLMError, ValueError) as error:
         console.print(f"[red]Não foi possível responder:[/red] {error}")
         raise typer.Exit(1) from error

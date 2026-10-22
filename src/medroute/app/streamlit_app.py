@@ -21,7 +21,8 @@ from medroute.viz import build_map
 
 PROVEDORES = ["mock", "groq", "openai"]
 PERGUNTAS_EXEMPLO = [
-    "Qual veículo chega mais tarde e por quê?",
+    "A que horas são atendidas as entregas críticas e qual o prazo de cada uma?",
+    "Qual veículo volta por último ao depósito e a que horas?",
     "Quantas entregas críticas cada veículo faz?",
     "Qual rota custa mais caro?",
 ]
@@ -230,7 +231,9 @@ def main() -> None:
             if client is not None:
                 with st.spinner(f"Consultando a LLM ({client.provider})..."):
                     try:
-                        st.session_state["resposta"] = answer(pergunta, solution, instance, client)
+                        st.session_state["resposta"] = answer(
+                            pergunta, solution, instance, client, load_fleet(FLEET_PATH)
+                        )
                     except (LLMError, ValueError) as error:
                         st.error(f"Não foi possível responder: {error}")
         if "resposta" in st.session_state:

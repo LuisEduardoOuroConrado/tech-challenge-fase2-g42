@@ -3,14 +3,15 @@ from pathlib import Path
 
 import pytest
 
-from medroute.data.loader import load_instance
+from medroute.data.loader import load_fleet, load_instance
 from medroute.domain.models import Solution
-from medroute.llm import MockClient, answer, load_prompt
+from medroute.llm import MockClient, answer, build_route_contexts, load_prompt
 from medroute.llm.qa import MAX_PERGUNTA, RECUSA, build_qa_context, normalize_question
 
 ROOT = Path(__file__).resolve().parents[3]
 FIXTURE = ROOT / "tests" / "fixtures" / "solution_sp15.json"
 SP15 = ROOT / "data" / "instances" / "sp_15.json"
+FROTA = ROOT / "configs" / "frota.yaml"
 
 
 @pytest.fixture
@@ -57,7 +58,7 @@ def test_pergunta_fora_do_escopo_recebe_recusa_e_prompt_traz_regra_e_pergunta(so
 
     assert resposta == RECUSA
     system, user = client.calls[0]
-    assert "Se a pergunta não for sobre este plano" in system
+    assert "Só se a pergunta não tiver relação com este plano" in system
     assert RECUSA in system
     assert f"<pergunta>\n{pergunta}\n</pergunta>" in user
 
@@ -153,6 +154,60 @@ def test_contexto_traz_resumo_observacoes_e_frota(solution, inst):
     assert contexto["instancia"]["frota_disponivel"]["van"]["quantidade"] == 1
     assert any("não utilizados" in o for o in contexto["observacoes"])
     assert contexto["entregas_nao_atendidas"] == []
+
+
+def test_sem_frota_o_contexto_nao_tem_horarios(solution, inst):
+    rotas = build_qa_context(solution, inst)["rotas"]
+    assert all("saida" not in r and "retorno" not in r for r in rotas)
+    assert all("chegada" not in p for r in rotas for p in r["paradas"])
+
+
+def test_com_frota_o_contexto_traz_os_horarios_das_instrucoes(solution, inst):
+    fleet = load_fleet(FROTA)
+    moto = build_qa_context(solution, inst, fleet)["rotas"][0]
+    paradas = moto["paradas"]
+
+    assert (moto["saida"], moto["retorno"]) == ("07:00", "09:19")
+    assert [p["chegada"] for p in paradas] == ["07:00", "07:12", "08:01", "08:47"]
+    assert (paradas[2]["deadline_min"], paradas[2]["prazo"]) == (180, "10:00")
+    assert "prazo" not in paradas[0]  # só as críticas têm prazo
+
+    instrucoes = json.loads(build_route_contexts(solution, inst, fleet)[0].to_prompt_json())
+    assert [p["chegada"] for p in paradas] == [p["chegada"] for p in instrucoes["paradas"]]
+
+
+def test_criticas_de_todas_as_rotas_ficam_numa_lista_so(solution, inst):
+    sem_frota = build_qa_context(solution, inst)["entregas_criticas"]
+    assert sem_frota == [
+        {"veiculo": "moto-01", "nome": "Domicílio 03", "ordem": 3, "deadline_min": 180},
+        {"veiculo": "moto-01", "nome": "Domicílio 06", "ordem": 4, "deadline_min": 180},
+    ]
+
+    com_frota = build_qa_context(solution, inst, load_fleet(FROTA))["entregas_criticas"]
+    assert [(c["nome"], c["chegada"], c["prazo"]) for c in com_frota] == [
+        ("Domicílio 03", "08:01", "10:00"),
+        ("Domicílio 06", "08:47", "10:00"),
+    ]
+
+
+def test_criticas_saem_pela_ordem_de_chegada(solution, inst):
+    # Inverte a moto: a crítica que era a 4ª parada passa a ser a 1ª.
+    routes = [solution.routes[0].model_copy(update={"sequence": solution.routes[0].sequence[::-1]})]
+    invertida = solution.model_copy(update={"routes": routes + solution.routes[1:]})
+
+    criticas = build_qa_context(invertida, inst, load_fleet(FROTA))["entregas_criticas"]
+    assert [c["nome"] for c in criticas] == ["Domicílio 06", "Domicílio 03"]
+    assert criticas[0]["chegada"] < criticas[1]["chegada"]
+
+
+def test_answer_com_frota_envia_horarios_e_prompt_v2(solution, inst):
+    client = MockClient()
+    answer("Que horas a moto-01 volta?", solution, inst, client, load_fleet(FROTA))
+
+    contexto = sent_context(client.calls[0][1])
+    assert contexto["rotas"][0]["retorno"] == "09:19"
+    assert "Copie os horários exatamente" in client.calls[0][0]
+    assert load_prompt("qa").versao == 2
 
 
 def test_entregas_fora_do_plano_sao_listadas(solution, inst):

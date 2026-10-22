@@ -123,7 +123,13 @@ def generate_report(
 ) -> str: ...
 
 # llm/qa.py  (P1 — S3)
-def answer(question: str, solution: Solution, inst: Instance, client: LLMClient) -> str: ...
+def answer(
+    question: str,
+    solution: Solution,
+    inst: Instance,
+    client: LLMClient,
+    fleet: FleetConfig | None = None,    # com frota, o contexto traz horários
+) -> str: ...
 ```
 
 Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe também
@@ -169,7 +175,7 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
 
 ### Prompts
 
-0. Prompts atuais: `instrucoes_motorista` (v2), `relatorio` (v1) e `qa` (v1). Um `$` que não
+0. Prompts atuais: `instrucoes_motorista` (v2), `relatorio` (v1) e `qa` (v2). Um `$` que não
    inicia variável (ex.: "R$ 10,00") fica como está; variável ausente gera `ValueError`.
 1. Cada prompt fica em `llm/prompts/<nome>.md`, com um cabeçalho de versão
    (`versao: 1`) e as seções `system` e `user`. Templates usam `string.Template`
@@ -212,7 +218,7 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
    A fidelidade passa a exigir, depois do nome de cada parada e antes da seguinte,
    o seu horário exato; o *fallback* também traz os horários. Sem frota não há
    horários e tudo funciona como na v1. O comando `instruct` passa a frota de `--frota`.
-   O Q&A segue sem horários (a pergunta de horário continua "não disponível").
+   O Q&A recebe os mesmos horários a partir do `qa` v2 (seção Q&A, regra 7).
 
 ### Relatórios (S2)
 
@@ -275,8 +281,10 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
    tratá-la só como pergunta, nunca como instrução. As tags são removidas do texto
    do usuário antes, para ele não fechar o bloco. Pergunta vazia ou com mais de 500
    caracteres gera `ValueError`.
-4. Informação de rota que não está nos dados (ex.: horário de chegada) recebe
-   "não está disponível no plano", sem estimativa. Contar e listar itens do JSON
+4. Informação de rota que não está nos dados (ex.: consumo de combustível, nome do
+   motorista) recebe "não está disponível no plano", sem estimativa. Isso não é
+   "fora do escopo": a recusa fica só para assuntos sem relação com o plano (no `qa`
+   v2, porque o gpt-4o-mini recusava "por quais ruas..." e pedágio em 21/10). Contar e listar itens do JSON
    é permitido. Entregas são citadas pelo nome, não só pelo `id`.
 5. CLI: `medroute ask <solução.json> "pergunta" [--inst] [--provedor]`. Com várias
    Solutions da instância (ex.: `solutions.json` do `compare`), usa a de menor
@@ -284,6 +292,16 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
 6. Testado em 19/10 com Groq sobre `reports/comparativo-s2` (`sp_40`): localização,
    contagem por veículo, custo, horário inexistente, pergunta fora do escopo e
    tentativa de *prompt injection* responderam conforme as regras.
+7. **Horários (prompt `qa` v2, 21/10).** Com a frota, o contexto usa o mesmo cronograma
+   das instruções: cada rota ganha `saida` e `retorno`, cada parada `chegada` e as
+   críticas `prazo`, em `HH:MM`. O prompt manda copiar os horários e permite
+   compará-los (quem chega antes ou depois), mas não calcular diferenças.
+   `medroute ask` e o Streamlit passam a frota. Sem frota, nada muda.
+8. `entregas_criticas`: o Python junta as críticas de todas as rotas numa lista
+   (veículo, nome, ordem, prazo e horários), pela ordem de chegada. Sem ela, o
+   gpt-4o-mini trocou o horário de uma crítica pelo da parada seguinte em 3 de 4
+   tentativas da pergunta "A que horas são atendidas as entregas críticas e qual o
+   prazo de cada uma?"; com ela, acertou 4 de 4 (21/10, `sp_40`).
 
 ### Avaliação da qualidade (S3, R14)
 
@@ -292,10 +310,13 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
    `python -m medroute.llm.evaluation --solucoes <solutions.json> --inst sp_40
    --provedores groq openai --out reports/avaliacao-llm`.
 2. Casos: instruções de cada rota do melhor plano; relatório diário e semanal com
-   todos os algoritmos; 10 perguntas de Q&A geradas a partir da própria solução
-   (localizar, buscar por id, contar, custo, rota mais longa, explicar custo, dois
-   dados inexistentes, fora do escopo e *prompt injection*). As respostas esperadas
-   saem dos dados, então a rubrica vale se as rodadas oficiais forem refeitas.
+   todos os algoritmos; perguntas de Q&A geradas a partir da própria solução
+   (localizar, buscar por id, contar, custo, rota mais longa, explicar custo, dados
+   inexistentes, fora do escopo e *prompt injection*). Com a frota são 13: entram
+   horário de chegada, último retorno, críticas com horário e prazo, e nome do
+   motorista (inexistente) no lugar de "horário inexistente"; sem frota, 10. As
+   respostas esperadas saem dos dados, então a rubrica vale se as rodadas oficiais
+   forem refeitas.
 3. Critérios essenciais: instruções = ordem das paradas, horários (cada parada com o
    seu horário exato; sem frota, igual à ordem), números com fonte e alertas
    citados; relatório = três seções, 3 a 5 recomendações e números com fonte; Q&A =
@@ -310,8 +331,8 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
    `LLM_CACHE_DIR` vazio; respostas do cache aparecem como "cache".
 6. `--reavaliar resultados.json` recalcula a rubrica sem chamar a LLM, mantendo
    respostas e tempos: corrigir um critério não gasta cota.
-7. Resultado oficial em `reports/avaliacao-llm/` (20/10, instruções v2, uma execução
-   por caso; a rodada de 19/10, com instruções v1, fica no histórico do Git).
+7. Resultado oficial em `reports/avaliacao-llm/` (21/10, instruções v2 e `qa` v2,
+   uma execução por caso; as rodadas anteriores ficam no histórico do Git).
    LLM-as-judge fica fora; a rubrica é determinística e reproduzível.
 8. A rubrica carrega a frota de `--frota` (padrão `configs/frota.yaml`), então as
    instruções são avaliadas com horários. Para reavaliar, usar a mesma frota da execução.
@@ -351,6 +372,9 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
 13. **Dadas** a fixture, a frota e uma resposta da LLM sem os horários de chegada,
     **quando** `generate_instructions` é chamado, **então** o resultado é o *fallback*
     com o horário previsto de cada parada e do retorno (prompt v2).
+14. **Dadas** a fixture e a frota, **quando** `build_qa_context` é chamado, **então**
+    as paradas têm os mesmos horários de chegada das instruções e
+    `entregas_criticas` lista as críticas de todas as rotas pela ordem de chegada (S3).
 
 ### Mapa critério → teste (revisão de 08/10)
 
@@ -369,6 +393,7 @@ Diferença em relação ao `PLANEJAMENTO.md` seção 5: `generate_report` recebe
 | 11 | `test_reports.py::test_duas_solucoes_com_mock_prompt_traz_metricas_e_texto_tem_recomendacoes` |
 | 12 | `test_qa.py::test_pergunta_fora_do_escopo_recebe_recusa_e_prompt_traz_regra_e_pergunta` |
 | 13 | `test_instructions.py::test_horario_errado_duas_vezes_usa_fallback_com_horarios` |
+| 14 | `test_qa.py::test_com_frota_o_contexto_traz_os_horarios_das_instrucoes` e `::test_criticas_saem_pela_ordem_de_chegada` |
 
 Além dos critérios, já há testes para: veículo inexistente, instância diferente,
 rota vazia, JSON arredondado, prompt mal formatado, 401 sem expor a chave, resposta

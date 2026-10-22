@@ -1,7 +1,8 @@
 """Perguntas em linguagem natural sobre o plano de rotas (Spec 05, S3).
 
 Context stuffing: o Python monta o contexto completo da solução (resumo, rotas com
-as paradas em ordem e observações) e a LLM responde só a partir dele.
+as paradas em ordem, horários quando há frota, e observações) e a LLM responde só a
+partir dele.
 """
 
 from __future__ import annotations
@@ -10,7 +11,8 @@ import json
 import re
 from typing import Any
 
-from medroute.domain.models import Instance, Solution
+from medroute.data.fleet import FleetConfig
+from medroute.domain.models import Instance, Priority, Solution
 
 from .client import LLMClient
 from .context import PRIORIDADE_ROTULO, build_route_contexts
@@ -25,11 +27,19 @@ RECUSA = "Só posso responder perguntas sobre as rotas e entregas deste plano."
 _TAG_PERGUNTA = re.compile(r"</?\s*pergunta\s*>", re.IGNORECASE)
 
 
-def answer(question: str, solution: Solution, inst: Instance, client: LLMClient) -> str:
-    """Responde à pergunta em Markdown curto, usando só os dados da solução."""
+def answer(
+    question: str,
+    solution: Solution,
+    inst: Instance,
+    client: LLMClient,
+    fleet: FleetConfig | None = None,
+) -> str:
+    """Responde à pergunta em Markdown curto, usando só os dados da solução.
+
+    Com `fleet`, o contexto traz os horários previstos (saída, chegadas e retorno)."""
     pergunta = normalize_question(question)
     contexto = json.dumps(
-        build_qa_context(solution, inst), ensure_ascii=False, separators=(",", ":")
+        build_qa_context(solution, inst, fleet), ensure_ascii=False, separators=(",", ":")
     )
     prompt = load_prompt(PROMPT)
     system, user = prompt.render(recusa=RECUSA, contexto=contexto, pergunta=pergunta)
@@ -47,10 +57,15 @@ def normalize_question(question: str) -> str:
     return pergunta
 
 
-def build_qa_context(solution: Solution, inst: Instance) -> dict[str, Any]:
-    """Contexto completo do plano: os dados do relatório + as paradas de cada rota."""
+def build_qa_context(
+    solution: Solution, inst: Instance, fleet: FleetConfig | None = None
+) -> dict[str, Any]:
+    """Contexto completo do plano: os dados do relatório + as paradas de cada rota.
+
+    Com `fleet`, cada rota ganha `saida` e `retorno` e cada parada `chegada` (e `prazo`,
+    nas críticas), em HH:MM, do mesmo cronograma das instruções."""
     dados = build_report_data([solution], inst, "diario")
-    rotas_ctx = {ctx.vehicle_id: ctx for ctx in build_route_contexts(solution, inst)}
+    rotas_ctx = {ctx.vehicle_id: ctx for ctx in build_route_contexts(solution, inst, fleet)}
 
     rotas = []
     for resumo in dados["rotas"]:
@@ -66,12 +81,20 @@ def build_qa_context(solution: Solution, inst: Instance) -> dict[str, Any]:
                 "volume_l": round(p.volume_l, 1),
                 "refrigerado": p.refrigerado,
             }
+            if chegada := ctx.horario(p.chegada_min):
+                parada["chegada"] = chegada
             if p.deadline_min is not None:
                 parada["deadline_min"] = round(p.deadline_min)
+                if prazo := ctx.horario(p.deadline_min):
+                    parada["prazo"] = prazo
             paradas.append(parada)
+        horarios = {}
+        if ctx.saida_min is not None:
+            horarios = {"saida": ctx.horario(0), "retorno": ctx.horario(ctx.duracao_min)}
         rotas.append(
             {
                 **resumo,
+                **horarios,
                 "carga_kg": round(ctx.carga_kg, 1),
                 "carga_l": round(ctx.carga_l, 1),
                 "paradas": paradas,
@@ -82,9 +105,28 @@ def build_qa_context(solution: Solution, inst: Instance) -> dict[str, Any]:
     return {
         "instancia": dados["instancia"],
         "solucao": dados["plano_adotado"],
+        "entregas_criticas": _criticas(rotas),
         "rotas": rotas,
         "entregas_nao_atendidas": [
             {"id": d.id, "nome": d.nome} for d in inst.deliveries if d.id not in atendidas
         ],
         "observacoes": dados["padroes"],
     }
+
+
+def _criticas(rotas: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """As entregas críticas de todas as rotas numa lista só, pela ordem de chegada.
+
+    Juntar as críticas espalhadas pelas rotas é trabalho do Python: buscando nas rotas,
+    o gpt-4o-mini trocou o horário de uma crítica pelo da parada seguinte (visto em 21/10).
+    """
+    campos = ("nome", "ordem", "chegada", "deadline_min", "prazo")
+    criticas = [
+        {"veiculo": rota["veiculo"], **{c: p[c] for c in campos if c in p}}
+        for rota in rotas
+        for p in rota["paradas"]
+        if p["prioridade"] == PRIORIDADE_ROTULO[Priority.CRITICA]
+    ]
+    if all("chegada" in c for c in criticas):
+        criticas.sort(key=lambda c: c["chegada"])
+    return criticas
