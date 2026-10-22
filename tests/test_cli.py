@@ -13,11 +13,21 @@ SP15 = str(ROOT / "data" / "instances" / "sp_15.json")
 runner = CliRunner()
 
 
-def test_demo_confirma_instalacao() -> None:
-    result = runner.invoke(app, ["demo"])
+def test_demo_roda_o_fluxo_completo_com_mock(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.chdir(tmp_path)  # isola de um .env local
+    fitness = str(ROOT / "configs" / "fitness.yaml")
+    args = ["demo", "--inst", SP15, "--rapido", "--frota", FROTA, "--fitness", fitness]
+    result = runner.invoke(app, [*args, "--out-dir", str(tmp_path / "demo")])
 
-    assert result.exit_code == 0
-    assert "medroute instalado e pronto para uso." in result.stdout
+    assert result.exit_code == 0, result.output
+    assert sorted(p.name for p in (tmp_path / "demo").iterdir()) == [
+        "sp_15_ga_vrp_s7.html",
+        "sp_15_ga_vrp_s7.json",
+        "sp_15_ga_vrp_s7_instrucoes.md",
+        "sp_15_ga_vrp_s7_relatorio_semanal.md",
+    ]
+    assert "LLM: mock/mock" in result.output
+    assert "Demo concluída." in result.output
 
 
 def test_gen_cria_instancias_reproduziveis(tmp_path: Path) -> None:
