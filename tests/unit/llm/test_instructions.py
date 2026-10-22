@@ -4,7 +4,9 @@ from pathlib import Path
 
 import pytest
 
-from medroute.data.loader import load_instance
+from medroute.constraints import cronograma_rota, duracao_rota
+from medroute.data.distance import DistanceMatrix
+from medroute.data.loader import load_fleet, load_instance
 from medroute.domain.models import Solution
 from medroute.llm import (
     MockClient,
@@ -13,10 +15,12 @@ from medroute.llm import (
     load_prompt,
 )
 from medroute.llm.instructions import AVISO_NOVA_TENTATIVA, fallback_instructions, is_faithful
+from medroute.llm.text import hora
 
 ROOT = Path(__file__).resolve().parents[3]
 FIXTURE = ROOT / "tests" / "fixtures" / "solution_sp15.json"
 SP15 = ROOT / "data" / "instances" / "sp_15.json"
+FROTA = ROOT / "configs" / "frota.yaml"
 
 
 @pytest.fixture
@@ -244,3 +248,75 @@ def test_fallback_lista_alertas_e_retorno(solution, inst):
     assert "**Atenção**" in texto
     assert "3. Domicílio 03" in texto
     assert texto.endswith(f"volte ao depósito {inst.depot.nome} ao final.")
+    assert "chegada prevista" not in texto  # sem frota, sem horários
+
+
+# --- horários de chegada (prompt v2) ------------------------------------------
+
+
+@pytest.fixture
+def fleet():
+    return load_fleet(FROTA)
+
+
+@pytest.mark.parametrize(
+    ("minuto", "esperado"), [(420, "07:00"), (462.4, "07:42"), (479.6, "08:00"), (1440, "00:00")]
+)
+def test_hora_formata_minuto_do_dia(minuto, esperado):
+    assert hora(minuto) == esperado
+
+
+def test_com_frota_o_contexto_traz_o_cronograma_de_chegada(solution, inst, fleet):
+    moto = build_route_contexts(solution, inst, fleet)[0]
+    dm = DistanceMatrix(inst, fleet)
+    veiculo = next(v for v in inst.fleet if v.id == "moto-01")
+    args = (dm, veiculo, solution.routes[0].sequence, inst, fleet, fleet.saida_min)
+    chegadas = cronograma_rota(*args)
+
+    assert moto.saida_min == 420  # inicio_jornada 07:00
+    assert [p.chegada_min for p in moto.paradas] == [chegadas[p.id] for p in moto.paradas]
+    assert moto.duracao_min == duracao_rota(*args)
+
+    dados = json.loads(moto.to_prompt_json())
+    assert (dados["resumo"]["saida"], dados["resumo"]["retorno"]) == ("07:00", "09:19")
+    assert [p["chegada"] for p in dados["paradas"]] == ["07:00", "07:12", "08:01", "08:47"]
+    assert "prazo de 180 min após a saída (até 10:00)" in dados["alertas"][0]
+
+
+def test_sem_frota_o_contexto_nao_tem_horarios(solution, inst):
+    dados = json.loads(build_route_contexts(solution, inst)[0].to_prompt_json())
+    assert "saida" not in dados["resumo"] and "retorno" not in dados["resumo"]
+    assert all("chegada" not in p for p in dados["paradas"])
+
+
+def test_fidelidade_com_horarios_exige_o_horario_depois_de_cada_nome(solution, inst, fleet):
+    ctx = build_route_contexts(solution, inst, fleet)[0]
+    certo = (
+        "1. InCor — 07:00\n2. Instituto da Criança (ICr) — 07:12\n"
+        "3. Domicílio 03 — 08:01\n4. Domicílio 06 — 08:47"
+    )
+    errado = certo.replace("08:01", "08:10")
+    sem_horario = certo.replace(" — 08:47", "")
+    antes_do_nome = certo.replace("4. Domicílio 06 — 08:47", "4. 08:47 Domicílio 06")
+
+    assert is_faithful(certo, ctx)
+    for resposta in (errado, sem_horario, antes_do_nome):
+        assert not is_faithful(resposta, ctx)
+        assert is_faithful(resposta, ctx, horarios=False)  # a ordem dos nomes está certa
+
+
+def test_horario_errado_duas_vezes_usa_fallback_com_horarios(solution, inst, fleet):
+    solution = solution.model_copy(update={"routes": solution.routes[:1]})
+    so_nomes = "InCor, Instituto da Criança (ICr), Domicílio 03, Domicílio 06"
+    client = ScriptedClient(so_nomes, so_nomes)
+
+    texto = generate_instructions(solution, inst, client, fleet)["moto-01"]
+
+    assert len(client.calls) == 2
+    assert '"chegada":"07:12"' in client.calls[0][1]
+    ctx = build_route_contexts(solution, inst, fleet)[0]
+    assert texto == fallback_instructions(ctx)
+    assert is_faithful(texto, ctx)
+    assert "Saída de Farmácia Central HC-FMUSP às 07:00" in texto
+    assert "2. Instituto da Criança (ICr) — chegada prevista às 07:12 — prioridade" in texto
+    assert texto.endswith("ao final, com chegada prevista às 09:19.")

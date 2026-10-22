@@ -198,7 +198,7 @@ def main() -> None:
                 with st.spinner(f"Gerando instruções ({client.provider})..."):
                     try:
                         st.session_state["instrucoes"] = generate_instructions(
-                            solution, instance, client
+                            solution, instance, client, load_fleet(FLEET_PATH)
                         )
                     except LLMError as error:
                         st.error(f"Erro na LLM: {error}")

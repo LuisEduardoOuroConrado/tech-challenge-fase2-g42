@@ -34,6 +34,7 @@ from medroute.llm.reports import build_report_data, prompt_context
 ROOT = Path(__file__).resolve().parents[3]
 FIXTURE = ROOT / "tests" / "fixtures" / "solution_sp15.json"
 SP15 = ROOT / "data" / "instances" / "sp_15.json"
+FROTA = ROOT / "configs" / "frota.yaml"
 
 ANALISE = (
     "## Resumo executivo\nO plano custa R$ 584,24 por dia.\n\n"
@@ -286,17 +287,14 @@ def test_rescore_recalcula_criterios_e_mantem_respostas_e_tempos(solution, inst)
 def test_main_grava_resultados_e_resumo(tmp_path, monkeypatch, solution):
     monkeypatch.chdir(tmp_path)  # isola de um .env local
     out = tmp_path / "aval"
-    main(
-        ["--solucoes", str(FIXTURE), "--inst", str(SP15), "--provedores", "mock", "--out", str(out)]
-    )
+    base = ["--solucoes", str(FIXTURE), "--inst", str(SP15), "--frota", str(FROTA)]
+    main([*base, "--provedores", "mock", "--out", str(out)])
 
     salvos = json.loads((out / "resultados.json").read_text("utf-8"))
     assert len(salvos) == 15
+    assert all(s["criterios"]["horarios"] for s in salvos if s["tarefa"] == "instrucoes")
     resumo = (out / "resumo.md").read_text("utf-8")
-    assert "- Prompts: instrucoes_motorista v1, relatorio v1, qa v1" in resumo
+    assert "- Prompts: instrucoes_motorista v2, relatorio v1, qa v1" in resumo
 
-    main(
-        ["--solucoes", str(FIXTURE), "--inst", str(SP15), "--out", str(out)]
-        + ["--reavaliar", str(out / "resultados.json")]
-    )
+    main([*base, "--out", str(out), "--reavaliar", str(out / "resultados.json")])
     assert json.loads((out / "resultados.json").read_text("utf-8")) == salvos

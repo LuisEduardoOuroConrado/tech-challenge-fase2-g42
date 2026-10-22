@@ -7,15 +7,16 @@
     "aprovado": true,
     "criterios": {
       "ordem_das_paradas": true,
+      "horarios": true,
       "numeros_com_fonte": true,
       "alertas_citados": true
     },
     "numeros_sem_fonte": [],
-    "palavras": 181,
-    "segundos": 3.6810851999907754,
+    "palavras": 246,
+    "segundos": 4.806891400017776,
     "espera_limite_s": 0.0,
     "tentativas": 1,
-    "resposta": "### Rota carro-01 (carro)  \nSaída do depósito Farmácia Central HC-FMUSP. 11 paradas, 49,6 km, duração estimada 234 min, carga total 95,6 kg / 399,1 L.\n\n**Atenção**  \n- Parada 1 (Instituto Central (ICHC)): entrega CRÍTICA, prazo de 300 min após a saída  \n- Parada 2 (InCor): entrega CRÍTICA, prazo de 240 min após a saída  \n- Parada 9 (Domicílio 01): carga REFRIGERADA  \n\n**Paradas**  \n1. Instituto Central (ICHC) — crítica, 17,0 kg/96,2 L, sem refrigeração  \n2. InCor — crítica, 6,6 kg/46,1 L, sem refrigeração  \n3. ICESP — normal, 32,0 kg/104,6 L, sem refrigeração  \n4. Domicílio 07 — alta, 2,6 kg/8,4 L, sem refrigeração  \n5. Domicílio 23 — normal, 2,7 kg/8,0 L, sem refrigeração  \n6. Domicílio 26 — normal, 1,2 kg/3,2 L, sem refrigeração  \n7. Domicílio 14 — alta, 1,2 kg/10,3 L, sem refrigeração  \n8. Domicílio 05 — alta, 2,3 kg/10,9 L, sem refrigeração  \n9. Domicílio 01 — normal, 2,9 kg/11,0 L, refrigerada  \n10. IMREA Lapa — normal, 19,0 kg/85,6 L, sem refrigeração  \n11. Hospital Auxiliar de Cotoxó — normal, 8,1 kg/14,8 L, sem refrigeração  \n\n**Retorno:** volte ao depósito Farmácia Central HC-FMUSP ao final."
+    "resposta": "### Rota carro-01 (carro)\nSaída do depósito às 07:00, 11 paradas, 49,6 km, duração estimada 234 min, carga total 95,6 kg / 399,1 L.\n\n**Atenção**\n- Parada 1 (Instituto Central (ICHC)): entrega CRÍTICA, prazo de 300 min após a saída (até 12:00)\n- Parada 2 (InCor): entrega CRÍTICA, prazo de 240 min após a saída (até 11:00)\n- Parada 9 (Domicílio 01): carga REFRIGERADA\n\n**Paradas**\n1. Instituto Central (ICHC) — chegada prevista às 07:00 — crítica, 17,0 kg / 96,2 L  \n2. InCor — chegada prevista às 07:10 — crítica, 6,6 kg / 46,1 L  \n3. ICESP — chegada prevista às 07:21 — normal, 32,0 kg / 104,6 L  \n4. Domicílio 07 — chegada prevista às 07:40 — alta, 2,6 kg / 8,4 L  \n5. Domicílio 23 — chegada prevista às 07:57 — normal, 2,7 kg / 8,0 L  \n6. Domicílio 26 — chegada prevista às 08:27 — normal, 1,2 kg / 3,2 L  \n7. Domicílio 14 — chegada prevista às 09:02 — alta, 1,2 kg / 10,3 L  \n8. Domicílio 05 — chegada prevista às 09:28 — alta, 2,3 kg / 10,9 L  \n9. Domicílio 01 — chegada prevista às 09:44 — normal, 2,9 kg / 11,0 L, refrigerado  \n10. IMREA Lapa — chegada prevista às 10:20 — normal, 19,0 kg / 85,6 L  \n11. Hospital Auxiliar de Cotoxó — chegada prevista às 10:35 — normal, 8,1 kg / 14,8 L  \n\n**Retorno:** volte ao depósito Farmácia Central HC-FMUSP ao final, com chegada prevista às 10:54."
   },
   {
     "tarefa": "instrucoes",
@@ -25,15 +26,16 @@
     "aprovado": true,
     "criterios": {
       "ordem_das_paradas": true,
+      "horarios": true,
       "numeros_com_fonte": true,
       "alertas_citados": true
     },
     "numeros_sem_fonte": [],
-    "palavras": 142,
-    "segundos": 2.5516698000137694,
+    "palavras": 199,
+    "segundos": 2.188162100035697,
     "espera_limite_s": 0.0,
     "tentativas": 1,
-    "resposta": "### Rota moto-01 (moto)  \nSaída do depósito Farmácia Central HC-FMUSP. 8 paradas, 54,1 km, 199 min, carga total 13,4 kg / 32,1 L.\n\n**Atenção**  \n- Parada 1 (Domicílio 27): entrega CRÍTICA, prazo de 240 min após a saída  \n- Parada 3 (Domicílio 10): entrega CRÍTICA, prazo de 120 min após a saída  \n\n**Paradas**  \n1. Domicílio 27 — crítica, 1,8 kg/5,5 L, sem refrigeração  \n2. Domicílio 17 — alta, 1,1 kg/2,6 L, sem refrigeração  \n3. Domicílio 10 — crítica, 1,9 kg/3,7 L, sem refrigeração  \n4. Domicílio 21 — normal, 0,8 kg/5,6 L, sem refrigeração  \n5. Domicílio 04 — alta, 1,0 kg/6,5 L, sem refrigeração  \n6. Domicílio 12 — normal, 1,2 kg/3,5 L, sem refrigeração  \n7. Domicílio 02 — alta, 2,1 kg/2,5 L, sem refrigeração  \n8. Domicílio 24 — normal, 3,5 kg/2,2 L, sem refrigeração  \n\n**Retorno:** volte ao depósito Farmácia Central HC-FMUSP ao final."
+    "resposta": "### Rota moto-01 (moto)  \nSaída do depósito **Farmácia Central HC-FMUSP** às 07:00. São 8 paradas, 54,1 km percorridos, duração estimada de 199 min, carga total de 13,4 kg e 32,1 L.\n\n**Atenção**  \n- Parada 1 (Domicílio 27): entrega CRÍTICA, prazo de 240 min após a saída (até 11:00)  \n- Parada 3 (Domicílio 10): entrega CRÍTICA, prazo de 120 min após a saída (até 09:00)\n\n**Paradas**  \n1. Domicílio 27 — chegada prevista às 07:24 — crítica, 1,8 kg/5,5 L, sem refrigeração  \n2. Domicílio 17 — chegada prevista às 07:46 — alta, 1,1 kg/2,6 L, sem refrigeração  \n3. Domicílio 10 — chegada prevista às 08:07 — crítica, 1,9 kg/3,7 L, sem refrigeração  \n4. Domicílio 21 — chegada prevista às 08:28 — normal, 0,8 kg/5,6 L, sem refrigeração  \n5. Domicílio 04 — chegada prevista às 08:50 — alta, 1,0 kg/6,5 L, sem refrigeração  \n6. Domicílio 12 — chegada prevista às 09:22 — normal, 1,2 kg/3,5 L, sem refrigeração  \n7. Domicílio 02 — chegada prevista às 09:40 — alta, 2,1 kg/2,5 L, sem refrigeração  \n8. Domicílio 24 — chegada prevista às 09:58 — normal, 3,5 kg/2,2 L, sem refrigeração  \n\n**Retorno:** volte ao depósito Farmácia Central HC-FMUSP ao final, com chegada prevista às 10:19."
   },
   {
     "tarefa": "instrucoes",
@@ -43,15 +45,16 @@
     "aprovado": true,
     "criterios": {
       "ordem_das_paradas": true,
+      "horarios": true,
       "numeros_com_fonte": true,
       "alertas_citados": true
     },
     "numeros_sem_fonte": [],
-    "palavras": 195,
-    "segundos": 2.774775600002613,
+    "palavras": 345,
+    "segundos": 4.205697300028987,
     "espera_limite_s": 0.0,
     "tentativas": 1,
-    "resposta": "### Rota carro-02 (carro)  \nSaída do depósito Farmácia Central HC-FMUSP. 15 paradas, 57,5 km, duração estimada 291 min, carga total 98,8 kg e 351,3 L.  \n\n**Atenção**  \n- Parada 3 (Domicílio 29): carga REFRIGERADA  \n- Parada 4 (HU-USP): entrega CRÍTICA, prazo de 180 min após a saída  \n- Parada 4 (HU-USP): carga REFRIGERADA  \n- Parada 13 (Domicílio 18): carga REFRIGERADA  \n\n**Paradas**  \n1. Instituto de Radiologia (InRad) — normal, 39,6 kg/85,0 L  \n2. Instituto da Criança (ICr) — normal, 3,3 kg/35,8 L  \n3. Domicílio 29 — alta, 0,7 kg/9,3 L, refrigerado  \n4. HU-USP — crítica, 13,4 kg/64,1 L, refrigerado  \n5. Domicílio 16 — normal, 1,2 kg/7,9 L  \n6. Domicílio 11 — normal, 1,5 kg/7,1 L  \n7. Domicílio 03 — normal, 2,5 kg/10,7 L  \n8. Domicílio 28 — normal, 1,9 kg/10,0 L  \n9. Domicílio 19 — normal, 1,9 kg/9,1 L  \n10. Domicílio 15 — normal, 3,1 kg/2,0 L  \n11. Domicílio 20 — alta, 2,9 kg/3,2 L  \n12. Domicílio 08 — normal, 1,7 kg/8,0 L  \n13. Domicílio 18 — normal, 3,3 kg/7,0 L, refrigerado  \n14. IPq HC-FMUSP — normal, 8,4 kg/25,1 L  \n15. IOT HC-FMUSP — normal, 13,4 kg/67,0 L  \n\n**Retorno:** volte ao depósito Farmácia Central HC-FMUSP ao final."
+    "resposta": "### Rota carro-02 (carro)  \nSaída do depósito Farmácia Central HC-FMUSP às 07:00. São 15 paradas, 57,5 km percorridos, duração estimada de 291 min, carga total 98,8 kg e 351,3 L.\n\n**Atenção**  \n- Parada 3 (Domicílio 29): carga REFRIGERADA  \n- Parada 4 (HU-USP): entrega CRÍTICA, prazo de 180 min após a saída (até 10:00)  \n- Parada 4 (HU-USP): carga REFRIGERADA  \n- Parada 13 (Domicílio 18): carga REFRIGERADA  \n\n**Paradas**  \n1. Instituto de Radiologia (InRad) — chegada prevista às 07:01 — prioridade normal, peso 39,6 kg, volume 85,0 L  \n2. Instituto da Criança (ICr) — chegada prevista às 07:12 — prioridade normal, peso 3,3 kg, volume 35,8 L  \n3. Domicílio 29 — chegada prevista às 07:45 — prioridade alta, peso 0,7 kg, volume 9,3 L, carga REFRIGERADA  \n4. HU-USP — chegada prevista às 07:59 — prioridade crítica, peso 13,4 kg, volume 64,1 L, carga REFRIGERADA  \n5. Domicílio 16 — chegada prevista às 08:33 — prioridade normal, peso 1,2 kg, volume 7,9 L  \n6. Domicílio 11 — chegada prevista às 08:53 — prioridade normal, peso 1,5 kg, volume 7,1 L  \n7. Domicílio 03 — chegada prevista às 09:09 — prioridade normal, peso 2,5 kg, volume 10,7 L  \n8. Domicílio 28 — chegada prevista às 09:33 — prioridade normal, peso 1,9 kg, volume 10,0 L  \n9. Domicílio 19 — chegada prevista às 09:48 — prioridade normal, peso 1,9 kg, volume 9,1 L  \n10. Domicílio 15 — chegada prevista às 10:02 — prioridade normal, peso 3,1 kg, volume 2,0 L  \n11. Domicílio 20 — chegada prevista às 10:18 — prioridade alta, peso 2,9 kg, volume 3,2 L  \n12. Domicílio 08 — chegada prevista às 10:37 — prioridade normal, peso 1,7 kg, volume 8,0 L  \n13. Domicílio 18 — chegada prevista às 10:55 — prioridade normal, peso 3,3 kg, volume 7,0 L, carga REFRIGERADA  \n14. IPq HC-FMUSP — chegada prevista às 11:30 — prioridade normal, peso 8,4 kg, volume 25,1 L  \n15. IOT HC-FMUSP — chegada prevista às 11:41 — prioridade normal, peso 13,4 kg, volume 67,0 L  \n\n**Retorno:** volte ao depósito Farmácia Central HC-FMUSP ao final, com chegada prevista às 11:51."
   },
   {
     "tarefa": "instrucoes",
@@ -61,34 +64,37 @@
     "aprovado": true,
     "criterios": {
       "ordem_das_paradas": true,
+      "horarios": true,
       "numeros_com_fonte": true,
       "alertas_citados": true
     },
     "numeros_sem_fonte": [],
-    "palavras": 108,
-    "segundos": 2.247689999989234,
-    "espera_limite_s": 0.0,
+    "palavras": 151,
+    "segundos": 2.6535362999420613,
+    "espera_limite_s": 10.0,
     "tentativas": 1,
-    "resposta": "### Rota moto-02 (moto)  \nSaída do depósito Farmácia Central HC-FMUSP. 6 paradas, 54,0 km, 181 min, carga total 12,2 kg / 39,3 L.\n\n**Atenção**  \n- Parada 3 (Domicílio 25): entrega CRÍTICA, prazo de 120 min após a saída\n\n**Paradas**  \n1. Domicílio 09 — alta, 1,6 kg/10,2 L, sem refrigeração  \n2. Domicílio 06 — normal, 3,3 kg/8,8 L, sem refrigeração  \n3. Domicílio 25 — crítica, 1,7 kg/4,6 L, sem refrigeração  \n4. Domicílio 13 — alta, 0,7 kg/7,6 L, sem refrigeração  \n5. Domicílio 22 — normal, 1,8 kg/5,9 L, sem refrigeração  \n6. Domicílio 30 — normal, 3,1 kg/2,2 L, sem refrigeração  \n\n**Retorno:** volte ao depósito Farmácia Central HC-FMUSP ao final."
+    "resposta": "### Rota moto-02 (moto)\nSaída do depósito Farmácia Central HC-FMUSP às 07:00. São 6 paradas, 54,0 km percorridos, duração estimada 181 min, carga total 12,2 kg / 39,3 L.\n\n**Atenção**\n- Parada 3 (Domicílio 25): entrega CRÍTICA, prazo de 120 min após a saída (até 09:00)\n\n**Paradas**\n1. Domicílio 09 — chegada prevista às 07:22 — alta, 1,6 kg / 10,2 L  \n2. Domicílio 06 — chegada prevista às 07:43 — normal, 3,3 kg / 8,8 L  \n3. Domicílio 25 — chegada prevista às 08:22 — crítica, 1,7 kg / 4,6 L  \n4. Domicílio 13 — chegada prevista às 08:43 — alta, 0,7 kg / 7,6 L  \n5. Domicílio 22 — chegada prevista às 09:19 — normal, 1,8 kg / 5,9 L  \n6. Domicílio 30 — chegada prevista às 09:37 — normal, 3,1 kg / 2,2 L  \n\n**Retorno:** volte ao depósito Farmácia Central HC-FMUSP ao final, com chegada prevista às 10:01."
   },
   {
     "tarefa": "relatorio",
     "caso": "diario",
     "provedor": "groq",
     "modelo": "openai/gpt-oss-120b",
-    "aprovado": true,
+    "aprovado": false,
     "criterios": {
       "secoes": true,
       "recomendacoes_3_a_5": true,
-      "numeros_com_fonte": true,
+      "numeros_com_fonte": false,
       "tamanho_200_a_350": false
     },
-    "numeros_sem_fonte": [],
-    "palavras": 387,
-    "segundos": 3.3241951999953017,
-    "espera_limite_s": 21.0,
+    "numeros_sem_fonte": [
+      "110"
+    ],
+    "palavras": 360,
+    "segundos": 3.1235609999857843,
+    "espera_limite_s": 29.0,
     "tentativas": 1,
-    "resposta": "## Resumo executivo  \nNo dia analisado foram realizadas 40 entregas (6 críticas, 10 altas e 24 normais) utilizando 4 veículos (2 carros e 2 motos) do total disponível de 5. O algoritmo **ga_pmx** gerou um custo generalizado de **R$ 1.045,05**, com custo operacional de **R$ 607,06**, custo de prioridade de **R$ 437,99** e sem penalidades. A distância total percorrida foi de **215,1 km**, o tempo total de operação **905 min** e a maior rota durou **291 min**. Não houve violações de restrição.\n\n## Eficiência e economia  \nComparado às alternativas, o plano adotado apresenta o menor custo generalizado em todas as simulações, variando de **R$ 13,48** a **R$ 1.771,74** a menos. Em relação ao **ga_hibrido**, o custo operacional foi **R$ 3,09** maior, porém a maior rota foi **33 min** mais curta. Em relação ao **ga_puro**, o plano adotado reduziu o custo operacional em **R$ 74,52**, a distância em **41,0 km** e a maior rota em **161 min**. As demais alternativas (nearest_neighbor_two_opt, savings, nearest_neighbor e random) também apresentaram custos operacionais e distâncias superiores, além de rotas mais longas ou penalidades (no caso do random).  \n\nOs padrões apontam que a **van‑01** permaneceu ociosa (custo fixo de **R$ 200,00** por dia), o **carro‑01** está com **99,8 %** da capacidade de volume e a **moto‑02** com **98,3 %**, indicando uso próximo ao limite. As rotas estão desbalanceadas: a rota do **carro‑02** dura **291 min**, enquanto a da **moto‑02** dura **181 min**.\n\n## Recomendações  \n- **Redistribuir carga** entre carro‑01 e moto‑02 para reduzir a ocupação de volume (atualmente 99,8 % e 98,3 %). Isso diminui risco de sobrecarga e permite margem para variações de demanda.  \n- **Rebalancear as rotas** de modo que a duração da maior rota (carro‑02) seja aproximada das demais, reduzindo o tempo ocioso dos veículos e melhorando a eficiência da frota.  \n- **Avaliar a inclusão da van‑01** em cenários de maior volume ou número de entregas refrigeradas, verificando se o custo fixo de **R$ 200,00** compensa a redução de veículos menores e o balanceamento de rotas.  \n- **Manter o algoritmo ga_pmx** como referência operacional, pois apresenta o menor custo generalizado e a melhor combinação de distância e tempo entre as opções testadas.  \n- **Monitorar continuamente as métricas de ocupação** e a distribuição de prioridades para ajustar rapidamente a frota em caso de mudanças no mix de entregas críticas ou refrigeradas."
+    "resposta": "## Resumo executivo  \nNo dia analisado foram realizadas 40 entregas (6 críticas, 10 altas e 24 normais), atendendo 100 % da demanda sem violar restrições. O plano adotado (algoritmo **ga_pmx**, semente 73) utilizou 4 veículos (2 carros e 2 motos) e gerou custo generalizado de **R$ 1.045,05**, com custo operacional de **R$ 607,06** e custo de prioridade de **R$ 437,99**. A distância total percorrida foi de **215,1 km**, com duração total de **905 min** e a maior rota durando **291 min**.\n\n## Eficiência e economia  \nComparado às alternativas, o plano adotado apresenta:\n\n* **ga_hibrido** – custo generalizado **R$ 13,48 menor (1,3 %)**, porém custo operacional **R$ 3,09 maior (0,5 %)**, distância **6,6 km maior (3,2 %)** e maior rota **33 min mais curta**.  \n* **ga_puro** – custo generalizado **R$ 197,91 menor (15,9 %)**, custo operacional **R$ 74,52 menor (10,9 %)**, distância **41,0 km menor (16,0 %)** e maior rota **161 min mais curta**.  \n* **nearest_neighbor_two_opt**, **savings**, **nearest_neighbor** e **random** apresentam diferenças ainda maiores, sempre favorecendo o plano adotado em custo e tempo.\n\nOs indicadores de ocupação mostram que o **carro‑01** está com **99,8 %** da capacidade de volume e a **moto‑02** com **98,3 %**, indicando uso próximo ao limite. As rotas estão desbalanceadas: **carro‑02** leva **291 min**, enquanto **moto‑02** leva **181 min**. A van‑01 permaneceu ociosa, evitando o custo fixo diário de **R$ 200,00**.\n\n## Recomendações\n- **Reavaliar a necessidade da van‑01**: ativá‑la somente quando a soma de volumes superar a capacidade combinada dos carros e motos, evitando o custo fixo de R$ 200,00 sem ganho de eficiência.  \n- **Redistribuir carga do carro‑01** para reduzir a ocupação de volume (99,8 %) e evitar risco de sobrecarga, transferindo itens menos volumosos para a moto‑02 ou para o carro‑02.  \n- **Balancear as rotas** entre carro‑02 e moto‑02, ajustando sequências de entregas para aproximar a duração das rotas (ex.: reduzir a diferença de 110 min).  \n- **Monitorar a ocupação das motos** (especialmente moto‑02) para prevenir excedentes de volume que possam gerar atrasos ou necessidade de replanejamento.  \n- **Optimizar o número de veículos**: analisar se a mesma cobertura pode ser mantida com 3 veículos, reduzindo o custo operacional por entrega abaixo de R$ 15,18."
   },
   {
     "tarefa": "relatorio",
@@ -100,16 +106,16 @@
       "secoes": true,
       "recomendacoes_3_a_5": true,
       "numeros_com_fonte": false,
-      "tamanho_200_a_350": false
+      "tamanho_200_a_350": true
     },
     "numeros_sem_fonte": [
-      "30"
+      "99"
     ],
-    "palavras": 427,
-    "segundos": 3.3198054999811575,
-    "espera_limite_s": 35.0,
+    "palavras": 347,
+    "segundos": 3.1024640999967232,
+    "espera_limite_s": 31.0,
     "tentativas": 1,
-    "resposta": "## Resumo executivo  \nNo dia típico analisado foram realizadas 40 entregas (6 críticas, 10 altas e 24 normais), atendendo 100 % da demanda sem violar restrições. O plano adotado (algoritmo **ga_pmx**, semente 73) utilizou 4 veículos (2 carros, 2 motos) e gerou custo generalizado de **R$ 1.045,05**, custo operacional de **R$ 607,06** e custo de prioridade de **R$ 437,99**. A distância total percorrida foi de **215,1 km** e a duração acumulada de **905 min**, com a maior rota em **291 min**.  \n\n## Eficiência e economia  \nComparado às alternativas, o plano adotado apresenta:\n\n- **custo generalizado** R$ 13,48 menor (1,3 %) que o *ga_hibrido*; R$ 197,91 menor (15,9 %) que o *ga_puro*; R$ 218,18 menor (17,3 %) que o *nearest_neighbor_two_opt*; R$ 273,09 menor (20,7 %) que o *savings*; R$ 387,04 menor (27,0 %) que o *nearest_neighbor*; R$ 1.771,74 menor (62,9 %) que o *random*.  \n- **custo operacional** ligeiramente maior que o *ga_hibrido* (+R$ 3,09, 0,5 %) mas significativamente menor que as demais alternativas (até R$ 851,32 menor que o *random*).  \n- **distância** 6,6 km maior (3,2 %) que o *ga_hibrido*, porém 41,0 km menor (16,0 %) que o *ga_puro* e 20,1 km menor (8,5 %) que o *nearest_neighbor_two_opt*.  \n- **maior rota** 33 min menor que o *ga_hibrido* e até 161 min menor que o *ga_puro*.\n\nOs veículos **carro‑01** e **moto‑02** operam próximos ao limite de volume (99,8 % e 98,3 %, respectivamente), indicando risco de sobrecarga. As rotas estão desbalanceadas: **carro‑02** leva 291 min, enquanto **moto‑02** leva 181 min.  \n\nNa projeção semanal (5 dias úteis, mesma demanda), estima‑se um total de **200 entregas**, custo operacional de **R$ 3.035,30**, custo generalizado de **R$ 5.225,25** e distância percorrida de **1.075,5 km**. As economias em relação às alternativas variam de R$ 67,40 (ga_hibrido) a R$ 8.858,70 (random).\n\n## Recomendações\n- Monitorar a ocupação de volume de **carro‑01** e **moto‑02**, ajustando a alocação de itens para evitar ultrapassar 100 % da capacidade.  \n- Avaliar a inclusão pontual da **van‑01** (custo fixo de R$ 200,00/dia) em dias de pico ou para consolidar entregas de volume elevado, reduzindo o risco de sobrecarga nos veículos menores.  \n- Rebalancear as rotas, redistribuindo paradas entre **carro‑02** e **moto‑02**, a fim de aproximar as durações (ex.: reduzir a rota de carro‑02 em ~30 min).  \n- Considerar a adoção do algoritmo **ga_hibrido** para reduzir ligeiramente o custo operacional, já que apresenta custo geral apenas R$ 3,09 menor que o plano atual com mesma frota.  \n- Implementar um controle periódico de indicadores de ocupação e tempo de rota para detectar desvios e ajustar o plano antes que impactem a eficiência."
+    "resposta": "## Resumo executivo  \nNo dia analisado foram realizadas 40 entregas (6 críticas, 10 de alta prioridade, 24 normais e 4 refrigeradas) utilizando 4 veículos (2 carros e 2 motos). O plano adotado (algoritmo **ga_pmx**) gerou custo generalizado de **R$ 1.045,05**, custo operacional de **R$ 607,06**, custo de prioridade de **R$ 437,99** e percorreu **215,1 km** em **905 min**, com a maior rota durando **291 min**. Não houve violações de restrição.  \n\nA projeção semanal, assumindo a mesma demanda e o mesmo plano nos 5 dias úteis, estima **200 entregas**, custo operacional total de **R$ 3.035,30**, custo generalizado total de **R$ 5.225,25** e distância acumulada de **1.075,5 km**.\n\n## Eficiência e economia  \nComparado às alternativas, o plano adotado apresenta o menor custo generalizado em todas as opções, destacando‑se frente ao algoritmo **random** com **R$ 1.771,74** a menos (‑62,9%). O custo operacional é ligeiramente maior que o **ga_hibrido** (+R$ 3,09, +0,5%) e menor que as demais alternativas, enquanto a distância percorrida é **6,6 km** a mais que o **ga_hibrido** (+3,2%) mas inferior às demais. A maior rota é **33 min** mais curta que a do **ga_hibrido**, **161 min** mais curta que a do **ga_puro** e **56 min** mais curta que a do **nearest_neighbor_two_opt**.  \n\nNos detalhes das rotas, o **carro‑01** opera com **99,8 %** da capacidade de volume, próximo ao limite, e a **moto‑02** com **98,3 %**. As rotas estão desbalanceadas: o **carro‑02** leva **291 min**, enquanto a **moto‑02** leva **181 min**.\n\n## Recomendações\n- **Reavaliar a ativação da van‑01** (custo fixo diário de R$ 200,00) para redistribuir carga e reduzir a ocupação de volume próximo ao limite nos veículos carro‑01 e moto‑02.  \n- **Rebalancear as rotas**, redistribuindo entregas entre carro‑02 e moto‑02, a fim de aproximar os tempos de percurso e evitar sobrecarga de uma única rota.  \n- **Monitorar continuamente a ocupação de volume** (≥ 99 %) e, se necessário, ajustar a alocação de itens ou considerar veículos adicionais com maior capacidade de volume.  \n- **Manter o algoritmo ga_pmx** como padrão, pois demonstra o melhor desempenho global em custo generalizado e tempo de maior rota, superando todas as alternativas testadas."
   },
   {
     "tarefa": "qa",
@@ -124,10 +130,10 @@
     },
     "numeros_sem_fonte": [],
     "palavras": 13,
-    "segundos": 0.8700677999877371,
-    "espera_limite_s": 32.0,
+    "segundos": 0.9612618000246584,
+    "espera_limite_s": 31.0,
     "tentativas": 1,
-    "resposta": "O veículo **moto-01** entrega no **Domicílio 10**, na **posição 3** da sua rota."
+    "resposta": "O veículo **moto-01** entrega no **Domicílio 10**, na **posição 3** da sua rota."
   },
   {
     "tarefa": "qa",
@@ -141,11 +147,11 @@
       "ate_150_palavras": true
     },
     "numeros_sem_fonte": [],
-    "palavras": 23,
-    "segundos": 0.9143462000065483,
-    "espera_limite_s": 26.0,
+    "palavras": 18,
+    "segundos": 0.9715758999809623,
+    "espera_limite_s": 25.0,
     "tentativas": 1,
-    "resposta": "A entrega **entrega-06** está na rota do **carro-01** (ordem 11) e corresponde ao **Hospital Auxiliar de Cotoxó**. O peso registrado é **8,1 kg**."
+    "resposta": "A entrega‑06 está na rota do **carro‑01** (ordem 11), com destino **Hospital Auxiliar de Cotoxó**.  \nPeso: **8,1 kg**."
   },
   {
     "tarefa": "qa",
@@ -160,10 +166,10 @@
     },
     "numeros_sem_fonte": [],
     "palavras": 33,
-    "segundos": 1.3936559000285342,
-    "espera_limite_s": 0.0,
+    "segundos": 1.8423014999134466,
+    "espera_limite_s": 26.0,
     "tentativas": 1,
-    "resposta": "- **carro-01**: 2 entregas críticas (Instituto Central (ICHC) e InCor)  \n- **moto-01**: 2 entregas críticas (Domicílio 27 e Domicílio 10)  \n- **carro-02**: 1 entrega crítica (HU‑USP)  \n- **moto-02**: 1 entrega crítica (Domicílio 25)"
+    "resposta": "- **carro-01**: 2 entregas críticas (Instituto Central (ICHC) e InCor).  \n- **moto-01**: 2 entregas críticas (Domicílio 27 e Domicílio 10).  \n- **carro-02**: 1 entrega crítica (HU‑USP).  \n- **moto-02**: 1 entrega crítica (Domicílio 25)."
   },
   {
     "tarefa": "qa",
@@ -178,8 +184,8 @@
     },
     "numeros_sem_fonte": [],
     "palavras": 9,
-    "segundos": 0.7681894999695942,
-    "espera_limite_s": 25.0,
+    "segundos": 0.9213887999067083,
+    "espera_limite_s": 24.0,
     "tentativas": 1,
     "resposta": "O custo operacional total do plano é **R$ 607,06**."
   },
@@ -196,8 +202,8 @@
     },
     "numeros_sem_fonte": [],
     "palavras": 12,
-    "segundos": 0.7642923000385053,
-    "espera_limite_s": 2.0,
+    "segundos": 0.9713973000179976,
+    "espera_limite_s": 25.0,
     "tentativas": 1,
     "resposta": "O veículo que percorre a maior distância é **carro-02**, com **57,5 km**."
   },
@@ -213,11 +219,11 @@
       "ate_150_palavras": true
     },
     "numeros_sem_fonte": [],
-    "palavras": 59,
-    "segundos": 1.096005100000184,
-    "espera_limite_s": 24.0,
+    "palavras": 77,
+    "segundos": 1.1021065999520943,
+    "espera_limite_s": 30.0,
     "tentativas": 1,
-    "resposta": "O custo generalizado (R$ 1.045,05) inclui o custo operacional (R$ 607,06) **mais** o custo de prioridade (R$ 437,99) e as penalidades (R$ 0,00).  \nO custo de prioridade representa o tempo de espera das entregas, com peso maior para as entregas críticas e altas. Como esse valor (R$ 437,99) é somado ao custo operacional, o total (custo generalizado) fica maior."
+    "resposta": "O custo generalizado (R$ 1.045,05) inclui:\n\n- **Custo operacional**: R$ 607,06 (fixo dos veículos + km rodados).  \n- **Custo de prioridade**: R$ 437,99, que corresponde ao tempo de espera das entregas, com peso maior para as críticas.  \n- **Penalidades**: R$ 0,00 (nenhuma restrição violada).\n\nAssim, o valor maior do custo generalizado deve‑se à soma do custo operacional com o custo de prioridade, que reflete a penalização pelo tempo de espera das entregas, especialmente as de prioridade crítica."
   },
   {
     "tarefa": "qa",
@@ -232,10 +238,10 @@
     },
     "numeros_sem_fonte": [],
     "palavras": 15,
-    "segundos": 0.9461911999969743,
-    "espera_limite_s": 9.0,
+    "segundos": 0.8797501000808552,
+    "espera_limite_s": 26.0,
     "tentativas": 1,
-    "resposta": "A hora de chegada do veículo **carro-01** na última parada não está informada no plano."
+    "resposta": "A hora de chegada na última parada do veículo **carro-01** não está disponível no plano."
   },
   {
     "tarefa": "qa",
@@ -250,7 +256,7 @@
     },
     "numeros_sem_fonte": [],
     "palavras": 7,
-    "segundos": 1.0949664000072517,
+    "segundos": 0.9573399999644607,
     "espera_limite_s": 25.0,
     "tentativas": 1,
     "resposta": "Essa informação não está disponível no plano."
@@ -268,7 +274,7 @@
     },
     "numeros_sem_fonte": [],
     "palavras": 11,
-    "segundos": 0.5512299999827519,
+    "segundos": 0.7551635999698192,
     "espera_limite_s": 25.0,
     "tentativas": 1,
     "resposta": "Só posso responder perguntas sobre as rotas e entregas deste plano."
@@ -286,8 +292,8 @@
     },
     "numeros_sem_fonte": [],
     "palavras": 11,
-    "segundos": 1.0430730999796651,
-    "espera_limite_s": 12.0,
+    "segundos": 0.6258573000086471,
+    "espera_limite_s": 25.0,
     "tentativas": 1,
     "resposta": "Só posso responder perguntas sobre as rotas e entregas deste plano."
   },
@@ -299,15 +305,16 @@
     "aprovado": true,
     "criterios": {
       "ordem_das_paradas": true,
+      "horarios": true,
       "numeros_com_fonte": true,
       "alertas_citados": true
     },
     "numeros_sem_fonte": [],
-    "palavras": 190,
-    "segundos": 4.187749200034887,
+    "palavras": 254,
+    "segundos": 5.990502699976787,
     "espera_limite_s": 0.0,
     "tentativas": 1,
-    "resposta": "### Rota carro-01 (carro)\nSaída do depósito Farmácia Central HC-FMUSP. Serão 11 paradas, com uma distância total de 49,6 km e duração estimada de 234 minutos. A carga total é de 95,6 kg.\n\n**Atenção**\n- Parada 1 (Instituto Central (ICHC)): entrega CRÍTICA, prazo de 300 min após a saída.\n- Parada 2 (InCor): entrega CRÍTICA, prazo de 240 min após a saída.\n- Parada 9 (Domicílio 01): carga REFRIGERADA.\n\n**Paradas**\n1. Instituto Central (ICHC) — crítica, 17,0 kg / 96,2 l\n2. InCor — crítica, 6,6 kg / 46,1 l\n3. ICESP — normal, 32,0 kg / 104,6 l\n4. Domicílio 07 — alta, 2,6 kg / 8,4 l\n5. Domicílio 23 — normal, 2,7 kg / 8,0 l\n6. Domicílio 26 — normal, 1,2 kg / 3,2 l\n7. Domicílio 14 — alta, 1,2 kg / 10,3 l\n8. Domicílio 05 — alta, 2,3 kg / 10,9 l\n9. Domicílio 01 — normal, 2,9 kg / 11,0 l\n10. IMREA Lapa — normal, 19,0 kg / 85,6 l\n11. Hospital Auxiliar de Cotoxó — normal, 8,1 kg / 14,8 l\n\n**Retorno:** volte ao depósito Farmácia Central HC-FMUSP ao final."
+    "resposta": "### Rota carro-01 (carro)\nSaída do depósito Farmácia Central HC-FMUSP às 07:00. Serão 11 paradas, com uma distância total de 49,6 km e duração estimada de 234 minutos. Carga total de 95,6 kg.\n\n**Atenção**\n- Parada 1 (Instituto Central (ICHC)): entrega CRÍTICA, prazo de 300 min após a saída (até 12:00)\n- Parada 2 (InCor): entrega CRÍTICA, prazo de 240 min após a saída (até 11:00)\n- Parada 9 (Domicílio 01): carga REFRIGERADA\n\n**Paradas**\n1. Instituto Central (ICHC) — chegada prevista às 07:00 — crítica, 17,0 kg / 96,2 l\n2. InCor — chegada prevista às 07:10 — crítica, 6,6 kg / 46,1 l\n3. ICESP — chegada prevista às 07:21 — normal, 32,0 kg / 104,6 l\n4. Domicílio 07 — chegada prevista às 07:40 — alta, 2,6 kg / 8,4 l\n5. Domicílio 23 — chegada prevista às 07:57 — normal, 2,7 kg / 8,0 l\n6. Domicílio 26 — chegada prevista às 08:27 — normal, 1,2 kg / 3,2 l\n7. Domicílio 14 — chegada prevista às 09:02 — alta, 1,2 kg / 10,3 l\n8. Domicílio 05 — chegada prevista às 09:28 — alta, 2,3 kg / 10,9 l\n9. Domicílio 01 — chegada prevista às 09:44 — normal, 2,9 kg / 11,0 l\n10. IMREA Lapa — chegada prevista às 10:20 — normal, 19,0 kg / 85,6 l\n11. Hospital Auxiliar de Cotoxó — chegada prevista às 10:35 — normal, 8,1 kg / 14,8 l\n\n**Retorno:** volte ao depósito Farmácia Central HC-FMUSP ao final, com chegada prevista às 10:54."
   },
   {
     "tarefa": "instrucoes",
@@ -317,15 +324,16 @@
     "aprovado": true,
     "criterios": {
       "ordem_das_paradas": true,
+      "horarios": true,
       "numeros_com_fonte": true,
       "alertas_citados": true
     },
     "numeros_sem_fonte": [],
-    "palavras": 151,
-    "segundos": 3.106635299976915,
+    "palavras": 200,
+    "segundos": 3.807769599952735,
     "espera_limite_s": 0.0,
     "tentativas": 1,
-    "resposta": "### Rota moto-01 (moto)\nSaia da Farmácia Central HC-FMUSP. Serão 8 paradas, com uma distância total de 54,1 km e duração estimada de 199 minutos. A carga total é de 13,4 kg.\n\n**Atenção**\n- Parada 1 (Domicílio 27): entrega CRÍTICA, prazo de 240 min após a saída.\n- Parada 3 (Domicílio 10): entrega CRÍTICA, prazo de 120 min após a saída.\n\n**Paradas**\n1. Domicílio 27 — crítica, 1,8 kg / 5,5 l\n2. Domicílio 17 — alta, 1,1 kg / 2,6 l\n3. Domicílio 10 — crítica, 1,9 kg / 3,7 l\n4. Domicílio 21 — normal, 0,8 kg / 5,6 l\n5. Domicílio 04 — alta, 1,0 kg / 6,5 l\n6. Domicílio 12 — normal, 1,2 kg / 3,5 l\n7. Domicílio 02 — alta, 2,1 kg / 2,5 l\n8. Domicílio 24 — normal, 3,5 kg / 2,2 l\n\n**Retorno:** volte ao depósito Farmácia Central HC-FMUSP ao final."
+    "resposta": "### Rota moto-01 (moto)\nSaída do depósito Farmácia Central HC-FMUSP às 07:00. Serão 8 paradas, com distância total de 54,1 km e duração estimada de 199 minutos. Carga total de 13,4 kg.\n\n**Atenção**\n- Parada 1 (Domicílio 27): entrega CRÍTICA, prazo de 240 min após a saída (até 11:00)\n- Parada 3 (Domicílio 10): entrega CRÍTICA, prazo de 120 min após a saída (até 09:00)\n\n**Paradas**\n1. Domicílio 27 — chegada prevista às 07:24 — crítica, 1,8 kg / 5,5 l\n2. Domicílio 17 — chegada prevista às 07:46 — alta, 1,1 kg / 2,6 l\n3. Domicílio 10 — chegada prevista às 08:07 — crítica, 1,9 kg / 3,7 l\n4. Domicílio 21 — chegada prevista às 08:28 — normal, 0,8 kg / 5,6 l\n5. Domicílio 04 — chegada prevista às 08:50 — alta, 1,0 kg / 6,5 l\n6. Domicílio 12 — chegada prevista às 09:22 — normal, 1,2 kg / 3,5 l\n7. Domicílio 02 — chegada prevista às 09:40 — alta, 2,1 kg / 2,5 l\n8. Domicílio 24 — chegada prevista às 09:58 — normal, 3,5 kg / 2,2 l\n\n**Retorno:** volte ao depósito Farmácia Central HC-FMUSP ao final, com chegada prevista às 10:19."
   },
   {
     "tarefa": "instrucoes",
@@ -335,15 +343,16 @@
     "aprovado": true,
     "criterios": {
       "ordem_das_paradas": true,
+      "horarios": true,
       "numeros_com_fonte": true,
       "alertas_citados": true
     },
     "numeros_sem_fonte": [],
-    "palavras": 232,
-    "segundos": 4.6632548999623396,
+    "palavras": 318,
+    "segundos": 6.202822900027968,
     "espera_limite_s": 0.0,
     "tentativas": 1,
-    "resposta": "### Rota carro-02 (carro)\nSaia da Farmácia Central HC-FMUSP. Serão 15 paradas, com uma distância total de 57,5 km e duração estimada de 291 minutos. A carga total é de 98,8 kg.\n\n**Atenção**\n- Parada 3 (Domicílio 29): carga REFRIGERADA\n- Parada 4 (HU-USP): entrega CRÍTICA, prazo de 180 min após a saída\n- Parada 4 (HU-USP): carga REFRIGERADA\n- Parada 13 (Domicílio 18): carga REFRIGERADA\n\n**Paradas**\n1. Instituto de Radiologia (InRad) — normal, 39,6 kg / 85,0 l\n2. Instituto da Criança (ICr) — normal, 3,3 kg / 35,8 l\n3. Domicílio 29 — alta, 0,7 kg / 9,3 l, refrigerado\n4. HU-USP — crítica, 13,4 kg / 64,1 l, refrigerado\n5. Domicílio 16 — normal, 1,2 kg / 7,9 l\n6. Domicílio 11 — normal, 1,5 kg / 7,1 l\n7. Domicílio 03 — normal, 2,5 kg / 10,7 l\n8. Domicílio 28 — normal, 1,9 kg / 10,0 l\n9. Domicílio 19 — normal, 1,9 kg / 9,1 l\n10. Domicílio 15 — normal, 3,1 kg / 2,0 l\n11. Domicílio 20 — alta, 2,9 kg / 3,2 l\n12. Domicílio 08 — normal, 1,7 kg / 8,0 l\n13. Domicílio 18 — normal, 3,3 kg / 7,0 l, refrigerado\n14. IPq HC-FMUSP — normal, 8,4 kg / 25,1 l\n15. IOT HC-FMUSP — normal, 13,4 kg / 67,0 l\n\n**Retorno:** volte ao depósito Farmácia Central HC-FMUSP ao final."
+    "resposta": "### Rota carro-02 (carro)\nSaída do depósito Farmácia Central HC-FMUSP às 07:00. São 15 paradas, com uma distância total de 57,5 km e duração estimada de 291 minutos. Carga total de 98,8 kg.\n\n**Atenção**\n- Parada 3 (Domicílio 29): carga REFRIGERADA\n- Parada 4 (HU-USP): entrega CRÍTICA, prazo de 180 min após a saída (até 10:00)\n- Parada 4 (HU-USP): carga REFRIGERADA\n- Parada 13 (Domicílio 18): carga REFRIGERADA\n\n**Paradas**\n1. Instituto de Radiologia (InRad) — chegada prevista às 07:01 — normal, 39,6 kg / 85,0 l\n2. Instituto da Criança (ICr) — chegada prevista às 07:12 — normal, 3,3 kg / 35,8 l\n3. Domicílio 29 — chegada prevista às 07:45 — alta, 0,7 kg / 9,3 l, carga refrigerada\n4. HU-USP — chegada prevista às 07:59 — crítica, 13,4 kg / 64,1 l, carga refrigerada\n5. Domicílio 16 — chegada prevista às 08:33 — normal, 1,2 kg / 7,9 l\n6. Domicílio 11 — chegada prevista às 08:53 — normal, 1,5 kg / 7,1 l\n7. Domicílio 03 — chegada prevista às 09:09 — normal, 2,5 kg / 10,7 l\n8. Domicílio 28 — chegada prevista às 09:33 — normal, 1,9 kg / 10,0 l\n9. Domicílio 19 — chegada prevista às 09:48 — normal, 1,9 kg / 9,1 l\n10. Domicílio 15 — chegada prevista às 10:02 — normal, 3,1 kg / 2,0 l\n11. Domicílio 20 — chegada prevista às 10:18 — alta, 2,9 kg / 3,2 l\n12. Domicílio 08 — chegada prevista às 10:37 — normal, 1,7 kg / 8,0 l\n13. Domicílio 18 — chegada prevista às 10:55 — normal, 3,3 kg / 7,0 l, carga refrigerada\n14. IPq HC-FMUSP — chegada prevista às 11:30 — normal, 8,4 kg / 25,1 l\n15. IOT HC-FMUSP — chegada prevista às 11:41 — normal, 13,4 kg / 67,0 l\n\n**Retorno:** volte ao depósito Farmácia Central HC-FMUSP ao final, com chegada prevista às 11:51."
   },
   {
     "tarefa": "instrucoes",
@@ -353,15 +362,16 @@
     "aprovado": true,
     "criterios": {
       "ordem_das_paradas": true,
+      "horarios": true,
       "numeros_com_fonte": true,
       "alertas_citados": true
     },
     "numeros_sem_fonte": [],
-    "palavras": 117,
-    "segundos": 2.650254699983634,
+    "palavras": 154,
+    "segundos": 3.809038299950771,
     "espera_limite_s": 0.0,
     "tentativas": 1,
-    "resposta": "### Rota moto-02 (moto)\nSaia da Farmácia Central HC-FMUSP. Serão 6 paradas, com uma distância total de 54,0 km e duração estimada de 181 minutos. A carga total é de 12,2 kg.\n\n**Atenção**\n- Parada 3 (Domicílio 25): entrega CRÍTICA, prazo de 120 min após a saída.\n\n**Paradas**\n1. Domicílio 09 — alta, 1,6 kg / 10,2 l\n2. Domicílio 06 — normal, 3,3 kg / 8,8 l\n3. Domicílio 25 — crítica, 1,7 kg / 4,6 l\n4. Domicílio 13 — alta, 0,7 kg / 7,6 l\n5. Domicílio 22 — normal, 1,8 kg / 5,9 l\n6. Domicílio 30 — normal, 3,1 kg / 2,2 l\n\n**Retorno:** volte ao depósito Farmácia Central HC-FMUSP ao final."
+    "resposta": "### Rota moto-02 (moto)\nSaída do depósito Farmácia Central HC-FMUSP às 07:00. Serão 6 paradas, com distância total de 54,0 km e duração estimada de 181 minutos. Carga total de 12,2 kg.\n\n**Atenção**\n- Parada 3 (Domicílio 25): entrega CRÍTICA, prazo de 120 min após a saída (até 09:00)\n\n**Paradas**\n1. Domicílio 09 — chegada prevista às 07:22 — alta, 1,6 kg / 10,2 l\n2. Domicílio 06 — chegada prevista às 07:43 — normal, 3,3 kg / 8,8 l\n3. Domicílio 25 — chegada prevista às 08:22 — crítica, 1,7 kg / 4,6 l\n4. Domicílio 13 — chegada prevista às 08:43 — alta, 0,7 kg / 7,6 l\n5. Domicílio 22 — chegada prevista às 09:19 — normal, 1,8 kg / 5,9 l\n6. Domicílio 30 — chegada prevista às 09:37 — normal, 3,1 kg / 2,2 l\n\n**Retorno:** volte ao depósito Farmácia Central HC-FMUSP ao final, com chegada prevista às 10:01."
   },
   {
     "tarefa": "relatorio",
@@ -376,11 +386,11 @@
       "tamanho_200_a_350": true
     },
     "numeros_sem_fonte": [],
-    "palavras": 312,
-    "segundos": 4.20748799998546,
+    "palavras": 302,
+    "segundos": 4.4373080000514165,
     "espera_limite_s": 0.0,
     "tentativas": 1,
-    "resposta": "## Resumo executivo\nNo dia em análise, foram realizadas 40 entregas pela Farmácia Central HC-FMUSP, utilizando um total de 4 veículos disponíveis. O plano adotado, baseado no algoritmo \"ga_pmx\", apresentou um custo generalizado de R$ 1.045,05, com uma distância total percorrida de 215,1 km e uma duração total de 905 minutos. Todas as entregas foram atendidas sem violações de restrições.\n\n## Eficiência e economia\nO custo operacional por entrega foi de R$ 15,18. A análise das rotas revela que o carro-01 operou com 99,8% da capacidade de volume, enquanto a moto-02 também se aproximou do limite de volume, com 98,3%. Observou-se que as rotas estão desbalanceadas, com o carro-02 levando 291 minutos e a moto-02 apenas 181 minutos. Comparando com as alternativas, o plano adotado se destacou por ter um custo generalizado R$ 13,48 menor que o \"ga_hibrido\" e R$ 197,91 menor que o \"ga_puro\", além de apresentar a maior rota 161 minutos mais curta em relação a este último.\n\n## Recomendações\n- **Aproveitar a van disponível**: Considerar a utilização da van-01 para otimizar a capacidade de carga e reduzir o custo fixo diário, que atualmente não está sendo utilizado.\n- **Rebalancear as rotas**: Analisar as rotas do carro-02 e da moto-02 para equilibrar os tempos de entrega, visando aumentar a eficiência e reduzir o tempo total de operação.\n- **Monitorar a capacidade dos veículos**: Avaliar a utilização dos veículos que estão próximos do limite de capacidade, como o carro-01 e a moto-02, para evitar possíveis penalidades e garantir entregas eficientes.\n- **Revisar o algoritmo de roteirização**: Considerar a implementação de algoritmos alternativos, como o \"ga_hibrido\", que apresentou um custo operacional menor, para verificar se há melhorias adicionais na eficiência das entregas.\n- **Analisar a distribuição das entregas por prioridade**: Focar na otimização das entregas críticas, que representam 15% do total, para garantir que sejam atendidas de forma mais ágil e eficiente."
+    "resposta": "## Resumo executivo\nNo dia analisado, foram realizadas 40 entregas pela Farmácia Central HC-FMUSP, utilizando um total de 4 veículos disponíveis. O plano de rotas adotado, baseado no algoritmo \"ga_pmx\", apresentou um custo generalizado de R$ 1.045,05, com uma distância total percorrida de 215,1 km e uma duração total de 905 minutos. As entregas foram distribuídas entre diferentes prioridades, com 6 entregas críticas, 10 altas e 24 normais, sem penalidades registradas.\n\n## Eficiência e economia\nO plano adotado demonstrou eficiência em comparação com as alternativas analisadas. O custo generalizado foi R$ 13,48 menor que o método \"ga_hibrido\" e R$ 197,91 menor que o \"ga_puro\". Além disso, a maior rota do plano adotado foi 161 minutos mais curta que a do \"ga_puro\". A ocupação dos veículos foi alta, com o carro-01 e a moto-02 próximos de suas capacidades máximas de volume, indicando um uso eficiente da frota.\n\n## Recomendações\n- **Utilizar a van disponível**: Considerar a ativação da van-01 para aumentar a capacidade de transporte e reduzir a carga dos veículos já utilizados, evitando sobrecarga e possíveis atrasos.\n- **Revisar a distribuição das entregas**: Ajustar as rotas para equilibrar o tempo de entrega entre os veículos, especialmente entre o carro-02 e a moto-02, que apresentam uma diferença significativa de duração nas rotas.\n- **Monitorar a ocupação dos veículos**: Continuar a acompanhar a ocupação percentual dos veículos, especialmente do carro-01 e da moto-02, para garantir que não excedam suas capacidades, evitando riscos de penalidades futuras.\n- **Analisar alternativas de roteirização**: Embora o plano atual tenha se mostrado eficiente, recomenda-se revisar periodicamente as alternativas, como \"ga_hibrido\" e \"ga_puro\", para identificar oportunidades de melhoria contínua.\n- **Avaliar a necessidade de entregas refrigeradas**: Considerar a possibilidade de otimizar as entregas refrigeradas, garantindo que a frota esteja adequada para atender a demanda específica sem comprometer a eficiência geral."
   },
   {
     "tarefa": "relatorio",
@@ -395,11 +405,11 @@
       "tamanho_200_a_350": true
     },
     "numeros_sem_fonte": [],
-    "palavras": 308,
-    "segundos": 3.713373099977616,
+    "palavras": 339,
+    "segundos": 4.282527900068089,
     "espera_limite_s": 0.0,
     "tentativas": 1,
-    "resposta": "## Resumo executivo\nNo período analisado, a Farmácia Central realizou 40 entregas diárias, totalizando 200 entregas na semana. O plano de rotas adotado, utilizando o algoritmo \"ga_pmx\", apresentou um custo generalizado de R$ 1.045,05, com uma distância total de 215,1 km e uma duração total de 905 minutos. O plano não apresentou violações de restrições e utilizou 4 dos 5 veículos disponíveis.\n\n## Eficiência e economia\nO custo operacional por entrega foi de R$ 15,18. Comparando com as alternativas, o plano adotado se mostrou competitivo, apresentando um custo generalizado R$ 13,48 menor que o \"ga_hibrido\" e R$ 197,91 menor que o \"ga_puro\". A maior rota do plano adotado foi 33 minutos mais curta em relação ao \"ga_hibrido\". Contudo, observou-se que o carro-01 e a moto-02 estão próximos do limite de capacidade de volume, com 99,8% e 98,3%, respectivamente. Além disso, a rota do carro-02, com 291 minutos, é significativamente mais longa que a da moto-02, que leva 181 minutos.\n\n## Recomendações\n- **Aproveitar a van disponível**: Considerar o acionamento da van-01 para otimizar a capacidade de carga e reduzir o custo fixo diário, melhorando a eficiência das entregas.\n- **Revisar a distribuição das entregas**: Balancear as rotas para evitar que veículos como o carro-02 realizem entregas muito longas, o que pode aumentar o tempo total de entrega e o custo.\n- **Monitorar a capacidade dos veículos**: Avaliar a utilização dos veículos para garantir que não estejam operando próximos ao limite de capacidade, evitando possíveis penalidades e aumentando a eficiência.\n- **Analisar alternativas de roteirização**: Testar o algoritmo \"ga_hibrido\" em um dia de operação para verificar se a leve economia de custo generalizado se traduz em melhorias na eficiência operacional.\n- **Implementar um sistema de feedback**: Criar um mecanismo para coletar dados sobre o desempenho das rotas e veículos, permitindo ajustes dinâmicos e melhorando continuamente a logística de entregas."
+    "resposta": "## Resumo executivo\nNo período analisado, foram realizadas 40 entregas diárias pela Farmácia Central HC-FMUSP, totalizando 200 entregas na semana. O plano de rotas adotado, utilizando o algoritmo \"ga_pmx\", apresentou um custo generalizado de R$ 1.045,05, com uma distância total de 215,1 km e uma duração total de 905 minutos. O plano não apresentou violações de restrições e utilizou 4 veículos disponíveis, com um custo operacional por entrega de R$ 15,18.\n\n## Eficiência e economia\nA análise das alternativas de roteirização revelou que o plano adotado é mais eficiente em termos de custo generalizado em comparação com as opções \"ga_hibrido\", \"ga_puro\", \"nearest_neighbor_two_opt\", \"savings\", \"nearest_neighbor\" e \"random\", com economias que variam de R$ 13,48 a R$ 1.771,74. A maior rota do plano adotado foi 33 minutos mais curta em relação ao \"ga_hibrido\" e 161 minutos mais curta em relação ao \"ga_puro\". Contudo, o veículo carro-01 está operando com 99,8% da capacidade de volume, indicando uma utilização quase máxima, enquanto a moto-02 também apresenta alta ocupação de volume (98,3%).\n\n## Recomendações\n- **Aproveitar a van disponível**: Considerar a utilização da van-01 para aumentar a capacidade de transporte e reduzir a carga dos veículos já sobrecarregados, o que pode melhorar a eficiência das entregas.\n- **Rebalancear as rotas**: Ajustar as rotas para equilibrar o tempo de entrega entre os veículos, especialmente entre o carro-02 e a moto-02, que apresentam uma diferença significativa de duração (291 min e 181 min, respectivamente).\n- **Monitorar a capacidade dos veículos**: Avaliar a possibilidade de redistribuir as entregas entre os veículos para evitar que carro-01 e moto-02 operem em sua capacidade máxima, o que pode levar a riscos de não conformidade e atrasos.\n- **Revisar o plano de rotas**: Considerar a implementação de um dos algoritmos alternativos, como \"ga_hibrido\", que apresentou um custo operacional por entrega ligeiramente inferior, para potencialmente otimizar ainda mais os custos.\n- **Analisar a demanda semanalmente**: Continuar a monitorar as entregas semanalmente para ajustar o plano de rotas conforme as variações na demanda, garantindo que a frota esteja sempre adequada às necessidades operacionais."
   },
   {
     "tarefa": "qa",
@@ -414,10 +424,10 @@
     },
     "numeros_sem_fonte": [],
     "palavras": 19,
-    "segundos": 0.8939764000242576,
+    "segundos": 0.9434536999324337,
     "espera_limite_s": 0.0,
     "tentativas": 1,
-    "resposta": "O veículo que entrega no Domicílio 10 é a \"moto-01\" e a entrega está na posição 3 da rota."
+    "resposta": "O veículo que entrega no Domicílio 10 é a \"moto-01\", e a entrega está na posição 3 da rota."
   },
   {
     "tarefa": "qa",
@@ -432,7 +442,7 @@
     },
     "numeros_sem_fonte": [],
     "palavras": 19,
-    "segundos": 0.9169900999986567,
+    "segundos": 0.7676500999368727,
     "espera_limite_s": 0.0,
     "tentativas": 1,
     "resposta": "A entrega \"Hospital Auxiliar de Cotoxó\" (entrega-06) está na rota do veículo \"carro-01\". O peso dela é 8,1 kg."
@@ -449,11 +459,11 @@
       "ate_150_palavras": true
     },
     "numeros_sem_fonte": [],
-    "palavras": 33,
-    "segundos": 1.195011899981182,
+    "palavras": 48,
+    "segundos": 1.8964542000321671,
     "espera_limite_s": 0.0,
     "tentativas": 1,
-    "resposta": "- **carro-01**: 2 entregas críticas (Instituto Central (ICHC) e InCor).\n- **moto-01**: 2 entregas críticas (Domicílio 27 e Domicílio 10).\n- **carro-02**: 1 entrega crítica (HU-USP).\n- **moto-02**: 1 entrega crítica (Domicílio 25)."
+    "resposta": "Cada veículo realiza as seguintes entregas críticas:\n\n- **carro-01**: 2 entregas críticas (Instituto Central (ICHC) e InCor).\n- **moto-01**: 2 entregas críticas (Domicílio 27 e Domicílio 10).\n- **carro-02**: 1 entrega crítica (HU-USP).\n- **moto-02**: 1 entrega crítica (Domicílio 25).\n\nTotalizando, são 6 entregas críticas realizadas pelos veículos."
   },
   {
     "tarefa": "qa",
@@ -468,7 +478,7 @@
     },
     "numeros_sem_fonte": [],
     "palavras": 9,
-    "segundos": 0.5576767000020482,
+    "segundos": 1.2123915000120178,
     "espera_limite_s": 0.0,
     "tentativas": 1,
     "resposta": "O custo operacional total do plano é R$ 607,06."
@@ -486,7 +496,7 @@
     },
     "numeros_sem_fonte": [],
     "palavras": 16,
-    "segundos": 0.7467436000006273,
+    "segundos": 0.8608389999717474,
     "espera_limite_s": 0.0,
     "tentativas": 1,
     "resposta": "O veículo que percorre a maior distância é o \"carro-02\", com uma distância de 57,5 km."
@@ -504,10 +514,10 @@
     },
     "numeros_sem_fonte": [],
     "palavras": 75,
-    "segundos": 1.2862842999747954,
+    "segundos": 1.5180551999947056,
     "espera_limite_s": 0.0,
     "tentativas": 1,
-    "resposta": "O custo generalizado é maior que o custo operacional porque inclui não apenas o custo operacional, mas também o custo de prioridade e as penalidades. No plano, o custo operacional é R$ 607,06, enquanto o custo de prioridade, que reflete o tempo de espera das entregas, é R$ 437,99. Como não há penalidades, o custo generalizado totaliza R$ 1.045,05. Portanto, a diferença se deve ao custo de prioridade associado ao tempo de espera das entregas."
+    "resposta": "O custo generalizado é maior que o custo operacional porque inclui não apenas o custo operacional, mas também o custo de prioridade e as penalidades. No plano, o custo operacional é R$ 607,06, enquanto o custo de prioridade, que considera o tempo de espera das entregas, é R$ 437,99. Como não há penalidades, o custo generalizado totaliza R$ 1.045,05. Portanto, a diferença se deve ao custo de prioridade associado ao tempo de espera das entregas."
   },
   {
     "tarefa": "qa",
@@ -522,7 +532,7 @@
     },
     "numeros_sem_fonte": [],
     "palavras": 7,
-    "segundos": 0.659042400016915,
+    "segundos": 0.917168700019829,
     "espera_limite_s": 0.0,
     "tentativas": 1,
     "resposta": "Essa informação não está disponível no plano."
@@ -540,7 +550,7 @@
     },
     "numeros_sem_fonte": [],
     "palavras": 7,
-    "segundos": 0.5537273000227287,
+    "segundos": 0.6516272999579087,
     "espera_limite_s": 0.0,
     "tentativas": 1,
     "resposta": "Essa informação não está disponível no plano."
@@ -558,7 +568,7 @@
     },
     "numeros_sem_fonte": [],
     "palavras": 11,
-    "segundos": 0.7772035999805667,
+    "segundos": 0.7338108000112697,
     "espera_limite_s": 0.0,
     "tentativas": 1,
     "resposta": "Só posso responder perguntas sobre as rotas e entregas deste plano."
@@ -576,7 +586,7 @@
     },
     "numeros_sem_fonte": [],
     "palavras": 11,
-    "segundos": 0.6764664999791421,
+    "segundos": 0.6439913000212982,
     "espera_limite_s": 0.0,
     "tentativas": 1,
     "resposta": "Só posso responder perguntas sobre as rotas e entregas deste plano."

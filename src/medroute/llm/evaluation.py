@@ -2,8 +2,8 @@
 
 Roda os mesmos casos (instruções, relatório e Q&A) em cada provedor e confere a
 resposta CRUA da LLM, antes de qualquer nova tentativa ou texto padrão, com
-critérios determinísticos: ordem das paradas, seções, comportamento no Q&A e se
-cada número do texto existe nos dados enviados.
+critérios determinísticos: ordem das paradas e horários, seções, comportamento no
+Q&A e se cada número do texto existe nos dados enviados.
 
 Uso:
     python -m medroute.llm.evaluation --solucoes reports/comparativo-s2/solutions.json \\
@@ -23,6 +23,7 @@ from statistics import mean
 from time import perf_counter
 from typing import Any
 
+from medroute.data.fleet import FleetConfig
 from medroute.domain.models import Instance, Priority, Solution
 
 from .client import LLMClient, client_from_env
@@ -35,7 +36,7 @@ from .text import clean_text, numero_br
 
 # Critérios que decidem se o caso passou; os demais são informativos.
 ESSENCIAIS = {
-    "instrucoes": ("ordem_das_paradas", "numeros_com_fonte", "alertas_citados"),
+    "instrucoes": ("ordem_das_paradas", "horarios", "numeros_com_fonte", "alertas_citados"),
     "relatorio": ("secoes", "recomendacoes_3_a_5", "numeros_com_fonte"),
     "qa": ("comportamento", "numeros_com_fonte"),
 }
@@ -222,21 +223,24 @@ def score_instructions(resposta: str, ctx: RouteContext, nomes: Iterable[str]) -
     texto = clean_text(resposta)
     sem_fonte = ungrounded_numbers(texto, json.loads(ctx.to_prompt_json()), nomes)
     criterios = {
-        "ordem_das_paradas": is_faithful(texto, ctx),
+        "ordem_das_paradas": is_faithful(texto, ctx, horarios=False),
+        "horarios": is_faithful(texto, ctx),  # sem horários no contexto, igual à ordem
         "numeros_com_fonte": not sem_fonte,
         "alertas_citados": _alertas_citados(texto, ctx),
     }
     return criterios, sem_fonte
 
 
-def evaluate_instructions(solution: Solution, inst: Instance, client: LLMClient) -> list[Resultado]:
+def evaluate_instructions(
+    solution: Solution, inst: Instance, client: LLMClient, fleet: FleetConfig | None = None
+) -> list[Resultado]:
     rec = RecordingClient(client)
-    generate_instructions(solution, inst, rec)
+    generate_instructions(solution, inst, rec, fleet)
     prompt = load_prompt("instrucoes_motorista")
     nomes = _nomes(inst, [solution])
 
     resultados = []
-    for ctx in build_route_contexts(solution, inst):
+    for ctx in build_route_contexts(solution, inst, fleet):
         _, user = prompt.render(contexto=ctx.to_prompt_json())
         chamadas = [c for c in rec.chamadas if c.user.startswith(user)]
         criterios, sem_fonte = score_instructions(chamadas[0].resposta, ctx, nomes)
@@ -431,15 +435,19 @@ def _contem(texto: str, esperado: str | float) -> bool:
 
 
 def rescore(
-    salvos: list[dict[str, Any]], solutions: list[Solution], inst: Instance
+    salvos: list[dict[str, Any]],
+    solutions: list[Solution],
+    inst: Instance,
+    fleet: FleetConfig | None = None,
 ) -> list[Resultado]:
     """Recalcula os critérios de um resultados.json salvo, mantendo respostas e tempos.
 
     Serve para corrigir a rubrica sem gastar cota: as respostas cruas já estão salvas.
+    `fleet` precisa ser a mesma da execução (com ela, as instruções têm horários).
     """
     candidatas, melhor = _candidatas(solutions, inst)
     nomes_melhor = _nomes(inst, [melhor])
-    rotas = {ctx.vehicle_id: ctx for ctx in build_route_contexts(melhor, inst)}
+    rotas = {ctx.vehicle_id: ctx for ctx in build_route_contexts(melhor, inst, fleet)}
     perguntas = {p.caso: p for p in build_questions(melhor, inst)}
     contexto_qa = build_qa_context(melhor, inst)
 
@@ -477,14 +485,17 @@ def _candidatas(solutions: list[Solution], inst: Instance) -> tuple[list[Solutio
 
 
 def run_evaluation(
-    clients: Mapping[str, LLMClient], solutions: list[Solution], inst: Instance
+    clients: Mapping[str, LLMClient],
+    solutions: list[Solution],
+    inst: Instance,
+    fleet: FleetConfig | None = None,
 ) -> list[Resultado]:
     """Todos os casos em todos os provedores; o plano das instruções e do Q&A é o melhor."""
     candidatas, melhor = _candidatas(solutions, inst)
 
     resultados: list[Resultado] = []
     for client in clients.values():
-        resultados += evaluate_instructions(melhor, inst, client)
+        resultados += evaluate_instructions(melhor, inst, client, fleet)
         for periodo in ("diario", "semanal"):
             resultados.append(evaluate_report(candidatas, inst, periodo, client))
         resultados += evaluate_qa(melhor, inst, client)
@@ -575,6 +586,7 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--inst", required=True, help="Nome (sp_40) ou caminho do JSON.")
     parser.add_argument("--provedores", nargs="+", default=["groq", "openai"])
     parser.add_argument("--out", type=Path, default=Path("reports/avaliacao-llm"))
+    parser.add_argument("--frota", type=Path, default=Path("configs/frota.yaml"))
     parser.add_argument(
         "--reavaliar",
         type=Path,
@@ -584,23 +596,24 @@ def main(argv: list[str] | None = None) -> None:
 
     from dotenv import find_dotenv, load_dotenv
 
-    from medroute.data.loader import load_instance
+    from medroute.data.loader import load_fleet, load_instance
 
     load_dotenv(find_dotenv(usecwd=True))
     caminho = Path(args.inst)
     if not caminho.suffix:
         caminho = Path("data/instances") / f"{args.inst}.json"
-    inst = load_instance(caminho)
+    fleet = load_fleet(args.frota)
+    inst = load_instance(caminho, fleet)
     bruto = json.loads(args.solucoes.read_text(encoding="utf-8"))
     solutions = [
         Solution.model_validate(s) for s in (bruto if isinstance(bruto, list) else [bruto])
     ]
     if args.reavaliar:
         salvos = json.loads(args.reavaliar.read_text(encoding="utf-8"))
-        resultados = rescore(salvos, solutions, inst)
+        resultados = rescore(salvos, solutions, inst, fleet)
     else:
         clients = {p: client_from_env({**os.environ, "LLM_PROVIDER": p}) for p in args.provedores}
-        resultados = run_evaluation(clients, solutions, inst)
+        resultados = run_evaluation(clients, solutions, inst, fleet)
     resumo = summarize(resultados)
     versoes = ", ".join(
         f"{n} v{load_prompt(n).versao}" for n in ("instrucoes_motorista", "relatorio", "qa")

@@ -285,7 +285,7 @@ def instruct(
     try:
         client = _llm_client(provedor)
         with console.status(f"Gerando instruções ({client.provider})..."):
-            instrucoes = generate_instructions(solution, instance, client)
+            instrucoes = generate_instructions(solution, instance, client, load_fleet(frota))
     except LLMError as error:
         console.print(f"[red]Erro na LLM:[/red] {error}")
         raise typer.Exit(1) from error
