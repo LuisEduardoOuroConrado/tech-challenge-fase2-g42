@@ -7,7 +7,7 @@ import httpx
 import openai
 import pytest
 
-from medroute.data.loader import load_instance
+from medroute.data.loader import load_fleet, load_instance
 from medroute.domain.models import Solution
 from medroute.llm import CachedClient, MockClient, OpenAICompatibleClient, build_route_contexts
 from medroute.llm.evaluation import (
@@ -213,6 +213,27 @@ def test_perguntas_vem_da_propria_solucao(solution, inst):
     assert localizar.esperado == ["carro-01", 3.0]
     assert perguntas["custo_operacional"].esperado == [584.24]
     assert perguntas["buscar_por_id"].esperado == ["moto-01", "Domicílio 06", 3.3]
+    assert perguntas["horario_inexistente"].tipo == "indisponivel"  # sem frota, sem horários
+
+
+def test_com_frota_a_pergunta_de_horario_tem_resposta(solution, inst):
+    perguntas = {p.caso: p for p in build_questions(solution, inst, load_fleet(FROTA))}
+
+    assert len(perguntas) == 13
+    criticas = ["Domicílio 03", "08:01", "10:00", "Domicílio 06", "08:47", "10:00"]
+    assert perguntas["criticas_com_horario"].esperado == criticas
+    assert "horario_inexistente" not in perguntas
+    chegada = perguntas["horario_chegada"]
+    assert chegada.texto == "A que horas o veículo moto-01 chega na última parada?"
+    assert chegada.esperado == ["08:47"]  # Domicílio 06
+    assert perguntas["ultimo_retorno"].esperado == ["van-01", "12:59"]
+    assert perguntas["motorista_inexistente"].tipo == "indisponivel"
+
+    contexto = build_qa_context(solution, inst, load_fleet(FROTA))
+    certa = "A moto-01 chega ao Domicílio 06 às 08:47."
+    criterios, sem_fonte = score_qa(certa, chegada, contexto, ["moto-01", "Domicílio 06"])
+    assert criterios["comportamento"] and not sem_fonte
+    assert not score_qa("Chega às 08:50.", chegada, contexto, [])[0]["comportamento"]
 
 
 @pytest.mark.parametrize(
@@ -291,10 +312,13 @@ def test_main_grava_resultados_e_resumo(tmp_path, monkeypatch, solution):
     main([*base, "--provedores", "mock", "--out", str(out)])
 
     salvos = json.loads((out / "resultados.json").read_text("utf-8"))
-    assert len(salvos) == 15
+    assert len(salvos) == 18  # 3 rotas + 2 relatórios + 13 perguntas (com horários)
     assert all(s["criterios"]["horarios"] for s in salvos if s["tarefa"] == "instrucoes")
+    assert {"horario_chegada", "ultimo_retorno", "motorista_inexistente"} <= {
+        s["caso"] for s in salvos
+    }
     resumo = (out / "resumo.md").read_text("utf-8")
-    assert "- Prompts: instrucoes_motorista v2, relatorio v1, qa v1" in resumo
+    assert "- Prompts: instrucoes_motorista v2, relatorio v1, qa v2" in resumo
 
     main([*base, "--out", str(out), "--reavaliar", str(out / "resultados.json")])
     assert json.loads((out / "resultados.json").read_text("utf-8")) == salvos

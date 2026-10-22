@@ -305,12 +305,15 @@ _INDISPONIVEL = re.compile(
 )
 
 
-def build_questions(solution: Solution, inst: Instance) -> list[Pergunta]:
+def build_questions(
+    solution: Solution, inst: Instance, fleet: FleetConfig | None = None
+) -> list[Pergunta]:
     """Perguntas fixas, com respostas esperadas tiradas da própria solução.
 
-    Assim a rubrica continua válida se as rodadas oficiais forem refeitas.
+    Assim a rubrica continua válida se as rodadas oficiais forem refeitas. Com `fleet`,
+    os horários fazem parte do plano: a pergunta de horário passa a ter resposta.
     """
-    contexto = build_qa_context(solution, inst)
+    contexto = build_qa_context(solution, inst, fleet)
     rotas = contexto["rotas"]
     rota = rotas[min(1, len(rotas) - 1)]
     parada = rota["paradas"][min(2, len(rota["paradas"]) - 1)]
@@ -321,6 +324,36 @@ def build_questions(solution: Solution, inst: Instance) -> list[Pergunta]:
         r["veiculo"]: sum(p["prioridade"] == "crítica" for p in r["paradas"]) for r in rotas
     }
     plano = contexto["solucao"]
+
+    veiculo = outra_rota["veiculo"]
+    pergunta_horario = f"A que horas o veículo {veiculo} chega na última parada?"
+    if "retorno" in outra_rota:
+        ultima = max(rotas, key=lambda r: r["retorno"])  # "HH:MM" ordena como horário
+        horarios = [
+            Pergunta("horario_chegada", pergunta_horario, "resposta", [alvo["chegada"]]),
+            Pergunta(
+                "ultimo_retorno",
+                "Qual veículo volta por último ao depósito e a que horas?",
+                "resposta",
+                [ultima["veiculo"], ultima["retorno"]],
+            ),
+            # Junta dados de várias rotas: sem "entregas_criticas" no contexto, o
+            # gpt-4o-mini trocava o horário de uma crítica pelo da parada seguinte.
+            Pergunta(
+                "criticas_com_horario",
+                "A que horas são atendidas as entregas críticas e qual o prazo de cada uma?",
+                "resposta",
+                [c[k] for c in contexto["entregas_criticas"] for k in ("nome", "chegada", "prazo")],
+            ),
+            # Com os horários no plano, outro dado ausente mantém o caso "não disponível".
+            Pergunta(
+                "motorista_inexistente",
+                f"Qual é o nome do motorista do {veiculo}?",
+                "indisponivel",
+            ),
+        ]
+    else:
+        horarios = [Pergunta("horario_inexistente", pergunta_horario, "indisponivel")]
 
     return [
         Pergunta(
@@ -359,16 +392,12 @@ def build_questions(solution: Solution, inst: Instance) -> list[Pergunta]:
             "resposta",
             [plano["custo_prioridade"]],
         ),
-        Pergunta(
-            "horario_inexistente",
-            f"A que horas o veículo {outra_rota['veiculo']} chega na última parada?",
-            "indisponivel",
-        ),
+        *horarios,
         # Combustível é sobre o plano (veículo e distância), mas não está nos dados.
         # Telefone de uma unidade foi descartado: recusar também é defensável.
         Pergunta(
             "combustivel_inexistente",
-            f"Quantos litros de combustível o {outra_rota['veiculo']} vai gastar na rota?",
+            f"Quantos litros de combustível o {veiculo} vai gastar na rota?",
             "indisponivel",
         ),
         Pergunta("fora_do_escopo", "Qual a previsão do tempo para amanhã em São Paulo?", "recusa"),
@@ -407,14 +436,15 @@ def evaluate_qa(
     inst: Instance,
     client: LLMClient,
     perguntas: list[Pergunta] | None = None,
+    fleet: FleetConfig | None = None,
 ) -> list[Resultado]:
     rec = RecordingClient(client)
-    contexto = build_qa_context(solution, inst)
+    contexto = build_qa_context(solution, inst, fleet)
     nomes = _nomes(inst, [solution])
 
     resultados = []
-    for pergunta in perguntas or build_questions(solution, inst):
-        answer(pergunta.texto, solution, inst, rec)
+    for pergunta in perguntas or build_questions(solution, inst, fleet):
+        answer(pergunta.texto, solution, inst, rec, fleet)
         chamada = rec.chamadas[-1]
         criterios, sem_fonte = score_qa(chamada.resposta, pergunta, contexto, nomes)
         resultados.append(_resultado("qa", pergunta.caso, rec, chamada, criterios, sem_fonte, 1))
@@ -443,13 +473,13 @@ def rescore(
     """Recalcula os critérios de um resultados.json salvo, mantendo respostas e tempos.
 
     Serve para corrigir a rubrica sem gastar cota: as respostas cruas já estão salvas.
-    `fleet` precisa ser a mesma da execução (com ela, as instruções têm horários).
+    `fleet` precisa ser a mesma da execução (com ela, instruções e Q&A têm horários).
     """
     candidatas, melhor = _candidatas(solutions, inst)
     nomes_melhor = _nomes(inst, [melhor])
     rotas = {ctx.vehicle_id: ctx for ctx in build_route_contexts(melhor, inst, fleet)}
-    perguntas = {p.caso: p for p in build_questions(melhor, inst)}
-    contexto_qa = build_qa_context(melhor, inst)
+    perguntas = {p.caso: p for p in build_questions(melhor, inst, fleet)}
+    contexto_qa = build_qa_context(melhor, inst, fleet)
 
     resultados = []
     for salvo in salvos:
@@ -498,7 +528,7 @@ def run_evaluation(
         resultados += evaluate_instructions(melhor, inst, client, fleet)
         for periodo in ("diario", "semanal"):
             resultados.append(evaluate_report(candidatas, inst, periodo, client))
-        resultados += evaluate_qa(melhor, inst, client)
+        resultados += evaluate_qa(melhor, inst, client, fleet=fleet)
     return resultados
 
 

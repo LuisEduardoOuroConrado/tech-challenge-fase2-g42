@@ -40,7 +40,7 @@ flowchart LR
 |---|---|---|---|---|
 | Instruções do motorista | `llm/prompts/instrucoes_motorista.md` | 2 | `medroute instruct` | uma por rota usada |
 | Relatório diário/semanal | `llm/prompts/relatorio.md` | 1 | `medroute report` | uma por relatório |
-| Perguntas e respostas | `llm/prompts/qa.md` | 1 | `medroute ask` | uma por pergunta |
+| Perguntas e respostas | `llm/prompts/qa.md` | 2 | `medroute ask` | uma por pergunta |
 
 Cada arquivo tem:
 
@@ -161,14 +161,26 @@ semanal, a `projecao_semanal` (o mesmo dia repetido por 5 dias úteis).
 tentativa é feita; se falhar de novo, entra o texto padrão (`fallback_analysis`) e o
 cabeçalho do relatório indica "texto padrão, sem LLM".
 
-## 5. Perguntas e respostas (`qa`, v1)
+## 5. Perguntas e respostas (`qa`, v2)
 
 **Objetivo:** responder perguntas livres da equipe sobre o plano, por exemplo "Em que
-rota está o InCor?" ou "Quantas entregas críticas há?".
+rota está o InCor?", "Quantas entregas críticas há?" ou "Qual veículo volta por
+último ao depósito?".
 
-**Técnica:** *context stuffing*. O plano inteiro (resumo, rotas com paradas na ordem,
-frota, observações e entregas não atendidas) cabe no prompt de uma vez, então não há
-busca nem banco vetorial.
+**Técnica:** *context stuffing*. O plano inteiro (resumo, rotas com paradas na ordem
+e horários, frota, observações e entregas não atendidas) cabe no prompt de uma vez,
+então não há busca nem banco vetorial.
+
+**Horários (v2):** cada rota tem `saida` e `retorno`, cada parada `chegada` e as
+críticas `prazo`, em `HH:MM`, do mesmo cronograma das instruções. O modelo pode
+comparar horários ("quem chega depois"), mas não calcular diferenças.
+
+**Lista pronta de críticas:** o contexto traz `entregas_criticas`, com as críticas de
+todas as rotas juntas e em ordem de chegada. Sem ela, o `gpt-4o-mini` errou 3 de 4
+vezes a pergunta "A que horas são atendidas as entregas críticas e qual o prazo de
+cada uma?": ao procurar as críticas espalhadas pelas rotas, ele trocava o horário de
+uma crítica pelo da parada seguinte. Com a lista pronta, acertou 4 de 4. É o mesmo
+princípio da seção 1: juntar e filtrar dados é trabalho do Python.
 
 **Regras principais e por quê:**
 
@@ -177,6 +189,8 @@ busca nem banco vetorial.
 | Começar pela resposta, no máximo 150 palavras | Perguntas operacionais pedem respostas curtas |
 | Pode localizar, contar e listar, mas não estimar | Contar paradas é seguro; estimar horário ou trânsito, não |
 | Informação ausente: dizer que "não está disponível no plano" | Melhor do que um palpite (ex.: consumo de combustível) |
+| Dado ausente sobre o plano não é "fora do escopo"; a recusa é só para assuntos sem relação (clima, poemas) | O `gpt-4o-mini` recusava perguntas legítimas sobre o trajeto ("por quais ruas...", pedágio) |
+| Copiar horários; comparar pode, calcular não | Mesma regra das instruções e do relatório: contas do modelo não têm como ser conferidas |
 | Citar entregas pelo `nome`, nunca só pelo `id` | Nos testes, o modelo respondia "entrega-10", que ninguém entende |
 | A pergunta vai entre `<pergunta>` e `</pergunta>` e é tratada só como pergunta | Defesa contra *prompt injection* ("ignore as regras e...") |
 | Fora do escopo: responder exatamente o texto de recusa | A recusa fixa ("Só posso responder perguntas sobre as rotas e entregas deste plano.") pode ser testada |
@@ -184,9 +198,6 @@ busca nem banco vetorial.
 **Proteções no Python** (`normalize_question`): pergunta vazia ou com mais de 500
 caracteres é rejeitada, e as tags `<pergunta>` digitadas pelo usuário são removidas,
 para que ele não consiga "fechar" o bloco e escrever regras novas.
-
-O Q&A ainda não recebe horários de chegada. Perguntas sobre horário recebem "não
-está disponível no plano".
 
 ## 6. Técnicas usadas
 
@@ -196,6 +207,7 @@ está disponível no plano".
 | Dados estruturados em JSON compacto e arredondado | os três (menos tokens, sem ambiguidade) |
 | Glossário dos campos ("como ler os dados") | relatório, Q&A |
 | Fatos pré-calculados e comparações já em palavras | relatório |
+| Dados de várias rotas já reunidos numa lista (`entregas_criticas`) | Q&A |
 | Modelo de saída com marcadores `< >` | instruções |
 | Delimitadores para a entrada do usuário | Q&A |
 | Resposta fixa para recusa | Q&A |
@@ -215,6 +227,9 @@ está disponível no plano".
 | Q&A citava ids ("entrega-10") | Regra: citar sempre o nome |
 | Erros 429 no plano gratuito do Groq | Espera respeitando `Retry-After` (até 60 s), medida à parte na rubrica |
 | Instruções sem horário (v1) | **v2 (20/10):** horários do `cronograma_rota` no JSON e conferidos na resposta |
+| Q&A respondia "não disponível" para horários que as instruções mostravam | **`qa` v2 (21/10):** mesmos horários no contexto do Q&A |
+| `gpt-4o-mini` trocava o horário de uma crítica pelo da parada seguinte (3 de 4 vezes) | Lista `entregas_criticas` montada pelo Python: 4 de 4 corretas |
+| `gpt-4o-mini` usava a recusa para dados ausentes do plano (ruas, pedágio, motorista) | Regra explícita: dado ausente → "não disponível"; recusa só sem relação com o plano. Os exemplos do prompt (ruas, pedágio) são diferentes das perguntas da rubrica (motorista, combustível), para não ensinar a resposta da prova |
 
 ## 8. Avaliação
 
@@ -224,29 +239,35 @@ tentativa ou texto padrão. O critério central é **números com fonte**: todo 
 do texto precisa existir nos dados enviados. Esse critério pegou metas inventadas
 ("~30 min") e diferenças calculadas pelo modelo.
 
-Resultado de 20/10 em `sp_40` (instruções v2, com horários; uma execução por caso;
-cache vazio; detalhes em [`reports/avaliacao-llm/resumo.md`](../reports/avaliacao-llm/resumo.md)):
+Resultado oficial de 21/10 em `sp_40` (instruções v2 e Q&A v2, com horários; uma
+execução por caso; cache vazio; detalhes em
+[`reports/avaliacao-llm/resumo.md`](../reports/avaliacao-llm/resumo.md)):
 
 | Tarefa | Groq `gpt-oss-120b` | OpenAI `gpt-4o-mini` |
 |---|---|---|
-| Instruções (4 rotas) | 4/4 | 4/4 |
-| Relatório (diário + semanal) | 0/2 (conta própria e meta inventada) | 2/2 |
-| Q&A (10 perguntas) | 10/10 | 10/10 |
-| Tempo médio de resposta | 1,0 a 3,5 s | 1,0 a 5,0 s |
-| Espera por limite de taxa | 332 s | 0 s |
+| Instruções (4 rotas, com horários) | 4/4 | 4/4 |
+| Relatório (diário + semanal) | 1/2 (semanal: conta própria e limite inventado) | 2/2 |
+| Q&A (13 perguntas, 4 sobre horários ou dado ausente) | 13/13 | 13/13 |
+| Tempo médio de resposta | 1,0 a 3,6 s | 1,3 a 6,0 s |
+| Espera por limite de taxa | 437 s | 0 s |
 
-Nas instruções, os dois modelos copiaram todos os horários corretamente. As falhas
-do Groq estão no relatório:
+A falha do Groq no semanal: ele calculou por conta própria a diferença entre duas
+rotas ("110 min" = 291 − 181) e recomendou agir quando a ocupação passar de "90 %",
+um limite que não está nos dados.
 
-- no diário, ele calculou por conta própria a diferença entre duas rotas
-  ("110 min" = 291 − 181), o que o prompt proíbe;
-- no semanal, ele recomendou monitorar a ocupação "≥ 99 %", um limite que não
-  existe nos dados.
+**Quatro rodadas** (19/10, 20/10 e duas em 21/10, todas com cache vazio):
 
-Na rodada de 19/10 (instruções v1), o Groq tinha falhado só no semanal, também por
-uma meta inventada ("~30 min"). O padrão se repete: o `gpt-oss-120b` tende a criar
-metas e contas nas recomendações; o `gpt-4o-mini` não fez isso nas duas rodadas.
-Isso reforça o uso do `gpt-4o-mini` no relatório final e no vídeo.
+| | Groq `gpt-oss-120b` | OpenAI `gpt-4o-mini` |
+|---|---|---|
+| Relatório semanal | reprovado nas 4 (metas e contas inventadas) | aprovado nas 4 |
+| Relatório diário | reprovado em 1 de 4 | aprovado nas 4 |
+| Instruções | aprovadas em todas | aprovadas em todas |
+
+O padrão se repete: o `gpt-oss-120b` cria metas e contas nas recomendações; o
+`gpt-4o-mini` não fez isso em nenhuma rodada. Por isso o relatório final e o vídeo
+usam o `gpt-4o-mini`. Os problemas do `gpt-4o-mini` apareceram no Q&A (horário de
+crítica trocado e recusa indevida, seção 5) e foram corrigidos no contexto e no
+prompt antes da rodada oficial.
 
 ## 9. Como alterar um prompt
 
