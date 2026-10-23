@@ -125,3 +125,25 @@ def test_ga_sem_elitismo_executa_retoma_e_exporta_historico_original(small_study
         exported = [float(row["fitness"]) for row in points if row["job_id"] == job_id]
         assert exported == solution["historico_fitness"]
     assert (config.figures / "e1.png").is_file()
+
+
+def test_mapa_usa_nome_interno_ao_exportar_e_reanalisar_arquivo_renomeado(small_study, tmp_path):
+    import yaml
+
+    renamed = tmp_path / "instancia_renomeada.json"
+    renamed.write_bytes(small_study.instances[0].read_bytes())
+    config = small_study.model_copy(
+        update={
+            "instances": [renamed],
+            "seeds": [7],
+            "experiments": {"E6": Experiment(title="Rotas", variants={"hibrido": Variant()})},
+        }
+    )
+    solutions, design, metadata = run_study(config, progress=lambda _: None)
+    assert {s["instance_nome"] for s in solutions.values()} == {"sp_15"}
+    write_study_report(config, solutions, design, metadata)
+    path = tmp_path / "renamed.yaml"
+    path.write_text(yaml.safe_dump(config.model_dump(mode="json")))
+    main(["--config", str(path), "--render-only"])
+    assert (config.figures / "rotas_sp_15.png").is_file()
+    assert (config.figures / "rotas_sp_15.pdf").is_file()

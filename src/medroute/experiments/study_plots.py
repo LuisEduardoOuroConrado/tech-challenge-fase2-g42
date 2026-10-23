@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.ticker import MaxNLocator
 
+from medroute.data import load_instance
 from medroute.domain.models import Priority
 
 from .study import BASELINES, StudyConfig
@@ -154,6 +155,7 @@ def render_figures(
         _save(fig, config.figures / "e5_componentes")
 
     # Coordenadas são geográficas; os segmentos não representam trajetos viários.
+    instances_by_name = {inst.nome: inst for inst in map(load_instance, config.instances)}
     for instance in instances:
         candidates = [
             d
@@ -166,10 +168,7 @@ def render_figures(
             continue
         best = min(candidates, key=lambda d: solutions[d["job_id"]]["fitness"])
         solution = solutions[best["job_id"]]
-        inst_path = next(p for p in config.instances if p.stem == instance)
-        from medroute.data import load_instance
-
-        inst = load_instance(inst_path)
+        inst = instances_by_name[instance]
         points = {d.id: (d.lon, d.lat) for d in inst.deliveries}
         depot = (inst.depot.lon, inst.depot.lat)
         fig, ax = plt.subplots(figsize=(8, 6))

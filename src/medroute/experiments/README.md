@@ -62,6 +62,8 @@ As figuras PNG e PDF ficam em `reports/figuras/s3/`. E6 usa escala logarítmica
 para comportar as penalidades do aleatório. Em E5 as barras usam pesos oficiais;
 as curvas mostram porcentagem do fitness inicial de cada objetivo. Os mapas são
 traçados esquemáticos das coordenadas, sem uma malha viária.
+As instâncias são associadas às soluções pelo campo `nome` do JSON; o nome do
+arquivo pode ser diferente, inclusive ao reanalisar os resultados.
 
 O motor registra o melhor fitness de cada geração; sem elitismo ele pode subir.
 O validador compara o mínimo do histórico com a solução global retornada e exige
