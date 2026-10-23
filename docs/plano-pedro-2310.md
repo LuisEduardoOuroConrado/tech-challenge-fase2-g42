@@ -86,3 +86,23 @@ Decisões da revisão:
   `reports/experimentos-s3/validacao.json` e `evidencias/`.
 - Commits separados por desenho, execução, estatística, figuras, exportação,
   correção do mapa, dados de cada experimento, relatório e notebook.
+
+## Correções da revisão do PR #37
+
+- Parada antecipada: curvas de tamanhos diferentes são alinhadas mantendo o
+  melhor acumulado após a parada até o último passo observado no grupo.
+  Médias e desvios incluem todas as seeds; os históricos brutos são preservados.
+- GA sem elitismo: o mínimo do histórico deve coincidir com o melhor global
+  retornado. Monotonia e último ponto são exigidos somente com elitismo efetivo.
+  A configuração da variante é conferida na execução, retomada e reanálise.
+- Mapas usam o campo `nome` do JSON para localizar as coordenadas, permitindo
+  arquivos renomeados tanto na exportação inicial quanto em `--render-only`.
+- Seis novos testes de regressão; suíte completa com 418 testes passando e
+  cobertura total de 92%. Lint e verificação de whitespace aprovados.
+- As 240 soluções foram revalidadas; soluções, métricas, estatísticas e curvas
+  brutas permaneceram idênticas. Figuras e hashes da análise foram atualizados,
+  incluindo a fonte atual do validador, sem alterar a proveniência da execução.
+- Evidências desta revisão em `evidencias/revisao-pr37.json` e
+  `evidencias/revisao-pr37-pytest.txt`; `e2e.json` preserva a validação original.
+- A exportação usa quebras de linha LF, como `.gitattributes`, para que os
+  hashes dos CSVs continuem válidos após commit e novo checkout.
