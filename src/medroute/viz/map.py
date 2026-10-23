@@ -9,6 +9,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import folium
+from branca.element import MacroElement, Template
 
 from medroute.domain.models import Instance, Priority, Solution
 
@@ -79,13 +80,36 @@ def build_map(solution: Solution, inst: Instance) -> folium.Map:
         layer.add_to(fmap)
 
     points = [depot, *((d.lat, d.lon) for d in inst.deliveries)]
-    fmap.fit_bounds(
-        [
-            (min(p[0] for p in points), min(p[1] for p in points)),
-            (max(p[0] for p in points), max(p[1] for p in points)),
-        ]
-    )
+    bounds = [
+        (min(p[0] for p in points), min(p[1] for p in points)),
+        (max(p[0] for p in points), max(p[1] for p in points)),
+    ]
+    fmap.fit_bounds(bounds)
     folium.LayerControl(collapsed=False).add_to(fmap)
+    # Abas do Streamlit criam o iframe mesmo quando oculto (largura/altura zero).
+    # Enquadrar novamente na primeira dimensão visível evita o zoom de mapa-múndi.
+    resize = MacroElement()
+    resize.bounds = bounds
+    resize._template = Template("""
+        {% macro script(this, kwargs) %}
+        (() => {
+            const map = {{ this._parent.get_name() }};
+            let fitted = false;
+            const observer = new ResizeObserver(() => {
+                const box = map.getContainer().getBoundingClientRect();
+                if (box.width > 0 && box.height > 0) {
+                    map.invalidateSize({pan: false, animate: false});
+                    if (!fitted) {
+                        map.fitBounds({{ this.bounds | tojson }});
+                        fitted = true;
+                    }
+                }
+            });
+            observer.observe(map.getContainer());
+        })();
+        {% endmacro %}
+    """)
+    fmap.add_child(resize)
     return fmap
 
 

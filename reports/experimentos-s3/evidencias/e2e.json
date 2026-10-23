@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-23",
+  "base": "86276b9",
+  "tests_passed": 412,
+  "coverage_percent": 92,
+  "lint": "ruff check .: passed",
+  "llm_provider": "mock",
+  "cli_demo": "sp_40, population 100, generations 300, default mutation 0.2; full demo passed",
+  "s3_cli": {
+    "instance": "sp_80",
+    "seed": 42,
+    "fitness": 2684.328543374569,
+    "deliveries": 80,
+    "vehicles": 5,
+    "penalties": {
+      "capacidade": 0.0,
+      "autonomia": 0.0,
+      "compatibilidade": 0.0,
+      "deadline": 0.0,
+      "jornada": 0.0
+    },
+    "flows": [
+      "map",
+      "instruct",
+      "weekly report over 30 E6 solutions",
+      "ask"
+    ]
+  },
+  "streamlit": {
+    "url": "http://127.0.0.1:8503/",
+    "flows": [
+      "optimize sp_40",
+      "instructions",
+      "weekly report",
+      "ask",
+      "load S3 sp_80",
+      "map after hidden tab"
+    ],
+    "screenshot": "streamlit-sp80.jpg"
+  },
+  "source_sha256": {
+    "map.py": "e5a765bfa739694bf2780421a524cfdbc2778d8db641bf4dbe45c2a0e1b73b8e"
+  },
+  "provenance_check": "all 229 original recipe hashes reconstructed and matched"
+}
