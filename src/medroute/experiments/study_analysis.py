@@ -8,7 +8,7 @@ from statistics import mean, stdev
 from medroute.constraints import cronograma_rota, violacao_compatibilidade
 from medroute.domain.models import Priority, Solution
 from medroute.experiments.metrics import extract_metrics, improvement_pct
-from medroute.ga import load_fitness_config, make_fitness
+from medroute.ga import GAConfig, load_fitness_config, make_fitness
 
 from .study import StudyConfig, _context, _hash, build_design, validate_solution
 
@@ -25,7 +25,8 @@ def analysis_rows(
             if solution.seed != recipe["seed"] or solution.algoritmo != recipe["algorithm"]:
                 raise ValueError("identidade da execução divergente")
             inst, dm, fn = _context(recipe)
-            validate_solution(solution, inst, dm, fn)
+            ga = GAConfig.model_validate(recipe["ga"]) if recipe["algorithm"] == "ga" else None
+            validate_solution(solution, inst, dm, fn, ga=ga)
             common = make_fitness(inst, dm, fn.fleet, load_fitness_config(config.fitness))
             vehicles = {v.id: v for v in inst.fleet}
             arrivals = {}

@@ -43,3 +43,25 @@ def test_recalcula_cobertura_rotas_fitness_e_violacoes(small_study):
         mutate(corrupt)
         with pytest.raises(ValueError):
             validate_solution(Solution.model_validate(corrupt), inst, dm, fn)
+
+
+def test_curva_confere_melhor_global_e_monotonia_conforme_elitismo(small_study):
+    solutions, _, metadata = run_study(small_study, progress=lambda _: None)
+    job_id = next(iter(solutions))
+    solution = Solution.model_validate(solutions[job_id])
+    inst, dm, fn = _context(metadata["jobs"][job_id])
+    fitness = solution.fitness
+    non_elitist = small_study.base_ga.model_copy(update={"elitism": 0})
+    curve = solution.model_copy(update={"historico_fitness": [fitness, fitness + 1]})
+    validate_solution(curve, inst, dm, fn, ga=non_elitist)
+    with pytest.raises(ValueError, match="último ponto"):
+        validate_solution(curve, inst, dm, fn, ga=small_study.base_ga)
+    curve.historico_fitness = [fitness + 1, fitness + 2, fitness]
+    with pytest.raises(ValueError, match="não é monótona"):
+        validate_solution(curve, inst, dm, fn, ga=small_study.base_ga)
+    curve.historico_fitness = [fitness + 1]
+    with pytest.raises(ValueError, match="melhor ponto"):
+        validate_solution(curve, inst, dm, fn, ga=non_elitist)
+    curve.historico_fitness = []
+    with pytest.raises(ValueError, match="sem histórico"):
+        validate_solution(curve, inst, dm, fn, ga=non_elitist)

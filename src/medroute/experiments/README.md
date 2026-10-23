@@ -63,10 +63,13 @@ para comportar as penalidades do aleatório. Em E5 as barras usam pesos oficiais
 as curvas mostram porcentagem do fitness inicial de cada objetivo. Os mapas são
 traçados esquemáticos das coordenadas, sem uma malha viária.
 
-Com `patience`, as seeds podem parar em gerações diferentes. Para calcular média
-e desvio nas figuras, o último resultado de cada seed é mantido até a última
-geração observada no seu grupo. Os JSONs e CSVs preservam somente os pontos
-realmente executados, sem preenchimento.
+O motor registra o melhor fitness de cada geração; sem elitismo ele pode subir.
+O validador compara o mínimo do histórico com a solução global retornada e exige
+monotonia somente quando o GA efetivo tem elitismo. As figuras usam o melhor
+acumulado até cada geração. Com `patience`, as seeds podem parar em gerações
+diferentes; para calcular média e desvio, o melhor acumulado de cada seed é
+mantido até a última geração observada no seu grupo. Os JSONs e CSVs preservam
+somente o histórico original dos pontos executados, sem preenchimento.
 
 Cinco seeds permitem descrever a variabilidade observada; não há teste de
 significância. Baselines determinísticos repetem o mesmo resultado nas seeds.

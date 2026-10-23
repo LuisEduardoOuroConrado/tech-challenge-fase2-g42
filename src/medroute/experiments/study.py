@@ -180,7 +180,14 @@ def _close(actual: float, expected: float, label: str) -> None:
         raise ValueError(f"{label}: {actual} != {expected}")
 
 
-def validate_solution(solution: Solution, inst: Instance, dm: DistanceMatrix, fn: Fitness) -> None:
+def validate_solution(
+    solution: Solution,
+    inst: Instance,
+    dm: DistanceMatrix,
+    fn: Fitness,
+    *,
+    ga: GAConfig | None = None,
+) -> None:
     """Recalcula sem confiar nas métricas/violações gravadas pelo otimizador."""
     if solution.instance_nome != inst.nome:
         raise ValueError("instância da solução divergente")
@@ -235,13 +242,19 @@ def validate_solution(solution: Solution, inst: Instance, dm: DistanceMatrix, fn
         raise ValueError("chaves de penalidade divergentes")
     for key, value in penalties.items():
         _close(solution.penalidades[key], value, f"penalidade {key}")
-    if solution.historico_fitness:
-        _close(solution.historico_fitness[-1], solution.fitness, "último ponto da curva")
+    history = solution.historico_fitness
+    if ga is not None and not history:
+        raise ValueError("GA sem histórico de fitness")
+    if history:
+        if not all(math.isfinite(value) for value in history):
+            raise ValueError("curva de fitness contém valor não finito")
+        # O motor registra o melhor de cada geração e retorna o melhor global.
+        _close(min(history), solution.fitness, "melhor ponto da curva")
+    if history and ga is not None and ga.elitism > 0:
+        _close(history[-1], solution.fitness, "último ponto da curva")
         if any(
             b > a + 1e-7
-            for a, b in zip(
-                solution.historico_fitness, solution.historico_fitness[1:], strict=False
-            )
+            for a, b in zip(history, history[1:], strict=False)
         ):
             raise ValueError("curva de melhor fitness não é monótona")
 
@@ -257,10 +270,9 @@ def _context(recipe: dict):
 
 def _execute(recipe: dict) -> dict:
     inst, dm, fn = _context(recipe)
+    ga = GAConfig.model_validate(recipe["ga"]) if recipe["algorithm"] == "ga" else None
     if recipe["algorithm"] == "ga":
-        solution = GeneticAlgorithm(inst, dm, GAConfig.model_validate(recipe["ga"]), fn).run(
-            recipe["seed"]
-        )
+        solution = GeneticAlgorithm(inst, dm, ga, fn).run(recipe["seed"])
     else:
         kwargs = (
             {"max_passes": recipe["two_opt_max_passes"]}
@@ -270,7 +282,7 @@ def _execute(recipe: dict) -> dict:
         solution = BASELINES[recipe["algorithm"]](
             inst, dm, seed=recipe["seed"], fitness_fn=fn, **kwargs
         )
-    validate_solution(solution, inst, dm, fn)
+    validate_solution(solution, inst, dm, fn, ga=ga)
     return solution.model_dump(mode="json")
 
 
@@ -290,7 +302,8 @@ def run_study(
                 raise ValueError(f"cache corrompido: {path}")
             solution = Solution.model_validate(record["solution"])
             inst, dm, fn = _context(recipe)
-            validate_solution(solution, inst, dm, fn)
+            ga = GAConfig.model_validate(recipe["ga"]) if recipe["algorithm"] == "ga" else None
+            validate_solution(solution, inst, dm, fn, ga=ga)
             solutions[job_id] = record["solution"]
         else:
             pending[job_id] = recipe

@@ -86,3 +86,42 @@ def test_exporta_e_reanalisa_seeds_com_parada_antecipada(small_study, tmp_path):
     assert (config.figures / "e1.pdf").is_file()
     with gzip.open(config.out / "convergence/E1.csv.gz", "rt") as stream:
         assert len(list(csv.DictReader(stream))) == sum(lengths)
+
+
+def test_ga_sem_elitismo_executa_retoma_e_exporta_historico_original(small_study, monkeypatch):
+    config = small_study.model_copy(
+        update={
+            "seeds": [7, 17, 42],
+            "base_ga": small_study.base_ga.model_copy(
+                update={
+                    "population_size": 10,
+                    "generations": 40,
+                    "mutation_rate": 0.2,
+                    "seed_nearest_neighbor": False,
+                    "local_search_rate": 0,
+                }
+            ),
+            "experiments": {
+                "E1": Experiment(title="Sem elitismo", variants={"ga": Variant(ga={"elitism": 0})})
+            },
+        }
+    )
+    solutions, design, metadata = run_study(config, progress=lambda _: None)
+    assert any(
+        b > a + 1e-7
+        for s in solutions.values()
+        for a, b in zip(s["historico_fitness"], s["historico_fitness"][1:], strict=False)
+    )
+    assert any(s["historico_fitness"][-1] > s["fitness"] + 1e-7 for s in solutions.values())
+    monkeypatch.setattr(
+        "medroute.experiments.study._execute", lambda _: pytest.fail("cache ignorado")
+    )
+    resumed, _, _ = run_study(config, progress=lambda _: None)
+    assert resumed == solutions
+    write_study_report(config, resumed, design, metadata)
+    with gzip.open(config.out / "convergence/E1.csv.gz", "rt") as stream:
+        points = list(csv.DictReader(stream))
+    for job_id, solution in solutions.items():
+        exported = [float(row["fitness"]) for row in points if row["job_id"] == job_id]
+        assert exported == solution["historico_fitness"]
+    assert (config.figures / "e1.png").is_file()

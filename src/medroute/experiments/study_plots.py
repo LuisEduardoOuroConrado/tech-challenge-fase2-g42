@@ -24,10 +24,13 @@ def _save(fig, path: Path) -> None:
 
 
 def _aligned_histories(histories: list[list[float]]) -> np.ndarray:
-    """Mantém o resultado após a parada até o último passo observado no grupo."""
+    """Melhor acumulado; mantém o resultado após a parada até o fim do grupo."""
     longest = max(map(len, histories))
     return np.stack(
-        [np.pad(history, (0, longest - len(history)), mode="edge") for history in histories]
+        [
+            np.pad(np.minimum.accumulate(history), (0, longest - len(history)), mode="edge")
+            for history in histories
+        ]
     ).astype(float)
 
 
@@ -100,14 +103,16 @@ def render_figures(
             lower.set(
                 xlabel="Geração (0 = população inicial)",
                 ylabel=(
-                    "% do fitness inicial de cada perfil" if exp == "E5" else "Melhor fitness (R$)"
+                    "% do fitness inicial de cada perfil"
+                    if exp == "E5"
+                    else "Melhor fitness acumulado (R$)"
                 ),
             )
             if exp == "E6":
                 upper.set_yscale("log")
                 lower.set_yscale("log")
                 upper.set_ylabel("Fitness com pesos oficiais (R$; escala log)")
-                lower.set_ylabel("Melhor fitness (R$; escala log)")
+                lower.set_ylabel("Melhor fitness acumulado (R$; escala log)")
             for ax in (upper, lower):
                 ax.grid(axis="y", alpha=0.2)
             lower.legend(fontsize=7)
