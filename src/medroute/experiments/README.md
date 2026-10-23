@@ -63,6 +63,11 @@ para comportar as penalidades do aleatório. Em E5 as barras usam pesos oficiais
 as curvas mostram porcentagem do fitness inicial de cada objetivo. Os mapas são
 traçados esquemáticos das coordenadas, sem uma malha viária.
 
+Com `patience`, as seeds podem parar em gerações diferentes. Para calcular média
+e desvio nas figuras, o último resultado de cada seed é mantido até a última
+geração observada no seu grupo. Os JSONs e CSVs preservam somente os pontos
+realmente executados, sem preenchimento.
+
 Cinco seeds permitem descrever a variabilidade observada; não há teste de
 significância. Baselines determinísticos repetem o mesmo resultado nas seeds.
 O tempo de cada otimizador exclui validação/renderização e é medido sob

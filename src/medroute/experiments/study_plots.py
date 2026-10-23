@@ -23,6 +23,14 @@ def _save(fig, path: Path) -> None:
     plt.close(fig)
 
 
+def _aligned_histories(histories: list[list[float]]) -> np.ndarray:
+    """Mantém o resultado após a parada até o último passo observado no grupo."""
+    longest = max(map(len, histories))
+    return np.stack(
+        [np.pad(history, (0, longest - len(history)), mode="edge") for history in histories]
+    ).astype(float)
+
+
 def render_figures(
     config: StudyConfig, solutions: dict, design: list[dict], summaries: list[dict]
 ) -> None:
@@ -73,7 +81,7 @@ def render_figures(
                         label=labels.get(variant, variant),
                     )
                     continue
-                histories = np.array([r["historico_fitness"] for r in runs], dtype=float)
+                histories = _aligned_histories([r["historico_fitness"] for r in runs])
                 if exp == "E5":
                     histories = 100 * histories / histories[:, :1]
                 avg = histories.mean(axis=0)

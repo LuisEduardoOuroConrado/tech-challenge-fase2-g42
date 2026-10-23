@@ -4,7 +4,7 @@ import json
 
 import pytest
 
-from medroute.experiments.study import main, run_study
+from medroute.experiments.study import Experiment, Variant, main, run_study
 from medroute.experiments.study_report import write_study_report
 
 
@@ -53,3 +53,36 @@ def test_exportacao_inclui_figuras_tabelas_validacao_e_cli_render_only(small_stu
     assert (small_study.out / "e6_solutions_relatorio_semanal.md").is_file()
     with pytest.raises(SystemExit):
         main(["--config", str(path), "--workers", "0"])
+
+
+def test_exporta_e_reanalisa_seeds_com_parada_antecipada(small_study, tmp_path):
+    import yaml
+
+    config = small_study.model_copy(
+        update={
+            "seeds": [7, 17, 42, 73, 101],
+            "base_ga": small_study.base_ga.model_copy(
+                update={
+                    "population_size": 10,
+                    "generations": 40,
+                    "patience": 5,
+                    "mutation_rate": 0.2,
+                    "seed_nearest_neighbor": False,
+                    "local_search_rate": 0,
+                }
+            ),
+            "experiments": {"E1": Experiment(title="Parada", variants={"ga": Variant()})},
+        }
+    )
+    solutions, design, metadata = run_study(config, progress=lambda _: None)
+    lengths = [len(s["historico_fitness"]) for s in solutions.values()]
+    assert len(set(lengths)) > 1
+    assert max(lengths) < config.base_ga.generations
+    write_study_report(config, solutions, design, metadata)
+    path = tmp_path / "patience.yaml"
+    path.write_text(yaml.safe_dump(config.model_dump(mode="json")))
+    main(["--config", str(path), "--render-only"])
+    assert (config.figures / "e1.png").is_file()
+    assert (config.figures / "e1.pdf").is_file()
+    with gzip.open(config.out / "convergence/E1.csv.gz", "rt") as stream:
+        assert len(list(csv.DictReader(stream))) == sum(lengths)
