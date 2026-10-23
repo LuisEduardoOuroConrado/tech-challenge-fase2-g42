@@ -37,7 +37,7 @@ def write_study_report(
         "analysis": {
             "source_sha256": {
                 name: hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()
-                for name in ("study_report.py", "study_analysis.py", "study_plots.py")
+                for name in ("study.py", "study_report.py", "study_analysis.py", "study_plots.py")
             },
             "requirements_lock_sha256": hashlib.sha256(
                 (ROOT / "requirements.lock").read_bytes()

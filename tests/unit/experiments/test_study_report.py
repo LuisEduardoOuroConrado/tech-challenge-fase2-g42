@@ -1,6 +1,8 @@
 import csv
 import gzip
+import hashlib
 import json
+from pathlib import Path
 
 import pytest
 
@@ -11,6 +13,13 @@ from medroute.experiments.study_report import write_study_report
 def test_exportacao_inclui_figuras_tabelas_validacao_e_cli_render_only(small_study, tmp_path):
     solutions, design, metadata = run_study(small_study, workers=2, progress=lambda _: None)
     write_study_report(small_study, solutions, design, metadata)
+    exported_metadata = json.loads((small_study.out / "metadata.json").read_text())
+    from medroute.experiments import study
+
+    assert exported_metadata["analysis"]["source_sha256"]["study.py"] == hashlib.sha256(
+        Path(study.__file__).read_bytes()
+    ).hexdigest()
+    assert exported_metadata["execution_provenance"] == metadata["execution_provenance"]
     validation = json.loads((small_study.out / "validacao.json").read_text())
     assert validation["unique_solutions_validated"] == 12
     assert validation["observations"] == 14
