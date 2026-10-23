@@ -20,6 +20,9 @@ def test_exportacao_inclui_figuras_tabelas_validacao_e_cli_render_only(small_stu
         Path(study.__file__).read_bytes()
     ).hexdigest()
     assert exported_metadata["execution_provenance"] == metadata["execution_provenance"]
+    for path in small_study.out.glob("*.csv"):
+        # .gitattributes normaliza textos para LF; o hash deve sobreviver ao commit.
+        assert b"\r\n" not in path.read_bytes()
     validation = json.loads((small_study.out / "validacao.json").read_text())
     assert validation["unique_solutions_validated"] == 12
     assert validation["observations"] == 14

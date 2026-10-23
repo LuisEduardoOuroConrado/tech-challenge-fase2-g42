@@ -21,7 +21,7 @@ def _csv(path: Path, rows: list[dict]) -> None:
         else path.open("w", encoding="utf-8", newline="")
     )
     with stream:
-        writer = csv.DictWriter(stream, fieldnames=list(rows[0]))
+        writer = csv.DictWriter(stream, fieldnames=list(rows[0]), lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
 
