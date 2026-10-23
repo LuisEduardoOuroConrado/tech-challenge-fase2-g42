@@ -509,6 +509,18 @@ do relatório, 2–3 min no vídeo.
   `notebooks/01_demo_completa.ipynb` mostra o mesmo fluxo com as saídas salvas (GA × baselines, resultados
   oficiais, rotas, convergência, mapa e LLM).
 
+### 8.1.8 Entrega de Pedro — 23/10
+
+- E1–E6 concluídos em `sp_15`, `sp_40` e `sp_80`: cinco seeds, 300 gerações,
+  300 observações e 240 execuções únicas. Tabelas, soluções e proveniência em
+  `reports/experimentos-s3/`; dez figuras PNG/PDF em `reports/figuras/s3/`.
+- Análise: `reports/secoes/pedro-experimentos-s3.md`; notebook 02 com saídas.
+  Híbrido vence NN+2-opt em 5/5 seeds de `sp_15`/`sp_40`; em `sp_80`, vence
+  4/5 mas a média fica 0,01% pior. Restrições soft e a auditoria da duplicação
+  de compatibilidade em dois aleatórios inviáveis estão explícitas no relatório.
+- 412 testes, cobertura total 92%, lint e fluxos CLI/Streamlit com LLM mock
+  aprovados. O mapa foi corrigido para reenquadrar ao abrir uma aba antes oculta.
+
 ### 8.2 Handoffs — quem entrega o quê, para quem, até quando
 
 A regra: a data é o **último dia** para entregar sem atrasar quem depende. Entregar antes libera o outro antes.
@@ -532,7 +544,7 @@ A regra: a data é o **último dia** para entregar sem atrasar quem depende. Ent
 | **21/10 (qua)** | Beatriz | `constraints/` deadline, compatibilidade, jornada + fator de trânsito na `DistanceMatrix.time()` | Conrado (fitness P1) | ✅ 16/10, PR #14 (adiantado; trânsito via `saida_min`) |
 | **21/10 (qua)** | Conrado | Fitness P1 (tempo de chegada, deadline, jornada, compatibilidade) + 2-opt local no GA | Pedro (experimento E5 de sensibilidade), Rodrigo (instruções com horários) | ✅ 19/10: 2-opt (GA híbrido, PR #12), decoder P1 (PR #15) e fator de trânsito no fitness (PR #21) |
 | **21/10 (qua)** | Alexandre | Roteiro do vídeo (quem fala o quê, em quantos minutos) | todos preparam sua fala | 🟡 rascunho em `docs/roteiro-video.md` (20/10, Conrado): 6 blocos, 14 min; Alexandre e grupo validam |
-| **23/10 (sex)** | Pedro | Experimentos E1–E6 rodados: tabelas (média ± dp, 5 seeds), curvas de convergência, figuras em `reports/figuras/` | relatório (seção comparativo) | 🔴 sem branch nem figuras em 22/10; frota definitiva fechada em 22/10, nada impede rodar |
+| **23/10 (sex)** | Pedro | Experimentos E1–E6 rodados: tabelas (média ± dp, 5 seeds), curvas de convergência, figuras em `reports/figuras/` | relatório (seção comparativo) | ✅ 23/10: 240 execuções, dez figuras PNG/PDF, seção e notebook; branch `feature/pedro-experimentos-2310` |
 | **23/10 (sex)** | Rodrigo | Q&A (`medroute ask`) + rubrica de avaliação aplicada a Groq × gpt-4o-mini | relatório (seção LLM), Streamlit | ✅ `medroute ask` no PR #25 (19/10); rubrica no PR #27 (`reports/avaliacao-llm/`); horários nas instruções e no Q&A (PRs #32/#33, 21/10) |
 | **23/10 (sex)** | Alexandre | Streamlit (instância → otimizar → mapa → instruções → pergunta) + testes de integração | vídeo | ✅ 20/10 (feito por Conrado): `medroute app` + `tests/integration/test_streamlit_app.py` e `test_pipeline_cli.py` |
 | **23/10 (sex)** | Conrado | `docs/do-tsp-ao-vrp.md` (antes × depois do código base) + `docs/arquitetura.md` com Mermaid | relatório (seções GA e arquitetura) | ✅ 19/10, PR #20 (adiantado) |

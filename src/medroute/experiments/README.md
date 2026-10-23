@@ -1,5 +1,76 @@
 # Experimentos e métricas
 
+## Matriz E1–E6 — 23/10
+
+`python -m medroute.experiments.study --workers 4` executa
+`configs/experimentos/s3.yaml`. O runner da S2 descrito abaixo mantém sua API.
+
+- `study.py`: valida o YAML, expande as variantes, deduplica receitas idênticas,
+  executa processos independentes e grava um checkpoint por execução. `--workers 1`
+  executa em série; a quantidade de workers não altera o RNG ou os resultados.
+- `study_analysis.py`: revalida soluções, reavalia sob pesos comuns, audita
+  compatibilidade e calcula estatísticas e pares por seed.
+- `study_plots.py`: desenha convergência, dispersão e rotas em PNG/PDF.
+- `study_report.py`: exporta tabelas, curvas compactadas e manifesto de artefatos.
+- `--render-only`: lê os três JSONs em `reports/experimentos-s3/` e recria os
+  derivados. Confere design, dados e fontes contra os hashes da rodada antes de
+  exportar. Uma mudança nas fontes do otimizador exige uma nova rodada.
+
+O YAML base descreve o GA híbrido; `ga` em cada variante sobrescreve somente os
+campos indicados e passa pela validação de `GAConfig`. `priority_scale` multiplica
+os preços por minuto de chegada, mantendo todas as penalidades. `baselines: true`
+inclui NN, NN+2-opt (até 100 passagens), Savings e aleatório com os pesos oficiais.
+`reference` escolhe a referência da comparação pareada dentro do experimento.
+
+As 300 observações usam 240 execuções únicas; a mesma referência atende E1, E2,
+E3, E5 e E6. Cada receita identifica algoritmo, parâmetros, seed, pesos, hashes
+dos dados e fontes do otimizador e versão de Python. O executor tem hash e
+proveniência separados. Checkpoints com hash inconsistente falham
+explicitamente. Uma receita modificada não reutiliza a execução anterior.
+
+Saídas em `reports/experimentos-s3/`:
+
+| Arquivo | Conteúdo |
+|---|---|
+| `solutions.json` | Soluções únicas indexadas por hash da receita |
+| `e6_solutions.json` | E6 como lista de `Solution`, compatível com `medroute report` |
+| `design.json` | Vínculo experimento/configuração/instância/seed → execução |
+| `metadata.json` | YAML resolvido, receitas, hashes, ambiente e concorrência |
+| `metrics.csv` | 300 observações; fitness objetivo e comum, componentes, km, tempos e violações |
+| `summary.csv` | Média, desvio amostral, mínimo e V/E/D por configuração/instância |
+| `paired.csv` | Diferença e melhoria de fitness comum por seed contra `reference` |
+| `convergence/E1.csv.gz` até `E6.csv.gz` | Fitness por passo/geração; `pd.read_csv` descompacta automaticamente |
+| `resumo.md` | Tabelas e links para as figuras |
+| `validacao.json` | Contagem de soluções revalidadas e hashes dos artefatos |
+| `provenance/` | Executor original e auditoria da reutilização dos resultados |
+| `evidencias/` | Testes, fluxo ponta a ponta e captura do Streamlit |
+
+Por exemplo, `medroute report reports/experimentos-s3/e6_solutions.json --inst sp_80
+--periodo semanal --provedor mock` exercita o relatório com os resultados reais da
+rodada. A reanálise resolve os caminhos da máquina atual e confere os hashes de
+conteúdo; preserva o Python e os caminhos da execução original como proveniência.
+
+Na base `86276b9`, o decoder soma os atributos refrigerado e volumoso, enquanto
+a função de restrições conta entregas incompatíveis. O validador confere o
+fitness observado por atributo e exporta também `incompatibilidades_entregas`,
+`incompatibilidades_duplicadas` e `fitness_sem_duplicacao`. A diferença apareceu
+em duas soluções inviáveis do aleatório; não altera o ranking de E6. O otimizador
+da base foi preservado, e os hashes das 229 soluções reaproveitadas podem ser
+reconstruídos a partir da proveniência e do executor original arquivado.
+
+As figuras PNG e PDF ficam em `reports/figuras/s3/`. E6 usa escala logarítmica
+para comportar as penalidades do aleatório. Em E5 as barras usam pesos oficiais;
+as curvas mostram porcentagem do fitness inicial de cada objetivo. Os mapas são
+traçados esquemáticos das coordenadas, sem uma malha viária.
+
+Cinco seeds permitem descrever a variabilidade observada; não há teste de
+significância. Baselines determinísticos repetem o mesmo resultado nas seeds.
+O tempo de cada otimizador exclui validação/renderização e é medido sob
+concorrência, portanto não é um benchmark isolado. A retomada pode combinar
+tempos observados em execuções diferentes, com receitas idênticas.
+
+## Runner e métricas da entrega anterior
+
 Entrega de 16/10 — Pedro, parte C. Runner para a matriz instância × seed ×
 algoritmo, com quatro baselines e configurações nomeadas do GA.
 
