@@ -77,3 +77,4 @@ reports/figuras/*
 # Logs
 *.log
 logs/
+*.stackdump
