@@ -67,9 +67,12 @@ data/resultados/*
 !docs/**/*.html
 .streamlit/secrets.toml
 
-# Figuras geradas (as usadas no relatório entram via PDF)
+# Figuras geradas; PNGs/PDFs da rodada S3 são versionados para o relatório.
 reports/figuras/*
 !reports/figuras/.gitkeep
+!reports/figuras/s3/
+!reports/figuras/s3/*.png
+!reports/figuras/s3/*.pdf
 
 # Logs
 *.log

@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-23",
+  "reviewed_head": "777b06f7735b09af244a32ca899cf570412d1c89",
+  "checks": [
+    "seeds com patience e historicos de comprimentos diferentes: execucao, exportacao e render-only",
+    "GA sem elitismo com aumento de fitness e ultimo ponto diferente do melhor global: execucao, cache e exportacao",
+    "JSON renomeado mantendo nome interno sp_15: execucao, mapa PNG/PDF e render-only",
+    "melhor acumulado e preenchimento somente nas figuras; historicos brutos preservados",
+    "minimo do historico igual ao melhor global; monotonia somente com elitismo efetivo"
+  ],
+  "tests": {
+    "command": "MPLCONFIGDIR=/tmp/medroute-mpl-2310 .venv/bin/python -m pytest --cov=medroute --cov-report=term-missing",
+    "passed": 418,
+    "new_regression_tests": 6,
+    "coverage_percent": 92,
+    "log": "revisao-pr37-pytest.txt",
+    "lint": "ruff check .: passed",
+    "whitespace": "git diff --check: passed"
+  },
+  "official_study": {
+    "unique_solutions_revalidated": 240,
+    "observations": 300,
+    "byte_identical_to_reviewed_head": {
+      "solutions.json": "bf24df3d447d89c52ea8f577a4b0bc7bec01473b8dedef21b48479329429dedb",
+      "design.json": "5254e026f24830c52231110942f1349e4cce92d0dd93170ee10a9fc5302a1e25",
+      "metrics.csv": "724e667071f95cb3c43c4ec94077529aa142f0fd876eba39eae2efca2bd7b16d",
+      "summary.csv": "8388da4ff29e7c4110a49d3df28d77189c4fe077374b630381df3dfff2a57fe9",
+      "paired.csv": "f8d1499f64d95a405c609e59a1e4708e296b796b3f115fc52f106725b625c582",
+      "e6_solutions.json": "3e534ef17937d46dfce71ec315c47cf6b0211cca2a9bdefc050bba0efc46705d"
+    },
+    "raw_convergence_unchanged": true,
+    "optimizer_execution_provenance_unchanged": true,
+    "csv_line_endings": "LF, matching .gitattributes; manifest checked against Git blobs",
+    "figures": "regenerated; E1-E4/E6 labels now state best-so-far; inspected E6",
+    "analysis_source_sha256": {
+      "study.py": "047a5c7d9694a6f7e4ad4c1bc14bd974e009c131072525347ebb73138b6d14ae",
+      "study_report.py": "8662fc6eeacbbcc8d75bebbb97717d4df63b5b3dec0e69f91511a77469bcfdf0",
+      "study_analysis.py": "ccf7ff53ed109bcf943bb9d5776e065445dd7d3e6bf56ba1bc05d51be209f6e6",
+      "study_plots.py": "6227624ac8fd2f005e7148742caafb493a7ee55e6cb1e078d10e88189d5f27a4"
+    }
+  }
+}

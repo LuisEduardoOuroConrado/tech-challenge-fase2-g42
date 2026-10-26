@@ -95,3 +95,30 @@ Veja [baselines](src/medroute/baselines/README.md),
 A rodada de 09/10 em `reports/comparativo-s1/` permanece como registro histórico
 do fitness provisório; os comparativos atualizados ficam em
 `reports/comparativo-s1-atualizado-van/` e `reports/comparativo-s2/`.
+
+## Experimentos E1–E6 (entrega de 23/10)
+
+```bash
+python -m medroute.experiments.study --workers 4
+# Recria tabelas e figuras das soluções salvas, sem otimizar novamente:
+python -m medroute.experiments.study --render-only
+```
+
+A matriz em [`configs/experimentos/s3.yaml`](configs/experimentos/s3.yaml) cobre
+`sp_15`, `sp_40` e `sp_80`, cinco seeds e 300 gerações, com a frota definitiva e
+trânsito. São 300 observações e 240 execuções únicas: referências idênticas entre
+experimentos são reutilizadas. O cache em `data/resultados/experimentos_s3_cache/`
+permite retomar uma execução interrompida; receitas, dados e fontes têm hashes.
+
+Os [resultados e tabelas](reports/experimentos-s3/resumo.md), as
+[figuras PNG/PDF](reports/figuras/s3/) e a
+[análise para o relatório](reports/secoes/pedro-experimentos-s3.md) são versionados.
+O [notebook de análise](notebooks/02_experimentos.ipynb) tem saídas salvas.
+E5 inclui a reavaliação sob os pesos oficiais para comparar objetivos diferentes.
+O [plano revisado](docs/plano-pedro-2310.md) explica os controles e a escolha do
+2-opt local de E4. Tempos foram medidos sob concorrência; cinco seeds fornecem
+estatística descritiva, sem teste de significância.
+
+A auditoria registra a contagem duplicada de incompatibilidade presente no
+decoder da base em duas soluções inviáveis do aleatório. Os CSVs incluem a
+reavaliação por entregas únicas; detalhes e impacto estão na seção do relatório.

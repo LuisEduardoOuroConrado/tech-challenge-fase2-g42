@@ -1,0 +1,66 @@
+# Caminhos relativos ao YAML. Executar: python -m medroute.experiments.study
+name: experimentos_s3
+instances:
+  - ../../data/instances/sp_15.json
+  - ../../data/instances/sp_40.json
+  - ../../data/instances/sp_80.json
+fleet: ../frota.yaml
+fitness: ../fitness.yaml
+seeds: [7, 17, 42, 73, 101]
+out: ../../reports/experimentos-s3
+cache: ../../data/resultados/experimentos_s3_cache
+figures: ../../reports/figuras/s3
+two_opt_max_passes: 100
+base_ga:
+  population_size: 100
+  generations: 300
+  crossover_rate: 0.9
+  mutation_rate: 0.05
+  elitism: 2
+  tournament_size: 3
+  crossover: ox
+  mutation: inversion
+  seed_nearest_neighbor: true
+  local_search_rate: 0.3
+experiments:
+  E1:
+    title: Tamanho da população
+    reference: pop_100
+    variants:
+      pop_50: {ga: {population_size: 50}}
+      pop_100: {}
+      pop_200: {ga: {population_size: 200}}
+  E2:
+    title: Taxa de mutação
+    reference: taxa_005
+    variants:
+      taxa_001: {ga: {mutation_rate: 0.01}}
+      taxa_005: {}
+      taxa_015: {ga: {mutation_rate: 0.15}}
+  E3:
+    title: Crossover
+    reference: ox
+    variants:
+      ox: {}
+      pmx: {ga: {crossover: pmx}}
+  E4:
+    title: Operador aplicado com probabilidade 0,05
+    reference: inversion
+    variants:
+      swap: {ga: {mutation: swap, local_search_rate: 0}}
+      inversion: {ga: {local_search_rate: 0}}
+      two_opt_local: {ga: {mutation_rate: 0, local_search_rate: 0.05}}
+  E5:
+    title: Sensibilidade dos preços de prioridade
+    reference: equilibrado
+    variants:
+      custo_puro: {priority_scale: 0}
+      equilibrado: {}
+      prioridade_forte: {priority_scale: 3}
+  E6:
+    title: GA versus baselines
+    reference: nearest_neighbor_two_opt
+    baselines: true
+    variants:
+      puro: {ga: {seed_nearest_neighbor: false, local_search_rate: 0}}
+      hibrido: {}

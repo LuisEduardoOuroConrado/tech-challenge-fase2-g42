@@ -1,0 +1,96 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.12.14, pytest-9.1.1, pluggy-1.6.0
+rootdir: /Users/pedro.almeida/pos-fiap/tech-challenge-2/tech-challenge-fase2-g42
+configfile: pyproject.toml
+testpaths: tests
+plugins: cov-7.1.0, anyio-4.15.1
+collected 418 items
+
+tests/integration/test_baselines_sp15.py .                               [  0%]
+tests/integration/test_experiments_sp40.py .                             [  0%]
+tests/integration/test_ga_sp15.py ..                                     [  0%]
+tests/integration/test_pipeline_cli.py .                                 [  1%]
+tests/integration/test_streamlit_app.py .....                            [  2%]
+tests/test_cli.py .................                                      [  6%]
+tests/unit/baselines/test_baselines.py ...............................   [ 13%]
+tests/unit/baselines/test_definitive_fitness.py ......                   [ 15%]
+tests/unit/baselines/test_savings.py .........                           [ 17%]
+tests/unit/constraints/test_constraints.py ........................      [ 23%]
+tests/unit/data/test_data.py ..................                          [ 27%]
+tests/unit/domain/test_models.py ....                                    [ 28%]
+tests/unit/experiments/test_metrics.py ............                      [ 31%]
+tests/unit/experiments/test_runner.py ...............                    [ 34%]
+tests/unit/experiments/test_study.py ...                                 [ 35%]
+tests/unit/experiments/test_study_analysis.py ...                        [ 36%]
+tests/unit/experiments/test_study_design.py .......                      [ 38%]
+tests/unit/experiments/test_study_plots.py ..                            [ 38%]
+tests/unit/experiments/test_study_report.py ....                         [ 39%]
+tests/unit/ga/test_decoder.py .........                                  [ 41%]
+tests/unit/ga/test_decoder_p1.py ............                            [ 44%]
+tests/unit/ga/test_encoding.py .........                                 [ 46%]
+tests/unit/ga/test_engine.py ............................                [ 53%]
+tests/unit/ga/test_fitness.py ..................                         [ 57%]
+tests/unit/ga/test_operators.py ..........................               [ 63%]
+tests/unit/llm/test_cache.py ..................                          [ 68%]
+tests/unit/llm/test_client.py .......................                    [ 73%]
+tests/unit/llm/test_evaluation.py ................................       [ 81%]
+tests/unit/llm/test_instructions.py ..............................       [ 88%]
+tests/unit/llm/test_qa.py .....................                          [ 93%]
+tests/unit/llm/test_reports.py ........................                  [ 99%]
+tests/unit/viz/test_map.py ...                                           [100%]
+
+================================ tests coverage ================================
+______________ coverage: platform darwin, python 3.12.14-final-0 _______________
+
+Name                                         Stmts   Miss Branch BrPart  Cover   Missing
+----------------------------------------------------------------------------------------
+src/medroute/__init__.py                         1      0      0      0   100%
+src/medroute/__main__.py                         3      3      2      0     0%   1-4
+src/medroute/app/__init__.py                     0      0      0      0   100%
+src/medroute/app/cli.py                        247     22     42      7    90%   94-99, 200-202, 224->226, 237-239, 257-259, 326->328, 328->330, 389-390, 396-398, 437-438, 501, 507->exit
+src/medroute/app/streamlit_app.py              142    142     38      0     0%   8-243
+src/medroute/baselines/__init__.py               5      0      0      0   100%
+src/medroute/baselines/_common.py               16      0      2      0   100%
+src/medroute/baselines/nearest_neighbor.py      11      0      0      0   100%
+src/medroute/baselines/random.py                10      0      0      0   100%
+src/medroute/baselines/savings.py               44      0     12      0   100%
+src/medroute/baselines/two_opt.py               18      0      2      0   100%
+src/medroute/constraints/__init__.py             3      0      0      0   100%
+src/medroute/constraints/schedule.py            27      0      4      0   100%
+src/medroute/constraints/violations.py          17      0      0      0   100%
+src/medroute/data/__init__.py                    5      0      0      0   100%
+src/medroute/data/cli.py                        15      8      4      1    42%   13-19, 23
+src/medroute/data/distance.py                   55      1     16      1    97%   31->33, 53
+src/medroute/data/fleet.py                      26      0      4      0   100%
+src/medroute/data/generator.py                  47      2     10      2    93%   66, 72
+src/medroute/data/loader.py                     52      4     22      1    93%   45-46, 57, 67
+src/medroute/domain/__init__.py                  2      0      0      0   100%
+src/medroute/domain/models.py                   97      5     14      5    91%   84, 86, 90, 107, 127
+src/medroute/experiments/__init__.py             2      0      0      0   100%
+src/medroute/experiments/metrics.py             38      0     12      0   100%
+src/medroute/experiments/runner.py             128      2     34      3    97%   57, 208->210, 225
+src/medroute/experiments/study.py              213      8     76      9    94%   138, 143, 193, 202, 234, 242, 248->253, 250, 398
+src/medroute/experiments/study_analysis.py      93      5     32      5    92%   26, 85, 100, 102, 181
+src/medroute/experiments/study_plots.py         93      0     28      1    99%   186->190
+src/medroute/experiments/study_report.py        55      0     14      0   100%
+src/medroute/ga/__init__.py                      6      0      0      0   100%
+src/medroute/ga/decoder.py                     172      0     40      0   100%
+src/medroute/ga/encoding.py                     33      0      6      0   100%
+src/medroute/ga/engine.py                      120      0     42      0   100%
+src/medroute/ga/fitness.py                      77      1     14      1    98%   56
+src/medroute/ga/operators.py                    92      1     40      1    98%   27
+src/medroute/llm/__init__.py                     8      0      0      0   100%
+src/medroute/llm/cache.py                       49      0      2      0   100%
+src/medroute/llm/client.py                     100      2     22      3    96%   75, 77, 91->112
+src/medroute/llm/context.py                     94      0     36      1    99%   63->67
+src/medroute/llm/evaluation.py                 318      5     82      6    97%   152->155, 510, 578, 602, 634, 669
+src/medroute/llm/instructions.py                59      0     18      1    99%   97->99
+src/medroute/llm/prompts.py                     39      0     10      0   100%
+src/medroute/llm/qa.py                          56      0     18      0   100%
+src/medroute/llm/reports.py                    191      2     66      3    98%   275, 286->297, 369
+src/medroute/llm/text.py                        12      0      0      0   100%
+src/medroute/viz/__init__.py                     2      0      0      0   100%
+src/medroute/viz/map.py                         41      0      6      0   100%
+----------------------------------------------------------------------------------------
+TOTAL                                         2934    213    770     51    92%
+======================== 418 passed in 60.07s (0:01:00) ========================
