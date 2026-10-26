@@ -1,6 +1,7 @@
 # Roteiro do vídeo — Tech Challenge Fase 2 · G42
 
-- **Status:** rascunho 20/10/2026, com a rubrica da LLM (PR #27) e o app Streamlit (prazo do roteiro: 21/10; dono da parte E: Alexandre)
+- **Status:** rascunho 20/10/2026, com a rubrica da LLM (PR #27) e o app Streamlit (prazo do roteiro: 21/10; dono da parte E: Alexandre);
+  26/10: bloco 4 com os números e figuras da rodada S3 (PR #37)
 - **Duração-alvo:** 14 min (limite do enunciado: 15 min; 1 min de folga para a edição)
 - **Gravação:** 27/10 (ter), cada um grava a sua parte (tela + voz). Edição: Alexandre, 28/10. Publicação
   (YouTube, não listado): 29/10.
@@ -81,23 +82,31 @@ medroute solve --inst sp_40 --seed 7
 
 ## Bloco 4 — Resultados do GA (Pedro, 2,5 min)
 
-**Tela:** `medroute compare` (tabela-resumo) → figuras dos E1–E6 em `reports/figuras/`.
+**Tela:** tabela E6 em `reports/experimentos-s3/resumo.md` → figuras `e6`, `e1`–`e5` e `rotas_sp_40` em
+`reports/figuras/s3/`.
 
-```powershell
-medroute compare
-```
-
-> O `compare` roda 5 seeds de todos os algoritmos e demora: gravar a saída antes ou mostrar a tabela já gerada
-> em `reports/comparativo-s2/`.
+> Números da rodada S3 de 23/10 (PR #37): 300 gerações, 5 seeds, frota definitiva e trânsito; mesma fonte do
+> relatório. Não rodar `medroute compare` na gravação: mostrar as tabelas e figuras já versionadas. Os
+> números do `solve` nos blocos 3, 5 e 6 são de outra configuração (defaults da demo, mutação 0,2) e não
+> devem ser comparados com estes.
 
 **Fala-guia:**
 - Baselines no mesmo split, frota e fitness: aleatório, Nearest Neighbor, NN + 2-opt e Clarke-Wright Savings.
-- `sp_40`, frota completa, 5 seeds (com trânsito): GA híbrido **R$ 1.145,65** de média e GA PMX
-  **R$ 1.135,36**, contra **R$ 1.263,23** do NN + 2-opt (cerca de 9% melhor) e R$ 1.318,14 do Savings. O
-  híbrido vence o NN + 2-opt nas 5 seeds; o GA puro perde (1/0/4), que é o argumento para o híbrido.
-- `sp_80`: R$ 2.714,96 com 5 veículos e sem violação.
-- Experimentos E1–E6 (população, gerações, taxas, operadores): curvas de convergência e sensibilidade.
-  **[PENDENTE: entrar com as figuras e os números finais do Pedro, prazo 23/10.]**
+- `sp_40` (figura `e6`): GA híbrido **R$ 1.198,57** de média contra **R$ 1.263,23** do NN + 2-opt (5,1%
+  melhor, vence nas 5 seeds) e R$ 1.318,14 do Savings. O GA puro fica em R$ 1.325,65 e perde na média nas
+  três instâncias, que é o argumento para o híbrido.
+- `sp_80`: o híbrido vence o NN + 2-opt em 4 de 5 seeds, mas a média empata (R$ 2.884,40 × R$ 2.884,01,
+  0,01% pior). Dizer isso com honestidade: o híbrido não é ganho garantido em toda instância. Em 2 das 5
+  execuções ele passa da jornada; todas atendem as críticas no prazo e nenhuma viola capacidade, autonomia
+  ou compatibilidade. O melhor híbrido (seed 42, R$ 2.684,33) não tem penalidade.
+- Experimentos (uma frase por figura):
+  - **E1, população:** aumentar a população reduz mais a dispersão do que a média.
+  - **E2, mutação:** taxa 0,15 melhora a média em `sp_40` (−10,7%) e `sp_80` (−3,7%).
+  - **E3, crossover:** o PMX ganha pouco em `sp_15`/`sp_40` e 4,4% em `sp_80`, com menos dispersão.
+  - **E4, operadores isolados:** inversion e swap ficam à frente; o 2-opt sozinho como mutação não melhora.
+  - **E5, preços de prioridade:** o perfil equilibrado tem o menor fitness comum; custo puro atrasa as
+    entregas prioritárias e prioridade forte encarece a operação.
+- Limitação: as melhorias de E2 e E3 não foram combinadas, então não se somam os ganhos.
 
 ## Bloco 5 — Integração com LLM (Rodrigo, 2,5 min)
 
@@ -140,8 +149,8 @@ medroute app
 **Fala-guia:**
 - O mesmo fluxo dos blocos anteriores numa interface só: métricas (fitness, custo operacional, prioridade),
   mapa, tabela de rotas e curva de convergência; depois as abas de instruções, relatório e perguntas.
-- Qualidade: projeto Python com venv e `pyproject.toml`, testes automatizados (385 hoje, incluindo o app e o
-  fluxo da demo) e CI no GitHub Actions a cada PR.
+- Qualidade: projeto Python com venv e `pyproject.toml`, testes automatizados (418 hoje, incluindo o app, o
+  fluxo da demo e os experimentos) e CI no GitHub Actions a cada PR.
 - Fechamento: o que entregamos, limitações (distância haversine × fator, não ruas reais; frota fixa) e
   próximos passos.
 
