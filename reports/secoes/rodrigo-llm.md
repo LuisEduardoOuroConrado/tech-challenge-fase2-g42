@@ -3,7 +3,7 @@
 **Autor:** Rodrigo (Parte D) · **Requisitos:** R11–R15 · **Base:** Spec 05 (`specs/05-llm.md`),
 `docs/prompts.md`, `reports/avaliacao-llm/`.
 
-> **Rascunho de 22/10.** Os números da avaliação são da rodada oficial de 21/10 em `sp_40` (prompts
+> **Fonte dos números.** Os números da avaliação são da rodada oficial de 21/10 em `sp_40` (prompts
 > `instrucoes_motorista` v2, `relatorio` v1 e `qa` v2; soluções de `reports/comparativo-s2`). A frota definitiva
 > de 22/10 não altera esses resultados: o plano avaliado não usa a van, e a reavaliação deu o mesmo resultado.
 
@@ -253,4 +253,4 @@ python -m medroute.llm.evaluation --solucoes reports/comparativo-s2/solutions.js
 ```
 
 Chaves no `.env` (`GROQ_API_KEY`, `OPENAI_API_KEY`); sem chave, `--provedor mock` roda tudo sem rede. Testes:
-`pytest tests/unit/llm` (148 testes, sem chave). Suíte completa em 22/10: 399 testes, `ruff check` ok.
+`pytest tests/unit/llm` (148 testes, sem chave). Suíte completa em 26/10: 418 testes, `ruff check` ok.
