@@ -521,6 +521,19 @@ do relatório, 2–3 min no vídeo.
 - 412 testes, cobertura total 92%, lint e fluxos CLI/Streamlit com LLM mock
   aprovados. O mapa foi corrigido para reenquadrar ao abrir uma aba antes oculta.
 
+### 8.1.9 Code freeze — 26/10
+
+- **Na `main`:** seções do relatório da LLM (Rodrigo, PR #36) e dos experimentos E1–E6 (Pedro, PR #37); roteiro
+  do vídeo com o bloco 4 nos números da S3 (PR #38). 418 testes.
+- **Números oficiais:** a rodada S3 (E6) passa a ser a fonte única do relatório e do vídeo. `sp_40`: híbrido
+  R$ 1.198,57 × NN+2-opt R$ 1.263,23 (−5,1 %, 5/5 seeds). `sp_80`: híbrido vence 4/5 seeds, mas a média empata
+  (0,01 % pior) e 2/5 execuções passam da jornada. As rodadas de 19/10 (seções 8.1.5 e 8.1.6) ficam como
+  histórico. O `medroute solve` usa mutação 0,2 e a S3 usa 0,05, então os números da demo não se comparam.
+- **Dados e restrições (Parte B):** cobertos na seção do GA (`reports/secoes/conrado-ga.md`): instâncias,
+  unidades reais, validação, modelo de distância e tempo e as funções de `constraints/`, com fontes em
+  `docs/fontes-frota.md`. A seção do GA foi revisada com os números da S3.
+- **Vídeo:** roteiro aprovado pelo grupo; vídeo pronto (Beatriz), com ajustes pontuais antes da publicação de 29/10.
+
 ### 8.2 Handoffs — quem entrega o quê, para quem, até quando
 
 A regra: a data é o **último dia** para entregar sem atrasar quem depende. Entregar antes libera o outro antes.
@@ -543,14 +556,14 @@ A regra: a data é o **último dia** para entregar sem atrasar quem depende. Ent
 | **16/10 (sex)** | Alexandre | CLI completa (`compare`, `instruct`, `report`) + mapa multi-veículo (cor por veículo, ícone por prioridade) | demo da S2 | ✅ 19/10: `compare` e `report` no PR #23 (feitos por Conrado); `instruct` PR #9; mapa multi-veículo |
 | **21/10 (qua)** | Beatriz | `constraints/` deadline, compatibilidade, jornada + fator de trânsito na `DistanceMatrix.time()` | Conrado (fitness P1) | ✅ 16/10, PR #14 (adiantado; trânsito via `saida_min`) |
 | **21/10 (qua)** | Conrado | Fitness P1 (tempo de chegada, deadline, jornada, compatibilidade) + 2-opt local no GA | Pedro (experimento E5 de sensibilidade), Rodrigo (instruções com horários) | ✅ 19/10: 2-opt (GA híbrido, PR #12), decoder P1 (PR #15) e fator de trânsito no fitness (PR #21) |
-| **21/10 (qua)** | Alexandre | Roteiro do vídeo (quem fala o quê, em quantos minutos) | todos preparam sua fala | 🟡 rascunho em `docs/roteiro-video.md` (20/10, Conrado): 6 blocos, 14 min; Alexandre e grupo validam |
+| **21/10 (qua)** | Alexandre | Roteiro do vídeo (quem fala o quê, em quantos minutos) | todos preparam sua fala | ✅ aprovado pelo grupo · `docs/roteiro-video.md` (20/10, Conrado): 6 blocos, 14 min; bloco 4 com a S3 no PR #38 (26/10) |
 | **23/10 (sex)** | Pedro | Experimentos E1–E6 rodados: tabelas (média ± dp, 5 seeds), curvas de convergência, figuras em `reports/figuras/` | relatório (seção comparativo) | ✅ 23/10: 240 execuções, dez figuras PNG/PDF, seção e notebook; branch `feature/pedro-experimentos-2310` |
 | **23/10 (sex)** | Rodrigo | Q&A (`medroute ask`) + rubrica de avaliação aplicada a Groq × gpt-4o-mini | relatório (seção LLM), Streamlit | ✅ `medroute ask` no PR #25 (19/10); rubrica no PR #27 (`reports/avaliacao-llm/`); horários nas instruções e no Q&A (PRs #32/#33, 21/10) |
 | **23/10 (sex)** | Alexandre | Streamlit (instância → otimizar → mapa → instruções → pergunta) + testes de integração | vídeo | ✅ 20/10 (feito por Conrado): `medroute app` + `tests/integration/test_streamlit_app.py` e `test_pipeline_cli.py` |
 | **23/10 (sex)** | Conrado | `docs/do-tsp-ao-vrp.md` (antes × depois do código base) + `docs/arquitetura.md` com Mermaid | relatório (seções GA e arquitetura) | ✅ 19/10, PR #20 (adiantado) |
-| **26/10 (seg)** | **todos** | Texto da própria seção do relatório em `reports/secoes/<parte>.md` · **code freeze** | Alexandre monta o PDF | — |
-| **27/10 (ter)** | todos | Gravação do vídeo (cada um grava sua parte, 2–3 min, tela + voz) | Alexandre edita | — |
-| **28/10 (qua)** | Alexandre | PDF montado para revisão + vídeo editado (corte) | revisão de todos | — |
+| **26/10 (seg)** | **todos** | Texto da própria seção do relatório em `reports/secoes/<parte>.md` · **code freeze** | Alexandre monta o PDF | ✅ 26/10: GA com dados e restrições (Conrado + Beatriz), LLM (PR #36), experimentos (PR #37) |
+| **27/10 (ter)** | todos | Gravação do vídeo (cada um grava sua parte, 2–3 min, tela + voz) | Alexandre edita | ✅ adiantado: vídeo pronto (Beatriz) em 26/10; faltam ajustes pontuais |
+| **28/10 (qua)** | Alexandre | PDF montado para revisão + vídeo editado (corte) | revisão de todos | 🟡 vídeo editado (Beatriz); PDF pendente |
 | **28/10 (qua)** | todos | Revisão do PDF (comentários até 20h) | versão final | — |
 | **29/10 (qui)** | Alexandre | **PDF final, vídeo publicado (não listado), README final, tag `v1.0`** | entrega interna cumprida | — |
 | **30/10 (sex)** | Conrado | Upload na plataforma FIAP | — | — |
