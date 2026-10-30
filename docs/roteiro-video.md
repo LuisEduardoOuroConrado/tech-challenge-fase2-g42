@@ -1,8 +1,8 @@
 # Roteiro do vídeo — Tech Challenge Fase 2 · G42
 
 - **Status:** rascunho 20/10/2026, com a rubrica da LLM (PR #27) e o app Streamlit (prazo do roteiro: 21/10; dono da parte E: Alexandre);
-  26/10: bloco 4 com os números e figuras da rodada S3 (PR #37). **Aprovado pelo grupo; vídeo pronto (Beatriz),
-  com ajustes pontuais antes da publicação.**
+  26/10: bloco 4 com os números e figuras da rodada S3 (PR #37). **Aprovado pelo grupo; vídeo publicado (Beatriz):
+  https://youtu.be/ismi8ViAuX0**
 - **Duração-alvo:** 14 min (limite do enunciado: 15 min; 1 min de folga para a edição)
 - **Gravação:** 27/10 (ter), cada um grava a sua parte (tela + voz). Edição: Alexandre, 28/10. Publicação
   (YouTube, não listado): 29/10.
