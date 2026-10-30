@@ -6,7 +6,7 @@ heterogênea e apoio de LLM. Tech Challenge Fase 2 da FIAP Pós Tech (IA para De
 | Entregável | Onde |
 |---|---|
 | Relatório técnico (PDF) | [`reports/relatorio/relatorio-tecnico-g42.pdf`](reports/relatorio/relatorio-tecnico-g42.pdf) |
-| Vídeo de demonstração | *a publicar* |
+| Vídeo de demonstração | [https://youtu.be/ismi8ViAuX0](https://youtu.be/ismi8ViAuX0) |
 | Código-fonte | [`src/medroute/`](src/medroute/) |
 | Demonstração | `medroute demo`, `medroute app` e [`notebooks/`](notebooks/) |
 

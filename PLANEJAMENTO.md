@@ -534,6 +534,12 @@ do relatório, 2–3 min no vídeo.
   `docs/fontes-frota.md`. A seção do GA foi revisada com os números da S3.
 - **Vídeo:** roteiro aprovado pelo grupo; vídeo pronto (Beatriz), com ajustes pontuais antes da publicação de 29/10.
 
+### 8.1.10 Entrega — 30/10
+
+- **Vídeo publicado** (YouTube, Beatriz): https://youtu.be/ismi8ViAuX0. Link no README e na capa do PDF, regerado com
+  `scripts/build_relatorio.py --video`.
+- **Falta:** tag `v1.0` na `main` e upload na plataforma FIAP (Conrado).
+
 ### 8.2 Handoffs — quem entrega o quê, para quem, até quando
 
 A regra: a data é o **último dia** para entregar sem atrasar quem depende. Entregar antes libera o outro antes.
@@ -563,9 +569,9 @@ A regra: a data é o **último dia** para entregar sem atrasar quem depende. Ent
 | **23/10 (sex)** | Conrado | `docs/do-tsp-ao-vrp.md` (antes × depois do código base) + `docs/arquitetura.md` com Mermaid | relatório (seções GA e arquitetura) | ✅ 19/10, PR #20 (adiantado) |
 | **26/10 (seg)** | **todos** | Texto da própria seção do relatório em `reports/secoes/<parte>.md` · **code freeze** | Alexandre monta o PDF | ✅ 26/10: GA com dados e restrições (Conrado + Beatriz), LLM (PR #36), experimentos (PR #37) |
 | **27/10 (ter)** | todos | Gravação do vídeo (cada um grava sua parte, 2–3 min, tela + voz) | Alexandre edita | ✅ adiantado: vídeo pronto (Beatriz) em 26/10; faltam ajustes pontuais |
-| **28/10 (qua)** | Alexandre | PDF montado para revisão + vídeo editado (corte) | revisão de todos | 🟡 vídeo editado (Beatriz); PDF pendente |
+| **28/10 (qua)** | Alexandre | PDF montado para revisão + vídeo editado (corte) | revisão de todos | ✅ vídeo editado (Beatriz); PDF e README no PR #40 (26/10) |
 | **28/10 (qua)** | todos | Revisão do PDF (comentários até 20h) | versão final | — |
-| **29/10 (qui)** | Alexandre | **PDF final, vídeo publicado (não listado), README final, tag `v1.0`** | entrega interna cumprida | — |
+| **29/10 (qui)** | Alexandre | **PDF final, vídeo publicado (não listado), README final, tag `v1.0`** | entrega interna cumprida | 🟡 PDF, README e vídeo prontos (link em 30/10: https://youtu.be/ismi8ViAuX0); falta a tag `v1.0` |
 | **30/10 (sex)** | Conrado | Upload na plataforma FIAP | — | — |
 
 ### 8.3 Carga por integrante
