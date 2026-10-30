@@ -538,7 +538,8 @@ do relatório, 2–3 min no vídeo.
 
 - **Vídeo publicado** (YouTube, Beatriz): https://youtu.be/ismi8ViAuX0. Link no README e na capa do PDF, regerado com
   `scripts/build_relatorio.py --video`.
-- **Falta:** tag `v1.0` na `main` e upload na plataforma FIAP (Conrado).
+- **Tag `v1.0`** na `main` (30/10, merge do PR #41). Entrega interna cumprida.
+- **Falta:** upload na plataforma FIAP (Conrado).
 
 ### 8.2 Handoffs — quem entrega o quê, para quem, até quando
 
@@ -571,7 +572,7 @@ A regra: a data é o **último dia** para entregar sem atrasar quem depende. Ent
 | **27/10 (ter)** | todos | Gravação do vídeo (cada um grava sua parte, 2–3 min, tela + voz) | Alexandre edita | ✅ adiantado: vídeo pronto (Beatriz) em 26/10; faltam ajustes pontuais |
 | **28/10 (qua)** | Alexandre | PDF montado para revisão + vídeo editado (corte) | revisão de todos | ✅ vídeo editado (Beatriz); PDF e README no PR #40 (26/10) |
 | **28/10 (qua)** | todos | Revisão do PDF (comentários até 20h) | versão final | — |
-| **29/10 (qui)** | Alexandre | **PDF final, vídeo publicado (não listado), README final, tag `v1.0`** | entrega interna cumprida | 🟡 PDF, README e vídeo prontos (link em 30/10: https://youtu.be/ismi8ViAuX0); falta a tag `v1.0` |
+| **29/10 (qui)** | Alexandre | **PDF final, vídeo publicado (não listado), README final, tag `v1.0`** | entrega interna cumprida | ✅ 30/10: PDF, README, vídeo (https://youtu.be/ismi8ViAuX0) e tag `v1.0` (PR #41) |
 | **30/10 (sex)** | Conrado | Upload na plataforma FIAP | — | — |
 
 ### 8.3 Carga por integrante
